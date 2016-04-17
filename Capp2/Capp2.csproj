@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Capp2.cs" />
+    <Compile Include="Helpers\CalendarService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\CAPP.cs" />
     <Compile Include="Views\AddContactPage.cs" />
@@ -165,8 +166,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
-    <Folder Include="Model\" />
-    <Folder Include="Views\" />
-    <Folder Include="ViewModel\" />
   </ItemGroup>
 </Project>

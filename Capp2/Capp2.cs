@@ -15,7 +15,7 @@ using Plugin.Calendars.Abstractions;
 using Plugin.Calendars;
 using Plugin.LocalNotifications;
 using Plugin.Contacts.Abstractions;
-
+using Capp2.Helpers;
 
 namespace Capp2
 {
@@ -41,11 +41,14 @@ namespace Capp2
 
 			await contactFuncs.loadDeviceContactsIntoDBSingleTransaction (false);
 
-			//returns true, then device calendar has at least one calendar account
-			if (await App.contactFuncs.DeviceCalendarExistsAndInit()) {
-				DependencyService.Get<ICalendar>().CheckIfMeetingsTomorrowConfirmSentSendIfNot(false);//notifications replace each other, instead of stacking in KitKat API 19
-				DependencyService.Get<ICalendar>().CheckIfMeetingsTodayConfirmSentSendIfNot(true);
-			}
+            try {
+                //returns true, then device calendar has at least one calendar account
+                if (await App.contactFuncs.DeviceCalendarExistsAndInit())
+                {
+                    CalendarService.CheckIfMeetingsTomorrowConfirmSentSendIfNot(false);//notifications replace each other, instead of stacking in KitKat API 19
+                    CalendarService.CheckIfMeetingsTodayConfirmSentSendIfNot(true);
+                }
+            } catch(Exception e){ Debug.WriteLine("Calendar error {0}", e.Message);}
 		}
 		public static DB Database {
 			get { 

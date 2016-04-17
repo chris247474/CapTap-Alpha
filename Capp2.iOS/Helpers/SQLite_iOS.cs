@@ -63,7 +63,7 @@ public class SQLite_iOS : ISQLite
             {
                 App.firstRun = true;
                 Console.WriteLine("CAPP Database doesn't exist yet, copying one-----------------------------------------------------------------------");
-               /* if (!File.Exists(path))
+                if (!File.Exists(path))
                 {
                     using (var br = new BinaryReader(Forms.Context.Resources.OpenRawResource(Resource.Raw.CAPPDB26)))
                     {
@@ -77,7 +77,7 @@ public class SQLite_iOS : ISQLite
                             }
                         }
                     }
-                }*/
+                }
             }
 
             var conn = new SQLite.SQLiteConnection(path);

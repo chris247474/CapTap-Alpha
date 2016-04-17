@@ -5,6 +5,7 @@ using Xamarin.Forms;
 using System.Diagnostics;
 using System.Linq;
 using Acr.UserDialogs;
+using Capp2.Helpers;
 
 namespace Capp2
 {
@@ -122,7 +123,7 @@ namespace Capp2
 		}
 		public static void testCalendarForTomorrow(){
 			//check events tomorrow
-			IList<CalendarEvent> meetingsTomorrow = DependencyService.Get<ICalendar> ().GetAppointmentsTomorrow ();
+			IList<CalendarEvent> meetingsTomorrow = CalendarService.GetAppointmentsTomorrow ();
 			List<ContactData> peopleTomorrow = new List<ContactData> ();
 			if (meetingsTomorrow == null) {
 				Debug.WriteLine ("NO MEETINGS TOMORROW");

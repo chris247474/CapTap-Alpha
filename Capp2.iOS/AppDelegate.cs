@@ -1,4 +1,5 @@
-﻿using Foundation;
+﻿using Capp2.Helpers;
+using Foundation;
 using System;
 using UIKit;
 using XLabs.Ioc;
@@ -33,6 +34,7 @@ namespace Capp2.iOS
 
             global::Xamarin.Forms.Forms.Init();
 
+            string dbPath = FileHelper.GetLocalFilePath("CAPPDB26.db3", "CAPPDB26");
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);

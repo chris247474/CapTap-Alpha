@@ -86,7 +86,8 @@ namespace Capp2
 
 				}catch(Exception){}
 			});
-			//this.ToolbarItems.Add (AddTBI);
+            // this.ToolbarItems.Add(AddTBI);
+			
 
 			MoveToTBI = new ToolbarItem("Move To", "", async () =>
 				{

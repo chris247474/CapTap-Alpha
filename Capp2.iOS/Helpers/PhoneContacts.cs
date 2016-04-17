@@ -51,7 +51,7 @@ namespace Capp2.iOS.Helpers
 
         public bool SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null)
         {
-            
+            var notifier = new iOSReminderService();
             try {
                 //send sms
                 //in iOS, only way to send text is by hand which means no programmatical sms send
@@ -60,31 +60,31 @@ namespace Capp2.iOS.Helpers
 
                 if (string.Equals(ConfirmOrBOM, Values.BOM))
                 {
-                    iOSReminderService.Notify("BOM Confirmation texted to " + name, "Text Confirmation", 0);//"View Alert";
+                    notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation texted to " + name, "Text Confirmation");//"View Alert";
                 }
                 else {
                     if (string.Equals(TodayOrTomorrow, Values.TODAY))
                     {
-                        iOSReminderService.Notify("Texted " + name + " for later", "Confirming " + name, 0);
+                        notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for later", "Confirming " + name);
                     }
                     else {
-                        iOSReminderService.Notify("Texted " + name + " for tomorrow", "Confirming " + name, 0);
+                        notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
                     }
                 }
                 return true;
             } catch (Exception) {
                 if (string.Equals(ConfirmOrBOM, Values.BOM))
                 {
-                    iOSReminderService.Notify("BOM Confirmation failed sending to " + name, "Text Confirmation Failed", 0);
+                    notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation failed sending to " + name, "Text Confirmation Failed");
                 }
                 else {
 
                     if (string.Equals(TodayOrTomorrow, Values.TODAY))
                     {
-                        iOSReminderService.Notify("SMS failed to send", "Couldn't confirm " + name + " for later's meeting", 0);
+                        notifier.Remind(DateTime.Now.AddMilliseconds(0), "SMS failed to send", "Couldn't confirm " + name + " for later's meeting");
                     }
                     else {
-                        iOSReminderService.Notify("SMS failed to send", "Couldn't confirm " + name + " for tomorrow's meeting", 0);
+                        notifier.Remind(DateTime.Now.AddMilliseconds(0), "SMS failed to send", "Couldn't confirm " + name + " for tomorrow's meeting");
                     }
                 }
                 return false;

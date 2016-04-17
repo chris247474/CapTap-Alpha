@@ -4,7 +4,8 @@
   <style name="CapTheme" parent="CapTheme.Base">
   </style>
 
-  <style name="CapTheme.Base" parent="@android:style/Theme.Holo.Light">
+  <style name="CapTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+    <!--"@android:style/Theme.Holo.Light"-->
 
 	<item name="android:actionMenuTextColor">@color/actionbar_text</item>
 	<item name="android:actionModeBackground">@color/contextmenubackground</item>

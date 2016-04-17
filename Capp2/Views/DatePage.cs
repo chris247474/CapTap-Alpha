@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using Plugin.Calendars.Abstractions;
 using System.Threading.Tasks;
+using Capp2.Helpers;
 
 namespace Capp2
 {
@@ -95,7 +96,7 @@ namespace Capp2
 				switch (whichCapp) {
 				case Values.NEXT:
 					Debug.WriteLine ("ABOUT TO RESCHED: NEXTMEETINGID "+personCalled.NextMeetingID);
-					await DependencyService.Get<ICalendar>().ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours (timePicker.Time.Hours));
+					await CalendarService.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours (timePicker.Time.Hours));
 
 					App.Database.UpdateItem (personCalled);
 					await this.Navigation.PopModalAsync();	
@@ -104,7 +105,7 @@ namespace Capp2
 					personCalled.Appointed = datePicker.Date;
 
 					//always first time to give nextmeeting real values
-					personCalled.NextMeetingID = await DependencyService.Get<ICalendar> ().CreateAppointment (personCalled.NextMeetingID, personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, datePicker.Date.AddHours (timePicker.Time.Hours));
+					personCalled.NextMeetingID = await CalendarService.CreateAppointment (personCalled.NextMeetingID, personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, datePicker.Date.AddHours (timePicker.Time.Hours));
 					Debug.WriteLine ("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
 
 					App.Database.UpdateItem (personCalled);
@@ -177,7 +178,7 @@ namespace Capp2
 				VerticalOptions = LayoutOptions.CenterAndExpand
 			};
 			datePicker2.DateSelected += async (dateSender, de) => {
-				await DependencyService.Get<ICalendar>().ReschedAppointment (personCalled.NextMeetingID, personCalled.Name, Values.FOLLOWUP, datePicker2.Date.AddHours (Values._5PMBOM));
+				await CalendarService.ReschedAppointment (personCalled.NextMeetingID, personCalled.Name, Values.FOLLOWUP, datePicker2.Date.AddHours (Values._5PMBOM));
 
 				App.Database.UpdateItem (personCalled);
 

@@ -64,7 +64,7 @@ namespace Capp2.Droid
             global::Xamarin.Forms.Forms.Init (this, bundle);
 			UserDialogs.Init(this);//no need to init in iOS
 			LoadApplication (new App ());
-			var toolbar = FindViewById<Android.Support.V7.Widget.Toolbar> (Resource.Id.toolbar);
+			var toolbar = FindViewById<Android.Support.V7.Widget.Toolbar> (Resource.Id.toolbar);//error with KitKat
 			toolbar.SetZ (12);
 			toolbar.SoundEffectsEnabled = true;
 			SetSupportActionBar (toolbar);

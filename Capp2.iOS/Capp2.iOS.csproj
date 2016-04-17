@@ -89,8 +89,8 @@
     <CodesignKey>iPhone Distribution</CodesignKey>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\iOSReminderService.cs" />
-    <Compile Include="Helpers\CAPPCalendar.cs" />
     <Compile Include="Helpers\NativeDialer.cs" />
     <Compile Include="Helpers\PhoneContacts.cs" />
     <Compile Include="Helpers\Settings.cs" />
@@ -103,6 +103,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <InterfaceDefinition Include="Resources\LaunchScreen.xib" />
     <None Include="packages.config" />
+    <BundleResource Include="Resources\CAPPDB26.db3" />
+    <BundleResource Include="Resources\Playlist4.db3" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Acr.Support.iOS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

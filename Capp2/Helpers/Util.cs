@@ -9,6 +9,7 @@ using Xamarin.Forms;
 using System.Text.RegularExpressions;
 using System.IO;
 using Acr.UserDialogs;
+using Capp2.Helpers;
 
 namespace Capp2
 {
@@ -51,8 +52,8 @@ namespace Capp2
 		public async Task<bool> DeviceCalendarExistsAndInit(){
 			//check if calendar app has at least one calendar account
 			try{
-				await DependencyService.Get<ICalendar> ().InitCalendar ();
-				Debug.WriteLine ("CALENDAR ACCOUNT: "+ DependencyService.Get<ICalendar> ().PrimaryCalendar.Name);
+				await CalendarService.InitCalendar ();
+				Debug.WriteLine ("CALENDAR ACCOUNT: "+ CalendarService.PrimaryCalendar.Name);
 				return true;//continue with program
 			}catch(Exception){
 				UserDialogs.Instance.ErrorToast ("Calendar error", "Please make sure your Calendar app has at least one account in it", 4000);

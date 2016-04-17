@@ -19,7 +19,8 @@ namespace Capp2
 		public DB () 
 		{
 			database = DependencyService.Get<ISQLite> ().GetConnectionCAPP ();
-			database.CreateTable<ContactData>(); 
+			database.CreateTable<ContactData>();
+            database.CreateTable<Playlist>();
 		}
 		public async Task<IEnumerable<ContactData>> GetItemsAsync(string playlist){
 			IEnumerable<ContactData> list = null;
@@ -184,6 +185,56 @@ namespace Capp2
 				return 0;
 			}
 		}
-	}
+
+        public IEnumerable<Playlist> GetPlaylistItems()
+        {
+            Debug.WriteLine("in playlist GetItems()");
+            int ctr = 0;
+            List<Playlist> list = (from i in (database.Table<Playlist>().OrderBy(i => i.PlaylistName)) select i).ToList();
+            foreach (Playlist c in list)
+            {
+                ctr++;
+                Debug.WriteLine(c.PlaylistName);
+            }
+            App.lastIndex = ctr + 1;
+            Debug.WriteLine(App.lastIndex + ": lastIndex");
+            return list;
+        }
+        public int DeletePlaylistItem(Playlist item)
+        {
+            if (string.Equals(Values.ALLPLAYLISTPARAM, item.PlaylistName) || string.Equals(Values.TODAYSCALLS, item.PlaylistName))
+            {
+                Debug.WriteLine("PlaylistDB.DeleteItem Can't delete this namelist: " + item.PlaylistName);
+                return 0;
+            }
+            {
+                return DeletePlaylistItemByID(item.ID);
+            }
+
+        }
+        public int DeletePlaylistItemByID(int id)
+        {
+            lock (locker)
+            {
+                return database.Delete<Playlist>(id);
+            }
+        }
+        public int SavePlaylistItem(Playlist item)
+        {
+            Debug.WriteLine("playlist entered SaveItem()-----------------------------------------------------------------------------");
+            lock (locker)
+            {
+                return database.Insert(item);
+            }
+        }
+        public int UpdatePlaylistItem(Playlist item)
+        {
+            Debug.WriteLine("Playlist UpdateItem(): " + item.PlaylistName);
+            lock (locker)
+            {
+                return database.Update(item);
+            }
+        }
+    }
 }
 
