@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+
+  <style name="CapTheme" parent="CapTheme.Base">
+  </style>
+
+  <style name="CapTheme.Base" parent="@android:style/Theme.Holo.Light">
+
+	<item name="android:actionMenuTextColor">@color/actionbar_text</item>
+	<item name="android:actionModeBackground">@color/contextmenubackground</item>
+	<item name="android:actionBarStyle">@style/myTheme.ActionBar</item>
+
+	 <item name="android:windowNoTitle">true</item>  
+    <item name="android:windowActionBar">false</item>
+    <item name="android:colorPrimary">#512DA8</item>
+    <item name="android:colorPrimaryDark">#512DA8</item>
+    <item name="android:colorAccent">#512DA8</item>
+    <item name="windowActionModeOverlay">true</item>
+  </style>  
+   
+   <style name="Theme.Splash"
+    parent="CapTheme.Base">
+    <item name="android:windowBackground">
+      @drawable/splashscreen
+    </item>
+    <item name="android:windowNoTitle">true</item>  
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowIsTranslucent">false</item>
+    <item name="android:windowIsFloating">false</item>
+    <item name="android:backgroundDimEnabled">true</item>
+    <item name="android:colorPrimaryDark">#4285F4</item>
+    <!--<item name="android:windowTranslucentStatus">true</item>-->
+  </style>
+   <style name="myTheme.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:titleTextStyle">@style/myTheme.ActionBar.Text</item>
+    </style>
+
+    <style name="myTheme.ActionBar.Text" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/actionbar_text</item>
+    </style>
+
+
+</resources>

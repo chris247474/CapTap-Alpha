@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<component format="1" id="nsoftware.InGoogle.Indie">
+  <name>Google Integrator V2 - Indie Edition</name>
+  <publisher>/n software inc.</publisher>
+  <publisher-url>http://www.nsoftware.com</publisher-url>
+  <version>2.0.5721</version>
+  <summary>Components for accessing Google Services including Google Storage, Google Docs, Google Calendar, Gmail Contacts, and more!</summary>
+  <samples>
+    <sample id="gdrive.Android">
+      <name>Android Samples:gdrive</name>
+      <summary>Android Samples:gdrive</summary>
+    </sample>
+    <sample id="gdrive.iOS">
+      <name>iOS unified Samples:gdrive</name>
+      <summary>iOS unified Samples:gdrive</summary>
+    </sample>
+  </samples>
+</component>

@@ -1,0 +1,1 @@
+(xlabs.tinloc wont install so installed 2014 tinloc instead - older version might not be pcl, tesseract functions wont run, reinstalling updated xamarin forms that was downgraded by xlabs.forms)
