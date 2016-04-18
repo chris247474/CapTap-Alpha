@@ -11,7 +11,7 @@ namespace Capp2
 		//IEnumerable<ContactData> FormatContactsForDB(IEnumerable<ContactData> raw);
 		//IEnumerable<ContactData> GetAllPhoneContacts();
 		bool SaveContactToDevice (string firstName, string lastName, string phone, string aff);
-		bool SendSMS (string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null);
+		Task SendSMS (string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null);
 	}
 }
 

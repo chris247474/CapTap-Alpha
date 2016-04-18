@@ -34,7 +34,7 @@ namespace Capp2.Helpers
                         {
                             var person = peopleTomorrow.ElementAt(c);
                             var meeting = await GetAppointmentByID(person.NextMeetingID);
-                            DependencyService.Get<IPhoneContacts>().SendSMS(person.Number,
+                            await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number,
                                 App.contactFuncs.ConnectStrings(new string[] {
                                     "Hi",
                                     person.Name,
@@ -75,7 +75,7 @@ namespace Capp2.Helpers
                         {
                             var person = peopleToday.ElementAt(c);
                             var meeting = await GetAppointmentByID(person.NextMeetingID);
-                            DependencyService.Get<IPhoneContacts>().SendSMS(person.Number,
+                           await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number,
                                 App.contactFuncs.ConnectStrings(new string[] {
                                     "Hi",
                                     person.Name,
@@ -309,6 +309,7 @@ namespace Capp2.Helpers
                 ce.Start = startDate;
                 ce.End = startDate.AddHours(Values.MEETINGLENGTH);
                 await CrossCalendars.Current.AddOrUpdateEventAsync(PrimaryCalendar, ce);
+                UserDialogs.Instance.ShowSuccess("I rescheduled your appointment in your calendar!");
                 return true;
             }
             return false;

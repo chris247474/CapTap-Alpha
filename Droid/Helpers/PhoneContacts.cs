@@ -6,6 +6,7 @@ using Android.Provider;
 using Android.Content;
 using Android.Widget;
 using Android.Telephony;
+using System.Threading.Tasks;
 
 [assembly: Dependency(typeof(PhoneContacts))]
 namespace Capp2.Droid
@@ -14,7 +15,7 @@ namespace Capp2.Droid
 	{
 		public PhoneContacts(){
 		}
-		public bool SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null){
+		public async Task SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null){
             System.Console.WriteLine("ENTERED PhoneContacts.SendSMS()");
             AndroidReminderService notifier = new AndroidReminderService ();
 			try{
@@ -30,7 +31,7 @@ namespace Capp2.Droid
 						notifier.Remind (DateTime.Now.AddMilliseconds (0), "Confirming "+name, "Texted "+name+" for tomorrow");
 					}
 				}
-				return true;
+				//return true;
 			}catch(Exception){
 				if (string.Equals (ConfirmOrBOM, Values.BOM)) {
 					notifier.Remind (DateTime.Now.AddMilliseconds (0), "Text Confirmation Failed", "BOM Confirmation failed sending to " + name);
@@ -42,7 +43,7 @@ namespace Capp2.Droid
 						notifier.Remind (DateTime.Now.AddMilliseconds (0), "Couldn't confirm "+name+" for tomorrow's meeting", "SMS failed to send");
 					}
 				}
-				return false;
+				//return false;
 			}
 
 		}

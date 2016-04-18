@@ -27,7 +27,7 @@ namespace Capp2
 		public static RelativeLayout AddFloatingActionButtonToRelativeLayout(RelativeLayout layout, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
             var normalFab = new FAB.Forms.FloatingActionButton();
 
-            normalFab.Source = icon;
+            if(Device.OS == TargetPlatform.Android) normalFab.Source = icon;
 			normalFab.Size = FabSize.Normal;
 			normalFab.HasShadow = true;
 			normalFab.NormalColor = NormalColor;

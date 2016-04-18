@@ -4,6 +4,7 @@ using System.Diagnostics;
 using XLabs.Platform.Services;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
+using Capp2.Helpers;
 
 namespace Capp2
 {
@@ -49,18 +50,19 @@ namespace Capp2
 			SMSEntry.SetBinding<SettingsViewModel> (Editor.TextProperty, vm => vm.BOMTemplateSettings);
 
 			cmdSMS = new Button {Text = "Send"};
-			cmdSMS.Clicked += (sender, e) => {
-				/*if(DependencyService.Get<IPhoneService>().CanSendSMS){
+			cmdSMS.Clicked += async (sender, e) => {
+                /*if(DependencyService.Get<IPhoneService>().CanSendSMS){
 					DependencyService.Get<IPhoneService>().SendSMS ("09163247357", "TESTING AUTO TEXT");
 				}*/
-				DependencyService.Get<IPhoneContacts>().SendSMS (person.Number, "Hi " + this.Name + " ," + SMSEntry.Text, person.Name, Values.BOM);
+                await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, SMSEntry.Text, person.Name, Values.BOM);
+                
 
 				if(AutoCall){
 					Debug.WriteLine ("SENDING DONEWITHCALL MESSAGE");
 					MessagingCenter.Send(this, Values.DONEWITHCALL);
 				}else{
-					Navigation.PopModalAsync (); 
-					Navigation.PopModalAsync (); 
+					await Navigation.PopModalAsync (); 
+					await Navigation.PopModalAsync (); 
 				}
 
 				//reset to blank name
@@ -72,7 +74,7 @@ namespace Capp2
 				Text = "Send Text",
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 				FontAttributes = FontAttributes.Bold,
-				VerticalOptions = LayoutOptions.Center,
+				VerticalOptions = LayoutOptions.Start,
 				HorizontalTextAlignment = TextAlignment.Center,
 			};
 			return new StackLayout{
@@ -85,7 +87,7 @@ namespace Capp2
 					}
 				}
 			};
-			App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
+			//App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
 		}
 		protected override void OnDisappearing(){
 			Debug.WriteLine ("OnDisappearing");

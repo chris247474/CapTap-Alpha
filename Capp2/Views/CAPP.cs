@@ -36,6 +36,7 @@ namespace Capp2
 
 		public CAPP (Playlist playlistChosen)
 		{
+            UserDialogs.Instance.ShowLoading();
 			title = playlistChosen.PlaylistName + " Contacts";
 			this.playlistChosen = playlistChosen;
 			this.playlist = this.playlistChosen.PlaylistName;
@@ -53,8 +54,12 @@ namespace Capp2
                 VerticalOptions = LayoutOptions.FillAndExpand
             };
 			searchBar.TextChanged += (sender, e) => {
-				FilterCAPPContacts(searchBar.Text, playlist);
-			};
+                var groupedList = App.Database.GetGroupedItems(playlist);
+                Device.BeginInvokeOnMainThread(() => {
+                    FilterCAPPContacts(searchBar.Text, playlist, groupedList);
+                });
+               
+            };
 			lblContactsCount = new Label{
 				Text = App.Database.GetItems (playlist).Count().ToString()+" Contacts",
 				FontAttributes = FontAttributes.Bold,
@@ -62,7 +67,7 @@ namespace Capp2
 				HorizontalTextAlignment = TextAlignment.Center,
 				HeightRequest = 18
 			};
-			cmdAutocall = new Button { Text = "START CALLING", BackgroundColor = Color.Green };
+			cmdAutocall = new Button { Text = "START CALLING", BackgroundColor = Color.Green, TextColor = Color.Black };
 			cmdAutocall.Clicked += (sender, e) => {
 				if(calling){
 					SetupNotAutoCalling ();
@@ -239,7 +244,7 @@ namespace Capp2
                 };
             }
 
-			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, ""/*ic_add_white_24dp.png*/, new Command (async () =>
+			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "ic_add_white_24dp.png", new Command (async () =>
 				{
 					import = new string[]{ "Enter manually", "Load from Google Drive" };
 					var importResult = await this.DisplayActionSheet("Import Contacts", "OK", "Cancel", import);
@@ -251,7 +256,9 @@ namespace Capp2
 						}
 					}catch(Exception){}
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
-		}
+
+            UserDialogs.Instance.HideLoading();
+        }
 
 		public string[] PlaylistsIntoStringArr(){
 			Playlist[] list = App.Database.GetPlaylistItems().ToArray ();
@@ -334,22 +341,28 @@ namespace Capp2
 				});
 			});
 		}
-		public ListView BuildGroupedSearchableListView(string playlist, ListView listView){
-			//listView.ItemsSource = App.Database.GetGroupedItems (playlist);
-			listView.ItemsSource = App.Database.GetGroupedItems (playlist);
-			listView.ItemTemplate = new DataTemplate (() => {
-				return new ContactViewCell (this);
-			});
-			listView.IsGroupingEnabled = true;
-			listView.GroupDisplayBinding = new Binding ("Key");
-			listView.HasUnevenRows = true;
-			listView.GroupShortNameBinding = new Binding ("Key");
-			listView.GroupHeaderTemplate = new DataTemplate (() => {
-				return new HeaderCell ();
-			});
+		public ListView BuildGroupedSearchableListView(string playlist, ListView listView, List<Grouping<string, ContactData>> list){
+            try {
+                listView.ItemsSource = list;
+                //listView.ItemsSource = App.Database.GetGroupedItems(playlist);
+                listView.ItemTemplate = new DataTemplate(() => {
+                    return new ContactViewCell(this);
+                });
+                listView.HasUnevenRows = true;
+                listView.IsGroupingEnabled = true;
+                listView.GroupDisplayBinding = new Binding("Key");
+
+                listView.GroupShortNameBinding = new Binding("Key");
+                listView.GroupHeaderTemplate = new DataTemplate(() => {
+                    return new HeaderCell();
+                });
+            }
+            catch (Exception e) {
+                Debug.WriteLine("BuildGroupedSearchableListView() error: {0}", e.Message);
+            }
 			return listView;
 		}
-
+        
 
 		public void refresh ()
 		{
@@ -358,25 +371,43 @@ namespace Capp2
 			lblContactsCount.Text = contactsCount.ToString()+" Contacts";
 		}
 
-		public void FilterCAPPContacts(string filter, string playlist)
+		public void FilterCAPPContacts(string filter, string playlist, List<Grouping<string, ContactData>> groupedlist)
 		{
-			listView.BeginRefresh ();
+            
+            try {
+                listView.BeginRefresh();
 
-			if (string.IsNullOrWhiteSpace (filter)) {
-				listView = BuildGroupedSearchableListView (playlist, listView);
-			} else {
-				listView.ItemsSource = App.Database.GetItems (this.playlist)
-					.Where (x => x.Name.ToLower ().Contains (filter.ToLower () ) );
-				listView.ItemTemplate = new DataTemplate (() => {
-					return new ContactViewCell (this);
-				});
-				listView.IsGroupingEnabled = false;
-				listView.HasUnevenRows = false;
-			}
+                if (string.IsNullOrWhiteSpace(filter))
+                {
+                    listView = BuildGroupedSearchableListView(playlist, listView, groupedlist);
+                }
+                else {
+                    listView.ItemsSource = App.Database.GetItems(this.playlist)
+                        .Where(x => x.Name.ToLower().Contains(filter.ToLower()));
+                    listView.ItemTemplate = new DataTemplate(() => {
+                        return new ContactViewCell(this);
+                    });
+                    listView.IsGroupingEnabled = false;
+                    listView.HasUnevenRows = false;
+                    listView.GroupDisplayBinding = null;
 
-			listView.EndRefresh ();
+                    listView.GroupShortNameBinding = null;
+                    listView.GroupHeaderTemplate = null;
+                }
+
+                listView.EndRefresh();
+            } catch (Exception e) {
+                Debug.WriteLine("FilterCAPPContacts error: {0}", e.Message);
+            }
 		}
-
+        ObservableCollection<ContactData> ConvertToObservableCollection(IEnumerable<ContactData> eList) {
+            var arr = eList.ToArray<ContactData>();
+            ObservableCollection<ContactData> ocList = new ObservableCollection<ContactData>();
+            for (int c = 0;c < arr.Length;c++) {
+                ocList.Add(arr[c]);
+            }
+            return ocList;
+        }
 		public void call(ContactData contact, bool autocall){
 			Debug.WriteLine ("Calling "+contact.Name+" autocall: "+autocall.ToString ());
 			var dialer = DependencyService.Get<IDialer> ();

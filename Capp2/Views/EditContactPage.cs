@@ -82,7 +82,7 @@ namespace Capp2
 						if(string.IsNullOrWhiteSpace(numberEntry.Text) || string.IsNullOrEmpty(numberEntry.Text)){
 							DisplayAlert("Hey!!!", "We can't call your contact if he/she doesn't have a number, now can we...? ", "Alright, sorry CappTap...");
 						}else
-							if(Phone.ToNumber(numberEntry.Text) == null || numberEntry.Text.Contains(" ")){
+							if(PhoneUtil.ToNumber(numberEntry.Text) == null || numberEntry.Text.Contains(" ")){
 								DisplayAlert("Hey!!!", "Please only enter numbers like 09163334444", "Alright, sorry CappTap...");
 							}else{
 

@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Capp2
 {
-	public static class Phone
+	public static class PhoneUtil
 	{
 		static bool Contains(this string keyString, char c)
 		{

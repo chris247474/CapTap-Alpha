@@ -52,7 +52,7 @@ namespace Capp2
 					await DisplayAlert ("Hey!!!", "How would you like if you didn't have a family? I need a last name! ", "Alright, sorry CappTap...");
 				} else if (string.IsNullOrWhiteSpace (numberEntry.Text) || string.IsNullOrEmpty (numberEntry.Text)) {
 					await DisplayAlert ("Hey!!!", "We can't call your contact if he/she doesn't have a number, now can we...? ", "Alright, sorry CappTap...");
-				} else if (Phone.ToNumber (numberEntry.Text) == null || numberEntry.Text.Contains (" ")) {
+				} else if (PhoneUtil.ToNumber (numberEntry.Text) == null || numberEntry.Text.Contains (" ")) {
 					await DisplayAlert ("Hey!!!", "Please only enter numbers like 09163334444", "Alright, sorry CappTap...");
 				} else {
 					AddContact = new ContactData {
@@ -96,7 +96,7 @@ namespace Capp2
 					lastNameLabel, lastNameEntry,
 					numberLabel, numberEntry,
 					affLabel, affEntry,
-					cancelButton
+					//cancelButton
 				}
 			};
 		}

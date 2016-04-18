@@ -3,6 +3,7 @@ using Capp2.Helpers;
 using Foundation;
 using System;
 using UIKit;
+using XLabs.Forms;
 using XLabs.Ioc;
 using XLabs.Platform.Device;
 using XLabs.Platform.Services;
@@ -10,7 +11,7 @@ using XLabs.Platform.Services;
 namespace Capp2.iOS
 {
     [Register("AppDelegate")]
-    public class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
+    public class AppDelegate : XFormsApplicationDelegate//global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {

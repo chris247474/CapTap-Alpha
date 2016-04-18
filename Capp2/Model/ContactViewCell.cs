@@ -38,6 +38,9 @@ namespace Capp2
 			checkbox = new CheckBox{ 
 				HorizontalOptions = LayoutOptions.Center
 			};
+            checkbox.IsEnabled = true;
+            checkbox.IsVisible = true;
+            
 			checkbox.SetBinding (CheckBox.CheckedProperty, "IsSelected");
 			checkbox.CheckedChanged += (sender, e) => {
 				personCalled = (sender as CheckBox).Parent.Parent.Parent.BindingContext as ContactData;

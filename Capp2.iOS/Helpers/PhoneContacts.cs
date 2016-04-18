@@ -5,6 +5,8 @@ using AddressBook;
 using Foundation;
 using Acr.UserDialogs;
 using UIKit;
+using Capp2.Helpers;
+using System.Threading.Tasks;
 
 [assembly: Dependency(typeof(PhoneContacts))]
 namespace Capp2.iOS.Helpers
@@ -26,37 +28,29 @@ namespace Capp2.iOS.Helpers
 
                 p.SetPhones(phones);
 
-                /*ABMutableDictionaryMultiValue addresses = new ABMutableDictionaryMultiValue();
-                NSMutableDictionary a = new NSMutableDictionary();
-
-                a.Add(new NSString(ABPersonAddressKey.City), new NSString(city));
-                a.Add(new NSString(ABPersonAddressKey.State), new NSString(state));
-                a.Add(new NSString(ABPersonAddressKey.Zip), new NSString(zip));
-                a.Add(new NSString(ABPersonAddressKey.Street), new NSString(addr1));
-
-                addresses.Add(a, new NSString("Home"));
-                p.SetAddresses(addresses);*/
-
                 ab.Add(p);
                 ab.Save();
 
-                UserDialogs.Instance.InfoToast("Contact saved: " + firstName + " " + lastName, null, 1000);
+                UserDialogs.Instance.SuccessToast("Contact saved: " + firstName + " " + lastName, null, 2000);
                 return true;
             } catch (Exception e) {
                 System.Console.WriteLine("[iOS.PhoneContacts] Couldn't save contact: {0} {1}, {2}", firstName, lastName, e.Message);
-                UserDialogs.Instance.InfoToast("Failed to save contact: "+ firstName + " " + lastName + ". Pls try again.", null, 2000);
+                UserDialogs.Instance.ErrorToast("Failed to save contact: "+ firstName + " " + lastName + ". Pls try again.", null, 2000);
             }
             return false;
         }
 
-        public bool SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null)
+        public async Task SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null)
         {
             var notifier = new iOSReminderService();
             try {
                 //send sms
                 //in iOS, only way to send text is by hand which means no programmatical sms send
-                var smsTo = NSUrl.FromString("sms:"+number);
-                UIApplication.SharedApplication.OpenUrl(smsTo);
+                // var smsTo = NSUrl.FromString("sms:"+number);
+                //UIApplication.SharedApplication.OpenUrl(smsTo);
+
+                //XLabs cross platform impl, above ios native doesnt allow predefined sms text passed to Messaging app
+                await PhoneService.SendSMS(number, message);
 
                 if (string.Equals(ConfirmOrBOM, Values.BOM))
                 {
@@ -71,7 +65,7 @@ namespace Capp2.iOS.Helpers
                         notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
                     }
                 }
-                return true;
+               // return true;
             } catch (Exception) {
                 if (string.Equals(ConfirmOrBOM, Values.BOM))
                 {
@@ -87,7 +81,7 @@ namespace Capp2.iOS.Helpers
                         notifier.Remind(DateTime.Now.AddMilliseconds(0), "SMS failed to send", "Couldn't confirm " + name + " for tomorrow's meeting");
                     }
                 }
-                return false;
+             //   return false;
             }
         }
     }

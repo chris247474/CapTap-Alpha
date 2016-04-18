@@ -51,11 +51,12 @@ namespace Capp2
 			}
 			return list;
 		}
+        
 
-		//public static Func<DataContext, string, IQueryable<ContactData>>
-		//getCustomers= CompiledQuery.Compile((DataContext db, string strCustCode)=>  database.Table<ContactData> ().OrderBy (x => x.LastName));
+        //public static Func<DataContext, string, IQueryable<ContactData>>
+        //getCustomers= CompiledQuery.Compile((DataContext db, string strCustCode)=>  database.Table<ContactData> ().OrderBy (x => x.LastName));
 
-		public async Task<List<Grouping<string, ContactData>>> GetGroupedItemsFasterAsync (string playlist){
+        public async Task<List<Grouping<string, ContactData>>> GetGroupedItemsFasterAsync (string playlist){
 			List<Grouping<string, ContactData>> groupedList = new List<Grouping<string, ContactData>> ();
 			await Task.Run ( async () => {
 				groupedList = await GetGroupedItemsFaster (playlist);
@@ -132,8 +133,6 @@ namespace Capp2
 		{
 			try{
 				item.Name = item.FirstName + " " + item.LastName;
-				//Debug.WriteLine("SaveItem(): "+item.Name+" Number: "+item.Number+" ExternalID:"+item.NextMeetingID+" Playlist:"+item.Playlist); 
-				//item = App.AzureDB.ConvertToAzureDBItemThenSave (item);
 
 				lock (locker) {
 					return database.Insert(item);

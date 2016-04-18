@@ -20,6 +20,10 @@ namespace Capp2
             this.Title = "Namelists";
             this.BackgroundColor = Color.White;
 
+            foreach (Playlist p in App.Database.GetPlaylistItems()) {
+                Debug.WriteLine("playlist: {0}", p.PlaylistName);
+            }
+
             var searchBar = new SearchBar {
                 Placeholder = "Enter a namelist",
                 VerticalOptions = LayoutOptions.FillAndExpand,
@@ -93,7 +97,7 @@ namespace Capp2
                 };
             }
 
-			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, ""/*ic_add_white_24dp.png*/, new Command (async () =>
+			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "ic_add_white_24dp.png", new Command (async () =>
 				{
 					var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
 					if(string.IsNullOrWhiteSpace(result.Text) || string.IsNullOrEmpty(result.Text)){
@@ -159,6 +163,7 @@ namespace Capp2
 			ContextActions.Add(DeleteAction);
 		}
 		async Task<bool> EditPlaylistName(Playlist playlist){
+            string oldPlaylistName = playlist.PlaylistName;
 			if (string.Equals (Values.ALLPLAYLISTPARAM, playlist.PlaylistName) || string.Equals (Values.TODAYSCALLS, playlist.PlaylistName)) {
 				UserDialogs.Instance.InfoToast ("Sorry, we can't edit an essential namelist");
 			} else {
@@ -167,11 +172,28 @@ namespace Capp2
 				} else {
 					playlist.PlaylistName = result.Text;
 					App.Database.UpdatePlaylistItem(playlist);//how to update all contacts playlist property? data bind?
-					return true;
+                    await UpdatePlaylistContentsToNewName(oldPlaylistName, result.Text);
+                    return true;
 				}
 			}
 			return false;
 		}
+        async Task UpdatePlaylistContentsToNewName(string oldPlaylistName, string newPlaylistName) {
+            List<ContactData> contactsToMove = new List<ContactData>();
+            try {
+                var contacts = App.Database.GetItems(oldPlaylistName).ToArray();
+
+                for (int c = 0; c < contacts.Length; c++)
+                {
+                    contacts[c].Playlist = newPlaylistName;
+                    contactsToMove.Add(contacts[c]);
+                }
+
+                App.Database.UpdateAll(contactsToMove.AsEnumerable());
+            } catch (Exception e) {
+                Debug.WriteLine("UpdatePlaylistContentsToNewName error: {0}", e.Message);
+                UserDialogs.Instance.ShowError("Something went wrong! Pls try again"); }
+        }
 		void DeletePlaylist(Playlist playlist){
 			if (string.Equals (Values.ALLPLAYLISTPARAM, playlist.PlaylistName) || string.Equals (Values.TODAYSCALLS, playlist.PlaylistName)) {
 				UserDialogs.Instance.InfoToast ("Sorry, we can't delete an essential namelist");
