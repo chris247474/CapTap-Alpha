@@ -1,4 +1,5 @@
-﻿using Capp2.Helpers;
+﻿using Acr.UserDialogs;
+using Capp2.Helpers;
 using Foundation;
 using System;
 using UIKit;
@@ -13,6 +14,29 @@ namespace Capp2.iOS
     {
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
+            //var notiftest = new Helpers.iOSReminderService();
+            //notiftest.Remind(DateTime.Now, "test", "test");
+
+            // check for a notification
+            if (options != null)
+            {
+                // check for a local notification
+                if (options.ContainsKey(UIApplication.LaunchOptionsLocalNotificationKey))
+                {
+                    var localNotification = options[UIApplication.LaunchOptionsLocalNotificationKey] as UILocalNotification;
+                    if (localNotification != null)
+                    {
+                        UIAlertController okayAlertController = UIAlertController.Create(localNotification.AlertAction, localNotification.AlertBody, UIAlertControllerStyle.Alert);
+                        okayAlertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+                        // viewController.PresentViewController(okayAlertController, true, null);
+                        UserDialogs.Instance.ShowSuccess(localNotification.AlertBody, 3000);
+
+                        // reset our badge
+                        UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
+                    }
+                }
+            }
+
             //implement corresponding Init on Android
             #region Resolver Init
             SimpleContainer container = new SimpleContainer();
@@ -32,12 +56,31 @@ namespace Capp2.iOS
             //implement corresponding Init on Android
             #endregion
 
-            global::Xamarin.Forms.Forms.Init();
+            if (UIDevice.CurrentDevice.CheckSystemVersion(8, 0))
+            {
+                var notificationSettings = UIUserNotificationSettings.GetSettingsForTypes(
+                    UIUserNotificationType.Alert | UIUserNotificationType.Badge | UIUserNotificationType.Sound, null
+                );
 
-            string dbPath = FileHelper.GetLocalFilePath("CAPPDB26.db3", "CAPPDB26");
+                app.RegisterUserNotificationSettings(notificationSettings);
+            }
+
+            global::Xamarin.Forms.Forms.Init();
+            
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);
+        }
+        public override void ReceivedLocalNotification(UIApplication application, UILocalNotification notification)
+        {
+            // show an alert
+            UIAlertController okayAlertController = UIAlertController.Create(notification.AlertAction, notification.AlertBody, UIAlertControllerStyle.Alert);
+            okayAlertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+            //viewController.PresentViewController(okayAlertController, true, null);
+            UserDialogs.Instance.ShowSuccess(notification.AlertBody, 3000);
+
+            // reset our badge
+            UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
         }
     }
 }

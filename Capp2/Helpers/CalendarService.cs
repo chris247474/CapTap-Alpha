@@ -199,6 +199,13 @@ namespace Capp2.Helpers
 
             IList<Calendar> calendars = GetCalendars();
             Debug.WriteLine("CALENDAR NAME" + calendars.ElementAt(0).Name);
+            try {
+                Debug.WriteLine("CALENDAR NAME 2" + calendars.ElementAt(1).Name);
+                Debug.WriteLine("CALENDAR NAME 3" + calendars.ElementAt(2).Name);
+                Debug.WriteLine("CALENDAR NAME 4" + calendars.ElementAt(3).Name);
+            } catch (Exception) {
+                Debug.WriteLine("No secondary calendar");
+            }
             Calendar[] calArray = new Calendar[calendars.Count];
             calendars.CopyTo(calArray, 0);
             PrimaryCalendar = calArray[0];

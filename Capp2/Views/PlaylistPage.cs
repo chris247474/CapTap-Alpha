@@ -13,60 +13,92 @@ namespace Capp2
 	{
 		public ListView listView{ get; set;}
 		public Playlist playlistSelected;
+        StackLayout stack = new StackLayout();
 
-		public PlaylistPage ()
-		{
-			this.Title = "Namelists";
-			this.BackgroundColor = Color.White;
+        public PlaylistPage()
+        {
+            this.Title = "Namelists";
+            this.BackgroundColor = Color.White;
 
-			var searchBar = new SearchBar {
-				Placeholder = "Enter a namelist",
-			};
-			searchBar.TextChanged += (sender, e) => {
-				FilterPlaylists(searchBar.Text);
-			};
+            var searchBar = new SearchBar {
+                Placeholder = "Enter a namelist",
+                VerticalOptions = LayoutOptions.FillAndExpand,
+                HorizontalOptions = LayoutOptions.FillAndExpand
+            };
+            searchBar.TextChanged += (sender, e) => {
+                FilterPlaylists(searchBar.Text);
+            };
 
-			//just to initialize the database to avoid nullreferenceexceptions
-			PlaylistDB playlists = App.Playlists;
+            if (Device.OS == TargetPlatform.iOS)
+            {
+                Debug.WriteLine("Adding add tbi temporarily");
+                this.ToolbarItems.Add(new ToolbarItem("Add", "", async () =>
+                {
+                    var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
+                    if (string.IsNullOrWhiteSpace(result.Text) || string.IsNullOrEmpty(result.Text))
+                    {
+                    }
+                    else {
+                        App.Database.SavePlaylistItem(new Playlist { PlaylistName = result.Text });
+                        refresh();
+                    }
+                }));
+            }
 
-			listView = new ListView{
-				ItemsSource = App.Playlists.GetItems(),
-				ItemTemplate = new DataTemplate(() => 
-					{
-						return new PlaylistViewCell(this);
-					})
-			};
-			listView.ItemSelected += (sender, e) => {
-				this.playlistSelected = (Playlist)e.SelectedItem;
+            listView = new ListView {
+                ItemsSource = App.Database.GetPlaylistItems(),
+                SeparatorColor = this.BackgroundColor,
+                ItemTemplate = new DataTemplate(() =>
+                    {
+                        return new PlaylistViewCell(this);
+                    })
+            };
+            listView.ItemSelected += (sender, e) => {
+                this.playlistSelected = (Playlist)e.SelectedItem;
 
-				// has been set to null, do not 'process' tapped event
-				if (e.SelectedItem == null)
-					return; 
+                // has been set to null, do not 'process' tapped event
+                if (e.SelectedItem == null)
+                    return;
 
-				//load contacts based on type of playlist (warm, cold, semi warm whatever playlist is tapped)
-				Navigation.PushAsync(new CAPP(playlistSelected));
+                //load contacts based on type of playlist (warm, cold, semi warm whatever playlist is tapped)
+                Navigation.PushAsync(new CAPP(playlistSelected));
 
-				// de-select the row
-				((ListView)sender).SelectedItem = null; 
-			};
+                // de-select the row
+                ((ListView)sender).SelectedItem = null;
+            };
 
-			var stack = new StackLayout {
-			Padding = new Thickness(10),
-			Children = {
-				searchBar, 
-				new StackLayout{
-					Padding = new Thickness(7,0,0,0),
-					Children = {listView}
-					}
-				}
-			};
+            if (Device.OS == TargetPlatform.iOS) {
+                stack = new StackLayout
+                {
+                    //Padding = new Thickness(10),
+                    Children = {
+                        searchBar,
+                        new StackLayout{
+                            Padding = new Thickness(7,0,0,0),
+                            Children = {listView}
+                    }
+                }
+                };
+            } else if (Device.OS == TargetPlatform.Android) {
+                stack = new StackLayout
+                {
+                    Padding = new Thickness(10),
+                    Children = {
+                        searchBar,
+                        new StackLayout{
+                            Padding = new Thickness(7,0,0,0),
+                            Children = {listView}
+                    }
+                }
+                };
+            }
 
-			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "ic_add_white_24dp.png", new Command (async () =>
+			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, ""/*ic_add_white_24dp.png*/, new Command (async () =>
 				{
 					var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
 					if(string.IsNullOrWhiteSpace(result.Text) || string.IsNullOrEmpty(result.Text)){
 					}else {
-						App.Playlists.SaveItem(new Playlist{PlaylistName = result.Text});
+						App.Database.SavePlaylistItem(new Playlist{PlaylistName = result.Text});
 						refresh();
 					}
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
@@ -74,7 +106,7 @@ namespace Capp2
 
 		public void refresh ()
 		{
-			listView.ItemsSource = App.Playlists.GetItems ();
+			listView.ItemsSource = App.Database.GetPlaylistItems();
 		}
 
 		public void FilterPlaylists(string filter)
@@ -84,8 +116,8 @@ namespace Capp2
 			if (string.IsNullOrWhiteSpace (filter)) {
 				refresh();
 			} else {
-				listView.ItemsSource = App.Playlists.GetItems()
-					.Where (x => x.PlaylistName.ToLower ()
+				listView.ItemsSource = App.Database.GetPlaylistItems()
+                    .Where (x => x.PlaylistName.ToLower ()
 						.Contains (filter.ToLower ()));
 			}
 
@@ -134,7 +166,7 @@ namespace Capp2
 				if (string.IsNullOrWhiteSpace (result.Text) || string.IsNullOrEmpty (result.Text)) {
 				} else {
 					playlist.PlaylistName = result.Text;
-					App.Playlists.UpdateItem(playlist);//how to update all contacts playlist property? data bind?
+					App.Database.UpdatePlaylistItem(playlist);//how to update all contacts playlist property? data bind?
 					return true;
 				}
 			}
@@ -144,7 +176,7 @@ namespace Capp2
 			if (string.Equals (Values.ALLPLAYLISTPARAM, playlist.PlaylistName) || string.Equals (Values.TODAYSCALLS, playlist.PlaylistName)) {
 				UserDialogs.Instance.InfoToast ("Sorry, we can't delete an essential namelist");
 			} else {
-				App.Playlists.DeleteItem (playlist);
+				App.Database.DeletePlaylistItem (playlist);
 			}
 		}
 	}

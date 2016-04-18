@@ -4,6 +4,7 @@ using System.Diagnostics;
 using XLabs.Forms.Controls;
 using System.Collections.Generic;
 using System.Linq;
+using Acr.UserDialogs;
 
 namespace Capp2
 {
@@ -27,8 +28,7 @@ namespace Capp2
 			nameLabel.SetBinding(Label.TextProperty, "Name");//"Name" links directly to the ContactData.Name property
 
 			playlistLabel = new Label{
-				//Text = page.playlistChosen.PlaylistName,
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), //FontSize = Font.SystemFontOfSize ()
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), 
 				TextColor = Color.Green,
 				VerticalOptions = LayoutOptions.Center,
 				HorizontalTextAlignment = TextAlignment.Start,
@@ -67,8 +67,16 @@ namespace Capp2
 			nextAction.Clicked += (sender, e) => {
 				var mi = ((MenuItem)sender);
 				personCalled = (ContactData)mi.BindingContext;
-				page.Navigation.PushModalAsync(new DatePage(Values.NEXT, personCalled, false));//pass Contact.ID of listview row selected via contextmenu event listener
-			};
+
+                if (!personCalled.Appointed.ToString().Contains("1/1/0001"))
+                {
+                    page.Navigation.PushModalAsync(new DatePage(Values.NEXT, personCalled, false));//pass Contact.ID of listview row selected via contextmenu event listener
+                }
+                else {
+                    Debug.WriteLine("Set an appointment for {0} first", personCalled.FirstName);
+                    UserDialogs.Instance.WarnToast("Pls book "+ personCalled.FirstName + " at a BOM before we can move on to the follow up!", null, 2000);
+                }
+            };
 
 			var appointedAction = new MenuItem { Text = "Appointed" };
 			appointedAction.SetBinding (MenuItem.CommandParameterProperty, new Binding ("."));

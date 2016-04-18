@@ -22,7 +22,7 @@ namespace Capp2
 	public class App : Application
 	{
 		public static DB database;
-		public static PlaylistDB playlists;
+		//public static PlaylistDB playlists;
 		public static Util contactFuncs;
 		public static bool firstRun = false;
 		public static int lastIndex{ get; set;}
@@ -46,7 +46,7 @@ namespace Capp2
                 if (await App.contactFuncs.DeviceCalendarExistsAndInit())
                 {
                     CalendarService.CheckIfMeetingsTomorrowConfirmSentSendIfNot(false);//notifications replace each other, instead of stacking in KitKat API 19
-                    CalendarService.CheckIfMeetingsTodayConfirmSentSendIfNot(true);
+                    CalendarService.CheckIfMeetingsTodayConfirmSentSendIfNot(false);
                 }
             } catch(Exception e){ Debug.WriteLine("Calendar error {0}", e.Message);}
 		}
@@ -58,14 +58,14 @@ namespace Capp2
 				return database; 
 			}
 		}
-		public static PlaylistDB Playlists {
+		/*public static PlaylistDB Playlists {
 			get { 
 				if (playlists == null) {
 					playlists = new PlaylistDB ();
 				}
 				return playlists; 
 			}
-		}
+		}*/
 
 		protected override void OnStart ()
 		{

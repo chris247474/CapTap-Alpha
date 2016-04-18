@@ -43,14 +43,16 @@ namespace Capp2
 			};
 
 			//populate dropdown box
-			foreach(Playlist p in App.Playlists.GetItems()){
+			foreach(Playlist p in App.Database.GetPlaylistItems())
+            {
 				playlistPicker.Items.Add(p.PlaylistName);
 			}
 
 			//crude workaround for lack of bindable Picker
 			playlistArr = new string[playlistPicker.Items.Count];
 			int i = 0;
-			foreach(Playlist p in App.Playlists.GetItems()){
+			foreach(Playlist p in App.Database.GetPlaylistItems())
+            {
 				playlistArr [i] = p.PlaylistName;
 				i++;
 			}

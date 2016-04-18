@@ -90,60 +90,67 @@ namespace Capp2
 
 		}
 		public async void SetAppointmentHandler(string whichCapp, ContactData personCalled){
-			if(yescall){	
-				//text appointed person
+            try {
+                if (yescall)
+                {
+                    //text appointed person
 
-				switch (whichCapp) {
-				case Values.NEXT:
-					Debug.WriteLine ("ABOUT TO RESCHED: NEXTMEETINGID "+personCalled.NextMeetingID);
-					await CalendarService.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours (timePicker.Time.Hours));
+                    switch (whichCapp)
+                    {
+                        case Values.NEXT:
+                            Debug.WriteLine("ABOUT TO RESCHED: NEXTMEETINGID " + personCalled.NextMeetingID);
+                            await CalendarService.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours(timePicker.Time.Hours));
 
-					App.Database.UpdateItem (personCalled);
-					await this.Navigation.PopModalAsync();	
-					break;
-				case Values.APPOINTED:
-					personCalled.Appointed = datePicker.Date;
+                            App.Database.UpdateItem(personCalled);
+                            await this.Navigation.PopModalAsync();
+                            break;
+                        case Values.APPOINTED:
+                            personCalled.Appointed = datePicker.Date;
 
-					//always first time to give nextmeeting real values
-					personCalled.NextMeetingID = await CalendarService.CreateAppointment (personCalled.NextMeetingID, personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, datePicker.Date.AddHours (timePicker.Time.Hours));
-					Debug.WriteLine ("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
+                            //always first time to give nextmeeting real values
+                            personCalled.NextMeetingID = await CalendarService.CreateAppointment(personCalled.NextMeetingID, personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, datePicker.Date.AddHours(timePicker.Time.Hours));
+                            Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
 
-					App.Database.UpdateItem (personCalled);
-					//Navigation.PopModalAsync ();
+                            App.Database.UpdateItem(personCalled);
+                            //Navigation.PopModalAsync ();
 
-					await Navigation.PushModalAsync (new TextTemplatePage(personCalled, AutoCall));//or dependency call OS specific default messaging app
+                            await Navigation.PushModalAsync(new TextTemplatePage(personCalled, AutoCall));//or dependency call OS specific default messaging app
 
-					break;
-				case Values.PRESENTED:
-					personCalled.Presented = datePicker.Date;
+                            break;
+                        case Values.PRESENTED:
+                            personCalled.Presented = datePicker.Date;
 
-					App.Database.UpdateItem(personCalled);
+                            App.Database.UpdateItem(personCalled);
 
-					//Navigation.PushModalAsync (new FollowUp(personCalled));//for follow ups
-					await this.Navigation.PopModalAsync();	//test
-					break;
-				case Values.PURCHASED:
-					//add date to contact's "purchased" property
-					personCalled.Purchased = datePicker.Date;
-					App.Database.UpdateItem(personCalled);
-					await this.Navigation.PopModalAsync();	
-					break;
-				}
-
-
-			}else{//if no call
-				if (AutoCall) {
-					MessagingCenter.Send(this, Values.DONEWITHNOCALL);
-				} else {
-					personCalled.NextCall = datePicker.Date;
-					App.Database.UpdateItem (personCalled);
-					Navigation.PopModalAsync ();
-				}
-				//backup DB to cloud?
-			}
+                            //Navigation.PushModalAsync (new FollowUp(personCalled));//for follow ups
+                            await this.Navigation.PopModalAsync();  //test
+                            break;
+                        case Values.PURCHASED:
+                            //add date to contact's "purchased" property
+                            personCalled.Purchased = datePicker.Date;
+                            App.Database.UpdateItem(personCalled);
+                            await this.Navigation.PopModalAsync();
+                            break;
+                    }
 
 
-			//ReadyForNext = true;
+                }
+                else {//if no call
+                    if (AutoCall)
+                    {
+                        MessagingCenter.Send(this, Values.DONEWITHNOCALL);
+                    }
+                    else {
+                        personCalled.NextCall = datePicker.Date;
+                        App.Database.UpdateItem(personCalled);
+                        Navigation.PopModalAsync();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Error in setting date: {0}", e.Message);
+            }
 
 		}
 		public void DisableTimePicker(int defaultHour){

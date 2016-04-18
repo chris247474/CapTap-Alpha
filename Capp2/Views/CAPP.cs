@@ -28,6 +28,7 @@ namespace Capp2
 		Button cmdAutocall;
 		ToolbarItem EditTBI, DeleteTBI, MoveToTBI;
 		string title;
+        StackLayout stack = new StackLayout();
 
 		bool AutoCallContinue;
 		int AutoCallCounter;
@@ -48,7 +49,9 @@ namespace Capp2
 
 			var searchBar = new SearchBar {
 				Placeholder = "Enter someone's name",
-			};
+                HorizontalOptions = LayoutOptions.FillAndExpand,
+                VerticalOptions = LayoutOptions.FillAndExpand
+            };
 			searchBar.TextChanged += (sender, e) => {
 				FilterCAPPContacts(searchBar.Text, playlist);
 			};
@@ -70,23 +73,26 @@ namespace Capp2
 			};
 			cmdAutocall.BackgroundColor = Color.Green;
 
-			import = new string[]{ "Take a pic of a namelist", "Enter manually", "Load from an image" };
-			var AddTBI = new ToolbarItem("Add", "ic_add_white_24dp.png", async () =>
+			import = new string[]{ "Enter manually", "Load from Google Drive" };
+			var AddTBI = new ToolbarItem("Add", "", async () =>
 			{
 				var importResult = await this.DisplayActionSheet("Import Contacts", "OK", "Cancel", import);
 				try{
-					if(importResult == "Enter manually"){
-						await Navigation.PushAsync(new AddContactPage (this));
-					}else if(importResult == "Take a pic of a namelist"){
-						var mediaFile = await cameraOps.TakePicture ();
-						App.contactFuncs.loadContactsFromPic(playlist, mediaFile.Source, this, false);	//test on physical device
-					}else if(importResult == "Load from an image"){
-						GetImageImportToDB();
-					}
+                    if (importResult == "Enter manually")
+                    {
+                        await Navigation.PushAsync(new AddContactPage(this));
+                    }
+                    else if (importResult == "Load from Google Drive")
+                    {
+                        UserDialogs.Instance.InfoToast("Not yet implemented", null, 2000);
+                    }
 
 				}catch(Exception){}
 			});
-            // this.ToolbarItems.Add(AddTBI);
+            if (Device.OS == TargetPlatform.iOS) {
+                Debug.WriteLine("Adding add tbi temporarily");
+                this.ToolbarItems.Add(AddTBI);
+            }
 			
 
 			MoveToTBI = new ToolbarItem("Move To", "", async () =>
@@ -141,7 +147,7 @@ namespace Capp2
 					this.Title = "Tap a name to select it";
 					Debug.WriteLine ("EDITING");
 					MessagingCenter.Send(this, Values.ISEDITING);
-					//ToolbarItems.Remove (AddTBI);
+                    if (Device.OS == TargetPlatform.iOS) ToolbarItems.Remove (AddTBI);
 					ToolbarItems.Insert(0, MoveToTBI);
 					if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Insert (1, DeleteTBI);
 					
@@ -155,7 +161,7 @@ namespace Capp2
 					DeselectAll (App.Database.GetItems(this.playlist));
 					if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Remove (DeleteTBI);
 					ToolbarItems.Remove (MoveToTBI);
-					//ToolbarItems.Insert (0, AddTBI);
+					if(Device.OS == TargetPlatform.iOS) ToolbarItems.Insert (0, AddTBI);
 				}
 			});
 			this.ToolbarItems.Add (EditTBI);
@@ -164,18 +170,20 @@ namespace Capp2
 
 			listView = new ListView ()
 			{
-				//ItemsSource = App.Database.GetGroupedItems (playlist),//DONT DELETE THIS COMMENT
-				ItemTemplate = new DataTemplate(() => {
+                //ItemsSource = App.Database.GetGroupedItems (playlist),//DONT DELETE THIS COMMENT
+                SeparatorColor = this.BackgroundColor,
+                ItemTemplate = new DataTemplate(() => {
 					return new ContactViewCell (this);
 				}),
 				IsGroupingEnabled = true,
 				GroupDisplayBinding = new Binding("Key"),
 				HasUnevenRows = true,
-				GroupShortNameBinding = new Binding ("Key"),//doesnt work android
+				GroupShortNameBinding = new Binding ("Key"),//doesnt work android, works iOS
 				GroupHeaderTemplate = new DataTemplate (() => {
 					return new HeaderCell ();
 				})
 			};
+            
 
 			refresh ();
 			listView.ItemSelected += (sender, e) => {
@@ -199,22 +207,39 @@ namespace Capp2
 				}
 			};
 
-			var stack =  new StackLayout ()
-			{
-				BackgroundColor = Color.White,
-				Orientation = StackOrientation.Vertical,
-				Padding = new Thickness (7, 3, 7, 7),
-				Children = 
-				{
-					searchBar, new StackLayout 
-					{
-						Padding = new Thickness(7,0,7,0),
-						Children = {cmdAutocall}
-					}, lblContactsCount,listView
-				}
-			};
+            if (Device.OS == TargetPlatform.iOS) {
+                stack = new StackLayout()
+                {
+                    BackgroundColor = Color.White,
+                    Orientation = StackOrientation.Vertical,
+                    //Padding = new Thickness(0, 0, 10, 0),
+                    Children =
+                {
+                    searchBar, new StackLayout
+                    {
+                        Padding = new Thickness(7,0,7,0),
+                        Children = {cmdAutocall}
+                    }, lblContactsCount,listView
+                }
+                };
+            } else if (Device.OS == TargetPlatform.Android) {
+                stack = new StackLayout()
+                {
+                    BackgroundColor = Color.White,
+                    Orientation = StackOrientation.Vertical,
+                    Padding = new Thickness(7, 3, 7, 7),
+                    Children =
+                {
+                    searchBar, new StackLayout
+                    {
+                        Padding = new Thickness(7,0,7,0),
+                        Children = {cmdAutocall}
+                    }, lblContactsCount,listView
+                }
+                };
+            }
 
-			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "ic_add_white_24dp.png", new Command (async () =>
+			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, ""/*ic_add_white_24dp.png*/, new Command (async () =>
 				{
 					import = new string[]{ "Enter manually", "Load from Google Drive" };
 					var importResult = await this.DisplayActionSheet("Import Contacts", "OK", "Cancel", import);
@@ -229,7 +254,7 @@ namespace Capp2
 		}
 
 		public string[] PlaylistsIntoStringArr(){
-			Playlist[] list = App.Playlists.GetItems ().ToArray ();
+			Playlist[] list = App.Database.GetPlaylistItems().ToArray ();
 			List<string> finalList = new List<string> ();
 
 			for(int c = 0;c < list.Length;c++){
@@ -425,7 +450,7 @@ namespace Capp2
 			{ 
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 				FontAttributes = FontAttributes.Bold,
-				TextColor = Color.White,
+				TextColor = Color.Black,
 				VerticalOptions = LayoutOptions.Center 
 			}; 
 			title.SetBinding(Label.TextProperty, "Key"); 
