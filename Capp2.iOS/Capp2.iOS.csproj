@@ -258,32 +258,32 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Xamarin.iOS" />
-    <Reference Include="XLabs.Core, Version=2.0.5782.12218, Culture=neutral, PublicKeyToken=d65109b36e5040e4, processorArchitecture=MSIL">
-      <HintPath>..\packages\XLabs.Core.2.0.5782\lib\Xamarin.iOS10\XLabs.Core.dll</HintPath>
+    <Reference Include="XLabs.Core, Version=2.0.5782.16151, Culture=neutral, PublicKeyToken=d65109b36e5040e4, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLabs.Core.2.0.5783-pre01\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\XLabs.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Forms, Version=2.0.5782.12218, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\XLabs.Forms.2.0.5782\lib\Xamarin.iOS10\XLabs.Forms.dll</HintPath>
+    <Reference Include="XLabs.Forms, Version=2.0.5782.16160, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLabs.Forms.2.0.5783-pre01\lib\xamarinios10\XLabs.Forms.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Forms.iOS, Version=2.0.5782.12247, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\XLabs.Forms.2.0.5782\lib\Xamarin.iOS10\XLabs.Forms.iOS.dll</HintPath>
+    <Reference Include="XLabs.Forms.iOS, Version=2.0.5782.16172, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLabs.Forms.2.0.5783-pre01\lib\xamarinios10\XLabs.Forms.iOS.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Ioc, Version=2.0.5782.12218, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\XLabs.IoC.2.0.5782\lib\portable-net45+netcore45+wp8+MonoAndroid1+MonoTouch1\XLabs.Ioc.dll</HintPath>
+    <Reference Include="XLabs.Ioc, Version=2.0.5782.16151, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLabs.IoC.2.0.5783-pre01\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\XLabs.Ioc.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Platform, Version=2.0.5782.12218, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\XLabs.Platform.2.0.5782\lib\Xamarin.iOS10\XLabs.Platform.dll</HintPath>
+    <Reference Include="XLabs.Platform, Version=2.0.5782.16152, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLabs.Platform.2.0.5783-pre01\lib\xamarinios10\XLabs.Platform.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Platform.iOS, Version=2.0.5782.12247, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\XLabs.Platform.2.0.5782\lib\Xamarin.iOS10\XLabs.Platform.iOS.dll</HintPath>
+    <Reference Include="XLabs.Platform.iOS, Version=2.0.5782.16157, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLabs.Platform.2.0.5783-pre01\lib\xamarinios10\XLabs.Platform.iOS.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Serialization, Version=2.0.5782.15703, Culture=neutral, PublicKeyToken=d65109b36e5040e4, processorArchitecture=MSIL">
-      <HintPath>..\packages\XLabs.Serialization.2.0.5782\lib\Xamarin.iOS10\XLabs.Serialization.dll</HintPath>
+    <Reference Include="XLabs.Serialization, Version=2.0.5782.16150, Culture=neutral, PublicKeyToken=d65109b36e5040e4, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLabs.Serialization.2.0.5783-pre01\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\XLabs.Serialization.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -293,6 +293,23 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </BundleResource>
     <BundleResource Include="Resources\ic_add_white_24dp.png" />
+    <BundleResource Include="Resources\Images\Calendar\datecell.png" />
+    <BundleResource Include="Resources\Images\Calendar\datecellmarked.png" />
+    <BundleResource Include="Resources\Images\Calendar\datecellselected.png" />
+    <BundleResource Include="Resources\Images\Calendar\leftarrow.png" />
+    <BundleResource Include="Resources\Images\Calendar\rightarrow.png" />
+    <BundleResource Include="Resources\Images\Calendar\shadow.png" />
+    <BundleResource Include="Resources\Images\Calendar\today.png" />
+    <BundleResource Include="Resources\Images\Calendar\todayselected.png" />
+    <BundleResource Include="Resources\Images\Calendar\topbar.png" />
+    <BundleResource Include="Resources\Images\Checkbox\checked_checkbox.png" />
+    <BundleResource Include="Resources\Images\Checkbox\checked_checkbox%402x.png" />
+    <BundleResource Include="Resources\Images\Checkbox\unchecked_checkbox.png" />
+    <BundleResource Include="Resources\Images\Checkbox\unchecked_checkbox%402x.png" />
+    <BundleResource Include="Resources\Images\RadioButton\checked.png" />
+    <BundleResource Include="Resources\Images\RadioButton\checked%402x.png" />
+    <BundleResource Include="Resources\Images\RadioButton\unchecked.png" />
+    <BundleResource Include="Resources\Images\RadioButton\unchecked%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Capp2\Capp2.csproj">
@@ -300,6 +317,7 @@
       <Name>Capp2</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.2.1.0.6529\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.1.0.6529\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

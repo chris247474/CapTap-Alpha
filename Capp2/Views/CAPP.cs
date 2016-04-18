@@ -123,7 +123,18 @@ namespace Capp2
 						App.Database.UpdateAll (saveList.AsEnumerable ());
 						DeselectAll (saveList);
 						refresh ();
-					}
+
+                        cmdAutocall.IsEnabled = true;
+                        cmdAutocall.BackgroundColor = Color.Green;
+                        EditTBI.Text = "Edit";
+                        this.Title = title;
+                        App.IsEditing = false;
+                        MessagingCenter.Send(this, Values.DONEEDITING);
+                        //DeselectAll(App.Database.GetItems(this.playlist));
+                        if (!string.Equals(this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals(this.playlist, Values.TODAYSCALLS)) ToolbarItems.Remove(DeleteTBI);
+                        ToolbarItems.Remove(MoveToTBI);
+                        if (Device.OS == TargetPlatform.iOS) ToolbarItems.Insert(0, AddTBI);
+                    }
 				});
 			DeleteTBI = new ToolbarItem("Delete", "", () =>
 				{
