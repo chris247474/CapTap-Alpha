@@ -58,6 +58,7 @@ namespace Capp2
                     })
             };
             listView.ItemSelected += (sender, e) => {
+                
                 this.playlistSelected = (Playlist)e.SelectedItem;
 
                 // has been set to null, do not 'process' tapped event
@@ -65,6 +66,7 @@ namespace Capp2
                     return;
 
                 //load contacts based on type of playlist (warm, cold, semi warm whatever playlist is tapped)
+                UserDialogs.Instance.ShowLoading();
                 Navigation.PushAsync(new CAPP(playlistSelected));
 
                 // de-select the row

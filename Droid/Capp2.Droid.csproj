@@ -43,14 +43,6 @@
     <AndroidSupportedAbis>armeabi;armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Plugin.Messaging, Version=3.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Messaging.3.2.1\lib\MonoAndroid10\Plugin.Messaging.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Plugin.Messaging.Abstractions, Version=3.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugins.Messaging.3.2.1\lib\MonoAndroid10\Plugin.Messaging.Abstractions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -178,33 +170,32 @@
     <Reference Include="Xamarin.Forms.Xaml">
       <HintPath>..\packages\Xamarin.Forms.2.1.0.6529\lib\MonoAndroid10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="XLabs.Core, Version=2.0.5782.16151, Culture=neutral, PublicKeyToken=d65109b36e5040e4, processorArchitecture=MSIL">
+    <Reference Include="Plugin.Messaging, Version=3.2.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xam.Plugins.Messaging.3.2.1\lib\MonoAndroid10\Plugin.Messaging.dll</HintPath>
+    </Reference>
+    <Reference Include="Plugin.Messaging.Abstractions, Version=3.2.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xam.Plugins.Messaging.3.2.1\lib\MonoAndroid10\Plugin.Messaging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="XLabs.Core, Version=2.0.5782.16151, Culture=neutral, PublicKeyToken=d65109b36e5040e4">
       <HintPath>..\packages\XLabs.Core.2.0.5783-pre01\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\XLabs.Core.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Forms, Version=2.0.5782.16160, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="XLabs.Forms, Version=2.0.5782.16160, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\XLabs.Forms.2.0.5783-pre01\lib\MonoAndroid60\XLabs.Forms.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Forms.Droid, Version=2.0.5782.16175, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="XLabs.Forms.Droid, Version=2.0.5782.16175, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\XLabs.Forms.2.0.5783-pre01\lib\MonoAndroid60\XLabs.Forms.Droid.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Ioc, Version=2.0.5782.16151, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="XLabs.Ioc, Version=2.0.5782.16151, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\XLabs.IoC.2.0.5783-pre01\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\XLabs.Ioc.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Platform, Version=2.0.5782.16152, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="XLabs.Platform, Version=2.0.5782.16152, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\XLabs.Platform.2.0.5783-pre01\lib\MonoAndroid60\XLabs.Platform.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Platform.Droid, Version=2.0.5782.16158, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="XLabs.Platform.Droid, Version=2.0.5782.16158, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\XLabs.Platform.2.0.5783-pre01\lib\MonoAndroid60\XLabs.Platform.Droid.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="XLabs.Serialization, Version=2.0.5782.16150, Culture=neutral, PublicKeyToken=d65109b36e5040e4, processorArchitecture=MSIL">
+    <Reference Include="XLabs.Serialization, Version=2.0.5782.16150, Culture=neutral, PublicKeyToken=d65109b36e5040e4">
       <HintPath>..\packages\XLabs.Serialization.2.0.5783-pre01\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\XLabs.Serialization.dll</HintPath>
-      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>

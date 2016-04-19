@@ -29,15 +29,18 @@ namespace Capp2
 		ToolbarItem EditTBI, DeleteTBI, MoveToTBI;
 		string title;
         StackLayout stack = new StackLayout();
+        List<Grouping<string, ContactData>> PreLoadedGroupedList;
 
-		bool AutoCallContinue;
+
+        bool AutoCallContinue;
 		int AutoCallCounter;
 		List<ContactData> AutoCallList;
 
 		public CAPP (Playlist playlistChosen)
 		{
-            UserDialogs.Instance.ShowLoading();
-			title = playlistChosen.PlaylistName + " Contacts";
+            PreLoadedGroupedList = App.Database.GetGroupedItems(playlistChosen.PlaylistName);
+            UserDialogs.Instance.HideLoading();
+            title = playlistChosen.PlaylistName + " Contacts";
 			this.playlistChosen = playlistChosen;
 			this.playlist = this.playlistChosen.PlaylistName;
 			this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
@@ -54,11 +57,7 @@ namespace Capp2
                 VerticalOptions = LayoutOptions.FillAndExpand
             };
 			searchBar.TextChanged += (sender, e) => {
-                var groupedList = App.Database.GetGroupedItems(playlist);
-                Device.BeginInvokeOnMainThread(() => {
-                    FilterCAPPContacts(searchBar.Text, playlist, groupedList);
-                });
-               
+                FilterCAPPContacts(searchBar.Text, playlist, PreLoadedGroupedList);
             };
 			lblContactsCount = new Label{
 				Text = App.Database.GetItems (playlist).Count().ToString()+" Contacts",
@@ -134,6 +133,7 @@ namespace Capp2
                         if (!string.Equals(this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals(this.playlist, Values.TODAYSCALLS)) ToolbarItems.Remove(DeleteTBI);
                         ToolbarItems.Remove(MoveToTBI);
                         if (Device.OS == TargetPlatform.iOS) ToolbarItems.Insert(0, AddTBI);
+                        UserDialogs.Instance.ShowSuccess("Moved!", 2000);
                     }
 				});
 			DeleteTBI = new ToolbarItem("Delete", "", () =>
@@ -186,7 +186,7 @@ namespace Capp2
 
 			listView = new ListView ()
 			{
-                //ItemsSource = App.Database.GetGroupedItems (playlist),//DONT DELETE THIS COMMENT
+                ItemsSource = PreLoadedGroupedList,
                 SeparatorColor = this.BackgroundColor,
                 ItemTemplate = new DataTemplate(() => {
 					return new ContactViewCell (this);
@@ -201,7 +201,7 @@ namespace Capp2
 			};
             
 
-			refresh ();
+			//refresh ();
 			listView.ItemSelected += (sender, e) => {
 				// has been set to null, do not 'process' tapped event
 				if (e.SelectedItem == null)
@@ -215,10 +215,6 @@ namespace Capp2
 					// de-select the row
 					((ListView)sender).SelectedItem = null; 
 				}else{
-					//personCalled.IsSelected = true;
-					//Debug.WriteLine (personCalled.Name+"' selected value is "+personCalled.IsSelected.ToString ());
-
-
 					((ListView)sender).SelectedItem = null; 
 				}
 			};
@@ -268,7 +264,7 @@ namespace Capp2
 					}catch(Exception){}
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 
-            UserDialogs.Instance.HideLoading();
+            
         }
 
 		public string[] PlaylistsIntoStringArr(){
@@ -352,26 +348,51 @@ namespace Capp2
 				});
 			});
 		}
-		public ListView BuildGroupedSearchableListView(string playlist, ListView listView, List<Grouping<string, ContactData>> list){
+		public void ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList){
             try {
-                listView.ItemsSource = list;
-                //listView.ItemsSource = App.Database.GetGroupedItems(playlist);
-                listView.ItemTemplate = new DataTemplate(() => {
-                    return new ContactViewCell(this);
-                });
-                listView.HasUnevenRows = true;
-                listView.IsGroupingEnabled = true;
-                listView.GroupDisplayBinding = new Binding("Key");
+                this.IsBusy = true;
+                stack.Children.RemoveAt(3);
+                listView = new ListView()
+                {
+                    ItemsSource = groupedList,
+                    SeparatorColor = this.BackgroundColor,
+                    ItemTemplate = new DataTemplate(() =>
+                    {
+                        return new ContactViewCell(this);
+                    }),
+                    IsGroupingEnabled = true,
+                    GroupDisplayBinding = new Binding("Key"),
+                    HasUnevenRows = true,
+                    GroupShortNameBinding = new Binding("Key"),//doesnt work android, works iOS
+                    GroupHeaderTemplate = new DataTemplate(() =>
+                    {
+                        return new HeaderCell();
+                    })
+                };
+                listView.ItemSelected += (sender, e) => {
+                    // has been set to null, do not 'process' tapped event
+                    if (e.SelectedItem == null)
+                        return;
 
-                listView.GroupShortNameBinding = new Binding("Key");
-                listView.GroupHeaderTemplate = new DataTemplate(() => {
-                    return new HeaderCell();
-                });
+                    personCalled = (ContactData)e.SelectedItem;
+
+                    if (!App.IsEditing)
+                    {
+
+                        Navigation.PushAsync(new EditContactPage(personCalled, this));
+                        // de-select the row
+                        ((ListView)sender).SelectedItem = null;
+                    }
+                    else {
+                        ((ListView)sender).SelectedItem = null;
+                    }
+                };
+                stack.Children.Add(listView);
+                this.IsBusy = false;
             }
             catch (Exception e) {
-                Debug.WriteLine("BuildGroupedSearchableListView() error: {0}", e.Message);
+                Debug.WriteLine("ReBuildGroupedSearchableListView() error: {0}", e.Message);
             }
-			return listView;
 		}
         
 
@@ -382,35 +403,26 @@ namespace Capp2
 			lblContactsCount.Text = contactsCount.ToString()+" Contacts";
 		}
 
-		public void FilterCAPPContacts(string filter, string playlist, List<Grouping<string, ContactData>> groupedlist)
-		{
-            
-            try {
+		public void FilterCAPPContacts(string filter, string playlist, List<Grouping<string, ContactData>> groupedList)
+        {
+            Debug.WriteLine("Filter called!");
+            if (string.IsNullOrWhiteSpace(filter))
+            {
+                ReBuildGroupedSearchableListView(playlist, groupedList);
+            }
+            else {
                 listView.BeginRefresh();
 
-                if (string.IsNullOrWhiteSpace(filter))
-                {
-                    listView = BuildGroupedSearchableListView(playlist, listView, groupedlist);
-                }
-                else {
-                    listView.ItemsSource = App.Database.GetItems(this.playlist)
-                        .Where(x => x.Name.ToLower().Contains(filter.ToLower()));
-                    listView.ItemTemplate = new DataTemplate(() => {
-                        return new ContactViewCell(this);
-                    });
-                    listView.IsGroupingEnabled = false;
-                    listView.HasUnevenRows = false;
-                    listView.GroupDisplayBinding = null;
-
-                    listView.GroupShortNameBinding = null;
-                    listView.GroupHeaderTemplate = null;
-                }
+                listView.IsGroupingEnabled = false;
+                listView.GroupDisplayBinding = new Binding(".");
+                listView.GroupShortNameBinding = new Binding(".");
+                listView.GroupHeaderTemplate = null;
+                listView.ItemsSource = App.Database.GetItems(this.playlist)
+                    .Where(x => x.Name.ToLower().Contains(filter.ToLower()));
 
                 listView.EndRefresh();
-            } catch (Exception e) {
-                Debug.WriteLine("FilterCAPPContacts error: {0}", e.Message);
             }
-		}
+        }
         ObservableCollection<ContactData> ConvertToObservableCollection(IEnumerable<ContactData> eList) {
             var arr = eList.ToArray<ContactData>();
             ObservableCollection<ContactData> ocList = new ObservableCollection<ContactData>();
