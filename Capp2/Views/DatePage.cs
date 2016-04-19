@@ -84,7 +84,7 @@ namespace Capp2
 					lbl, new StackLayout{
 						VerticalOptions = LayoutOptions.CenterAndExpand,
 						Children = { datePicker, timePicker,}
-					}, cancelButton
+					}, //cancelButton
 				}
 			};
 
@@ -112,7 +112,7 @@ namespace Capp2
                             Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
 
                             App.Database.UpdateItem(personCalled);
-                            //Navigation.PopModalAsync ();
+                            //await Navigation.PopModalAsync ();
 
                             await Navigation.PushModalAsync(new TextTemplatePage(personCalled, AutoCall));//or dependency call OS specific default messaging app
 

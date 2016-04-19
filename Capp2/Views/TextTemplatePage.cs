@@ -44,8 +44,8 @@ namespace Capp2
 			
 			SMSEntry = new Editor ();
 
-			//insert name into template text
-			(BindingContext as SettingsViewModel).BOMTemplateSettings = string.Format ("Hi {0}, {1}", this.person.FirstName, (BindingContext as SettingsViewModel).BOMTemplateSettings);
+            //insert name into template text
+            (BindingContext as SettingsViewModel).BOMTemplateSettings = string.Format ("Hi {0}, {1}", this.person.FirstName, (BindingContext as SettingsViewModel).BOMTemplateSettings);
 
 			SMSEntry.SetBinding<SettingsViewModel> (Editor.TextProperty, vm => vm.BOMTemplateSettings);
 
@@ -54,21 +54,27 @@ namespace Capp2
                 /*if(DependencyService.Get<IPhoneService>().CanSendSMS){
 					DependencyService.Get<IPhoneService>().SendSMS ("09163247357", "TESTING AUTO TEXT");
 				}*/
-                await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, SMSEntry.Text, person.Name, Values.BOM);
+                /*if (Device.OS == TargetPlatform.Android)*/ await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, SMSEntry.Text, person.Name, Values.BOM);
+                /*else if (Device.OS == TargetPlatform.iOS) {
+                    PhoneService.SendSMS(person.Number, SMSEntry.Text, person.Name, Values.BOM);
+                }*/
                 
 
 				if(AutoCall){
 					Debug.WriteLine ("SENDING DONEWITHCALL MESSAGE");
 					MessagingCenter.Send(this, Values.DONEWITHCALL);
 				}else{
-					await Navigation.PopModalAsync (); 
-					await Navigation.PopModalAsync (); 
+                    try {
+                        Navigation.PopModalAsync();
+                        Navigation.PopModalAsync();
+                    } catch (IndexOutOfRangeException ex) {
+                        Debug.WriteLine("Error popping datepage and texttemplate modals possibly due to using 'await Navigation.PopModalAsync()': {0} ", ex.Message);
+                    }
 				}
 
-				//reset to blank name
-				(BindingContext as SettingsViewModel).BOMTemplateSettings = (BindingContext as SettingsViewModel).BOMTemplateSettings.Replace ("Hi "+this.person.FirstName+",", "");
-
-			};
+                //reset to blank name
+                (BindingContext as SettingsViewModel).BOMTemplateSettings = (BindingContext as SettingsViewModel).BOMTemplateSettings.Replace("Hi " + this.person.FirstName + ", ", "");
+            };
 
 			lbl = new Label{ 
 				Text = "Send Text",
@@ -78,7 +84,7 @@ namespace Capp2
 				HorizontalTextAlignment = TextAlignment.Center,
 			};
 			return new StackLayout{
-				VerticalOptions = LayoutOptions.CenterAndExpand,
+				VerticalOptions = LayoutOptions.StartAndExpand,
 				Padding = new Thickness(20),
 				Children = {
 					lbl, new StackLayout{

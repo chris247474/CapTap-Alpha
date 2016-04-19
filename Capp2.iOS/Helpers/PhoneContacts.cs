@@ -7,6 +7,7 @@ using Acr.UserDialogs;
 using UIKit;
 using Capp2.Helpers;
 using System.Threading.Tasks;
+using MessageUI;
 
 [assembly: Dependency(typeof(PhoneContacts))]
 namespace Capp2.iOS.Helpers
@@ -43,30 +44,62 @@ namespace Capp2.iOS.Helpers
         public async Task SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null)
         {
             var notifier = new iOSReminderService();
-            try {
+            try
+            {
                 //send sms
                 //in iOS, only way to send text is by hand which means no programmatical sms send
-                // var smsTo = NSUrl.FromString("sms:"+number);
+                //var smsTo = NSUrl.FromString("sms:"+number);
                 //UIApplication.SharedApplication.OpenUrl(smsTo);
 
-                //XLabs cross platform impl, above ios native doesnt allow predefined sms text passed to Messaging app
-                await PhoneService.SendSMS(number, message);
-
-                if (string.Equals(ConfirmOrBOM, Values.BOM))
+                var window = UIApplication.SharedApplication.KeyWindow;
+                var vc = window.RootViewController;
+                while (vc.PresentedViewController != null)
                 {
-                    notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation texted to " + name, "Text Confirmation");//"View Alert";
+                    vc = vc.PresentedViewController;
                 }
-                else {
-                    if (string.Equals(TodayOrTomorrow, Values.TODAY))
-                    {
-                        notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for later", "Confirming " + name);
-                    }
-                    else {
-                        notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
-                    }
+                if (MFMessageComposeViewController.CanSendText)
+                {
+                    MFMessageComposeViewController messageController =
+                        new MFMessageComposeViewController();
+
+                    messageController.Finished += (sender, e) => {
+                        if (string.Equals(ConfirmOrBOM, Values.BOM))
+                        {
+                            notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation texted to " + name, "Text Confirmation");;
+                        }
+                        else {
+                            if (string.Equals(TodayOrTomorrow, Values.TODAY))
+                            {
+                                notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for later", "Confirming " + name);
+                            }
+                            else {
+                                notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
+                            }
+                        }
+                        messageController.DismissViewController(true, null);
+                    };
+
+                    //messageController.MessageComposeDelegate  = CustomMessageComposeDelegate();
+                    messageController.Body = message;
+                    messageController.Recipients = new string[] {number };
+                    vc.PresentModalViewController(messageController, false);
                 }
-               // return true;
-            } catch (Exception) {
+
+                /* if (string.Equals(ConfirmOrBOM, Values.BOM))
+                 {
+                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation failed sending to " + name, "Device can't send SMS");
+                 }
+
+                 if (string.Equals(TodayOrTomorrow, Values.TODAY))
+                 {
+                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "Device can't send SMS", "Couldn't confirm " + name + " for later's meeting");
+                 }
+                 else {
+                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "Device can't send SMS", "Couldn't confirm " + name + " for tomorrow's meeting");
+                 }*/
+            }
+            catch (Exception)
+            {
                 if (string.Equals(ConfirmOrBOM, Values.BOM))
                 {
                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation failed sending to " + name, "Text Confirmation Failed");
@@ -81,7 +114,6 @@ namespace Capp2.iOS.Helpers
                         notifier.Remind(DateTime.Now.AddMilliseconds(0), "SMS failed to send", "Couldn't confirm " + name + " for tomorrow's meeting");
                     }
                 }
-             //   return false;
             }
         }
     }

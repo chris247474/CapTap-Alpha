@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace Capp2.Helpers
 {
@@ -26,16 +27,39 @@ namespace Capp2.Helpers
             }
         }
 
-        public static async Task SendSMS(string number, string text) {
+        public static void SendSMS(string number, string text, string name, string ConfirmOrBOM, string TodayOrTomorrow = null) {
+            var notifier = DependencyService.Get<IReminderService>();
             try {
                 var smsMessenger = CrossMessaging.Current.SmsMessenger;
                 if (smsMessenger.CanSendSms)
+                {
+                    Debug.WriteLine("Messaging available");
                     smsMessenger.SendSms(number, text);
+                    //return true;
+
+                    if (string.Equals(ConfirmOrBOM, Values.BOM))
+                    {
+                        notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation texted to " + name, "Text Confirmation");//"View Alert";
+                    }
+                    else {
+                        if (string.Equals(TodayOrTomorrow, Values.TODAY))
+                        {
+                            notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for later", "Confirming " + name);
+                        }
+                        else {
+                            notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
+                        }
+                    }
+                }
                 else {
                     Debug.WriteLine("PhoneService.SendSMS(string, string) isn't allowed");
                     UserDialogs.Instance.WarnToast("Your phone can't seem to send a text. Please try again");
+                    //return false;
                 }
-            } catch (Exception e) { Debug.WriteLine("PhoneService.SendSMS() error: {0}", e.Message); }
+            } catch (Exception e) {
+                Debug.WriteLine("PhoneService.SendSMS() error: {0}", e.Message);
+                //return false;
+            }
         }
     }
 }
