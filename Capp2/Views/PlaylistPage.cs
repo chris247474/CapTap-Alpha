@@ -129,6 +129,11 @@ namespace Capp2
 
 			listView.EndRefresh ();
 		}
+		protected override void OnDisappearing(){
+			Debug.WriteLine ("OnDisappearing");
+			if(Device.OS == TargetPlatform.iOS) App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
+			else App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
+		}
 	}
 
 	public class PlaylistViewCell:ViewCell

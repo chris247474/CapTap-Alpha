@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Plugin.Calendars.Abstractions;
 using System.Threading.Tasks;
 using Capp2.Helpers;
+using Acr.UserDialogs;
 
 namespace Capp2
 {
@@ -18,6 +19,7 @@ namespace Capp2
 
 		public DatePage (string whichCapp, ContactData personCalled, bool autocall)
 		{
+			Debug.WriteLine ("Entered DatePage()");
 			BackgroundColor = Color.White;
 			AutoCall = autocall;
 			this.SetBinding (ContentPage.TitleProperty, "Name");
@@ -44,17 +46,17 @@ namespace Capp2
 				VerticalOptions = LayoutOptions.CenterAndExpand,
 			};
 			datePicker.DateSelected += (dateSender, de) => {
-				if(!yescall){
+				if(!yescall && timePicker.IsEnabled == false){
 					SetAppointmentHandler (whichCapp, personCalled);
 				}
 				else if(yescall){
 					timePicker.IsEnabled = true;
-					timePicker.PropertyChanged += (sender,e) =>
+					timePicker.Unfocused/*.PropertyChanged*/ += (sender,e) =>
 					{
-						if(e.PropertyName == TimePicker.TimeProperty.PropertyName)
-						{
+						//if(e.PropertyName == TimePicker.TimeProperty.PropertyName)
+						//{
 							SetAppointmentHandler (whichCapp, personCalled);
-						}
+						//}
 
 					};
 				}
@@ -84,7 +86,7 @@ namespace Capp2
 					lbl, new StackLayout{
 						VerticalOptions = LayoutOptions.CenterAndExpand,
 						Children = { datePicker, timePicker,}
-					}, //cancelButton
+					}, cancelButton
 				}
 			};
 
@@ -93,8 +95,6 @@ namespace Capp2
             try {
                 if (yescall)
                 {
-                    //text appointed person
-
                     switch (whichCapp)
                     {
                         case Values.NEXT:
@@ -107,14 +107,16 @@ namespace Capp2
                         case Values.APPOINTED:
                             personCalled.Appointed = datePicker.Date;
 
-                            //always first time to give nextmeeting real values
                             personCalled.NextMeetingID = await CalendarService.CreateAppointment(personCalled.NextMeetingID, personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, datePicker.Date.AddHours(timePicker.Time.Hours));
                             Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
 
                             App.Database.UpdateItem(personCalled);
-                            //await Navigation.PopModalAsync ();
-
-                            await Navigation.PushModalAsync(new TextTemplatePage(personCalled, AutoCall));//or dependency call OS specific default messaging app
+							if(Device.OS == TargetPlatform.Android) {
+								await Navigation.PushModalAsync(new TextTemplatePage(personCalled, AutoCall));
+							}
+							else if(Device.OS == TargetPlatform.iOS){
+								await TextTemplateHelper.BookProspectOrMarkForCallBackDate(personCalled, AutoCall);
+							}
 
                             break;
                         case Values.PRESENTED:
@@ -132,8 +134,6 @@ namespace Capp2
                             await this.Navigation.PopModalAsync();
                             break;
                     }
-
-
                 }
                 else {//if no call
                     if (AutoCall)
@@ -141,6 +141,7 @@ namespace Capp2
                         MessagingCenter.Send(this, Values.DONEWITHNOCALL);
                     }
                     else {
+						//UserDialogs.Instance.ShowSuccess(string.Format("{0} will show up in 'Today's Calls' on {2} {3}", personCalled.Name, Util.MonthInWords(datePicker.Date.Month), datePicker.Date.DayOfWeek.ToString()));
                         personCalled.NextCall = datePicker.Date;
                         App.Database.UpdateItem(personCalled);
                         Navigation.PopModalAsync();
@@ -153,6 +154,7 @@ namespace Capp2
             }
 
 		}
+
 		public void DisableTimePicker(int defaultHour){
 			timePicker.Time = TimeSpan.FromHours (defaultHour);
 			timePicker.IsEnabled = false;
@@ -162,6 +164,11 @@ namespace Capp2
 				Debug.WriteLine ("POPPING DATEPAGE OF "+this.Name);
 				await Navigation.PopModalAsync ();
 			});
+		}
+		protected override void OnDisappearing(){
+			Debug.WriteLine ("OnDisappearing");
+			if(Device.OS == TargetPlatform.iOS) App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
+			else App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
 		}
 	}
 

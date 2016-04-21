@@ -4,6 +4,8 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const int CALLTOTEXTDELAY = 4000;
+
 		public const string BACKGROUNDLIGHTSILVER = "#F5F6F7";
 		public const string GOOGLEBLUE = "#4285F4";
 		public const string TESTCOLOR = "#512DA8";
@@ -26,7 +28,8 @@ namespace Capp2
 		public static string BOM = "bom";
 
 		public static string DONEWITHCALL = "Done";
-		public static string DONEWITHNOCALL = "DoneNoCall";
+        public static string iOSDONEWITHCALL = "iOSDone";
+        public static string DONEWITHNOCALL = "DoneNoCall";
 
 		public const string TODAYSCALLS = "Today's Calls";
 		public const int TOMORROWMEETINGREMINDTIME = 3;

@@ -46,11 +46,11 @@ namespace Capp2.iOS.Helpers
             var notifier = new iOSReminderService();
             try
             {
-                //send sms
-                //in iOS, only way to send text is by hand which means no programmatical sms send
+                //in iOS, only way to send text is by hand which means no programmatical sms send. This calls Messages without inputting initial text
                 //var smsTo = NSUrl.FromString("sms:"+number);
                 //UIApplication.SharedApplication.OpenUrl(smsTo);
 
+                //inputs initial text
                 var window = UIApplication.SharedApplication.KeyWindow;
                 var vc = window.RootViewController;
                 while (vc.PresentedViewController != null)
@@ -63,6 +63,13 @@ namespace Capp2.iOS.Helpers
                         new MFMessageComposeViewController();
 
                     messageController.Finished += (sender, e) => {
+						System.Console.WriteLine("iOS Messages opened. AutoCallStatus: {0}", App.AutoCallStatus.ToString());
+                        if (App.AutoCallStatus)
+                        {
+							System.Console.WriteLine("AutoCallStatus true. Sending iOSDONEWITHCALL message to CAPP");
+							MessagingCenter.Send("", Values.iOSDONEWITHCALL);//Android allows programmatically sending an SMS, but iOS requires user to press Send via UI
+							System.Console.WriteLine("iOSDONEWITHCALL message sent!");
+						}
                         if (string.Equals(ConfirmOrBOM, Values.BOM))
                         {
                             notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation texted to " + name, "Text Confirmation");;
@@ -78,8 +85,7 @@ namespace Capp2.iOS.Helpers
                         }
                         messageController.DismissViewController(true, null);
                     };
-
-                    //messageController.MessageComposeDelegate  = CustomMessageComposeDelegate();
+                    
                     messageController.Body = message;
                     messageController.Recipients = new string[] {number };
                     vc.PresentModalViewController(messageController, false);

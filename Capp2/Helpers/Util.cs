@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using Acr.UserDialogs;
 using Capp2.Helpers;
+using System.Collections.ObjectModel;
 
 namespace Capp2
 {
@@ -23,7 +24,7 @@ namespace Capp2
 		public Util ()
 		{
 		}
-		/*public async Task<bool> CreateDefaultPlaylistsIfNoneExists(){
+        /*public async Task<bool> CreateDefaultPlaylistsIfNoneExists(){
 			Debug.WriteLine ("Checking playlists");
 			PlaylistItemAzure[] playlists = (await App.AzurePlaylistDB.GetPlaylistItems ()).ToArray ();
 			for(int c = 0;c < playlists.Length;c++){
@@ -40,7 +41,70 @@ namespace Capp2
 
 			return true;
 		}*/
-		public string ConnectStrings(string[] s){
+
+		public static async Task<string> GetUserInputSingleLinePromptDialogue(){
+			var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
+			if (result.Ok) {
+				if (string.IsNullOrWhiteSpace(result.Text))
+				{
+				}
+				else {
+					return result.Text;
+				}
+			}
+			return string.Empty;
+		}
+        public static ObservableCollection<ContactData> ConvertToObservableCollection(IEnumerable<ContactData> eList)
+        {
+            var arr = eList.ToArray<ContactData>();
+            ObservableCollection<ContactData> ocList = new ObservableCollection<ContactData>();
+            for (int c = 0; c < arr.Length; c++)
+            {
+                ocList.Add(arr[c]);
+            }
+            return ocList;
+        }
+        public static IEnumerable<ContactData> FilterNameNumberOrg(IEnumerable<ContactData> list, string filter)
+        {
+            if (list == null)
+            {
+                Debug.WriteLine("input to filter by array is null");
+                return null;
+            }
+
+            List<ContactData> filteredList = new List<ContactData>();
+            try
+            {
+
+                if (Device.OS == TargetPlatform.iOS)//arrays are processed faster than linq
+                {
+                    var arr = list.ToArray();
+                    for (int c = 0; c < arr.Length; c++)
+                    {
+                        if (arr[c].Name.ToLower().Contains(filter.ToLower()) || arr[c].Number.Contains(filter.ToLower()) || arr[c].Aff.ToLower().Contains(filter.ToLower()))
+                        {
+                            filteredList.Add(arr[c]);
+                        }
+                    }
+                    return filteredList.AsEnumerable();
+                }
+                else if (Device.OS == TargetPlatform.Android)//slower approach but avoids android layout differences
+                {
+                    return list
+                    .Where(x => x.Name.ToLower().Contains(filter.ToLower())
+                    || x.Number.ToLower().Contains(filter.ToLower())/* || x.Aff.ToLower().Contains(filter.ToLower())*/);//including aff field causes crashes in android layout
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("filterbyArray error: {0}", e.Message);
+            }
+            return null;
+        }
+
+        public string ConnectStrings(string[] s){
 			string result = "";
 			if (s != null && s.Length > 0) {
 				for(int c = 0;c < s.Length;c++){
@@ -480,7 +544,7 @@ namespace Capp2
 					try {
 						listp = (List<Plugin.Contacts.Abstractions.Phone>)listArr[c].Phones;
 
-						Debug.WriteLine ("Adding to list");
+						//Debug.WriteLine ("Adding to list");
 						formattedList.Add(new ContactData {
 							FirstName = listArr[c].FirstName,
 							LastName = listArr[c].LastName,
@@ -502,6 +566,8 @@ namespace Capp2
 				stopwatch.Stop();
 				UserDialogs.Instance.WarnToast("Phonebook load+save time", stopwatch.ElapsedMilliseconds+" ms", 5000);
 			}
+			
+			Debug.WriteLine ("Device contacts loaded into DB");
 			return true;
 		}
 		public async Task<bool> loadDeviceContactsIntoDB(bool timeExecution){

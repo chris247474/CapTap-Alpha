@@ -26,24 +26,27 @@ namespace Capp2
 		int contactsCount = 0;
 		Label lblContactsCount = null;
 		Button cmdAutocall;
-		ToolbarItem EditTBI, DeleteTBI, MoveToTBI;
+		ToolbarItem EditTBI, DeleteTBI, MoveToTBI, AddTBI;
 		string title;
         StackLayout stack = new StackLayout();
         List<Grouping<string, ContactData>> PreLoadedGroupedList;
-
-
+		SearchBar searchBar;
+        
         bool AutoCallContinue;
 		int AutoCallCounter;
 		List<ContactData> AutoCallList;
 
 		public CAPP (Playlist playlistChosen)
 		{
+            App.CapPage = this;
             PreLoadedGroupedList = App.Database.GetGroupedItems(playlistChosen.PlaylistName);
             UserDialogs.Instance.HideLoading();
             title = playlistChosen.PlaylistName + " Contacts";
 			this.playlistChosen = playlistChosen;
 			this.playlist = this.playlistChosen.PlaylistName;
 			this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
+			if (Device.OS == TargetPlatform.iOS)
+				App.NavPage.BackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
 
 			SubscribeForAutoCallListeners ();
 			SubscribeForEditingListener ();
@@ -51,7 +54,7 @@ namespace Capp2
 			this.Title = title;
 			cameraOps = new CameraViewModel();
 
-			var searchBar = new SearchBar {
+			searchBar = new SearchBar {
 				Placeholder = "Enter someone's name",
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.FillAndExpand
@@ -66,7 +69,7 @@ namespace Capp2
 				HorizontalTextAlignment = TextAlignment.Center,
 				HeightRequest = 18
 			};
-			cmdAutocall = new Button { Text = "START CALLING", BackgroundColor = Color.Green, TextColor = Color.Black };
+			cmdAutocall = new Button { Text = "START CALLING", BackgroundColor = Color.Green, TextColor = Color.Black, FontAttributes = FontAttributes.Bold };
 			cmdAutocall.Clicked += (sender, e) => {
 				if(calling){
 					SetupNotAutoCalling ();
@@ -78,7 +81,7 @@ namespace Capp2
 			cmdAutocall.BackgroundColor = Color.Green;
 
 			import = new string[]{ "Enter manually", "Load from Google Drive" };
-			var AddTBI = new ToolbarItem("Add", "", async () =>
+			AddTBI = new ToolbarItem("Add", "", async () =>
 			{
 				var importResult = await this.DisplayActionSheet("Import Contacts", "OK", "Cancel", import);
 				try{
@@ -101,40 +104,42 @@ namespace Capp2
 
 			MoveToTBI = new ToolbarItem("Move To", "", async () =>
 				{
+					
 					var enumerableList = App.Database.GetItems (this.playlist);
 					var contactsArr = enumerableList.ToArray ();
 					var saveList = new List<ContactData>();
 
 					var MoveToResult = await this.DisplayActionSheet("Move to Namelist", "OK", "Cancel", PlaylistsIntoStringArr ());
 					Debug.WriteLine ("MoveResult {0}, contactsArr.Length {1}",MoveToResult, contactsArr.Length);
-					if(!string.IsNullOrWhiteSpace (MoveToResult) && !string.Equals (MoveToResult, "Cancel")){
-					Debug.WriteLine ("ABOUT TO LOOP");
+                    if (!string.Equals(MoveToResult, "OK")) {
+                        if (!string.IsNullOrWhiteSpace(MoveToResult) && !string.Equals(MoveToResult, "Cancel"))
+                        {
+                            Debug.WriteLine("ABOUT TO LOOP");
 
-						for(int c = 0;c < contactsArr.Length;c++){
-							Debug.WriteLine ("Top of {0} loop: {1}", contactsArr[c].Name, contactsArr[c].IsSelected.ToString ());
-							if(contactsArr[c].IsSelected){
-								contactsArr[c].Playlist = MoveToResult;
-								saveList.Add (contactsArr[c]);
-								Debug.WriteLine (contactsArr[c].Name +" is being moved to "+MoveToResult);
-							}
-						}
-						Debug.WriteLine ("ABOUT TO SAVE {0} CONTACTS", saveList.Count);
-						App.Database.UpdateAll (saveList.AsEnumerable ());
-						DeselectAll (saveList);
-						refresh ();
+                            for (int c = 0; c < contactsArr.Length; c++)
+                            {
+                                Debug.WriteLine("Top of {0} loop: {1}", contactsArr[c].Name, contactsArr[c].IsSelected.ToString());
+                                if (contactsArr[c].IsSelected)
+                                {
+                                    contactsArr[c].Playlist = MoveToResult;
+                                    saveList.Add(contactsArr[c]);
+                                    Debug.WriteLine(contactsArr[c].Name + " is being moved to " + MoveToResult);
+                                }
+                            }
+                            Debug.WriteLine("ABOUT TO SAVE {0} CONTACTS", saveList.Count);
+                            App.Database.UpdateAll(saveList.AsEnumerable());
+                            DeselectAll(saveList);
+                            refresh();
 
-                        cmdAutocall.IsEnabled = true;
-                        cmdAutocall.BackgroundColor = Color.Green;
-                        EditTBI.Text = "Edit";
-                        this.Title = title;
-                        App.IsEditing = false;
-                        MessagingCenter.Send(this, Values.DONEEDITING);
-                        //DeselectAll(App.Database.GetItems(this.playlist));
-                        if (!string.Equals(this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals(this.playlist, Values.TODAYSCALLS)) ToolbarItems.Remove(DeleteTBI);
-                        ToolbarItems.Remove(MoveToTBI);
-                        if (Device.OS == TargetPlatform.iOS) ToolbarItems.Insert(0, AddTBI);
-                        UserDialogs.Instance.ShowSuccess("Moved!", 2000);
+                            UserDialogs.Instance.ShowSuccess("Moved!", 2000);
+                        }
+                        else {
+							UserDialogs.Instance.WarnToast("Oops! You didn't choose a new namelist. Please try again", null, 2000);
+                        }
                     }
+					ClearSearchBar();
+
+					UpdateUI_EnableAutoCallingAfterEditing();
 				});
 			DeleteTBI = new ToolbarItem("Delete", "", () =>
 				{
@@ -155,29 +160,9 @@ namespace Capp2
 			EditTBI = new ToolbarItem("Edit", "", () =>
 			{
 				if(string.Equals(EditTBI.Text, "Edit")){
-					cmdAutocall.IsEnabled = false;
-					cmdAutocall.BackgroundColor = Color.Gray;
-					App.IsEditing = true;
-					EditTBI.Text = "Done";
-					//EditTBI.Icon = "";
-					this.Title = "Tap a name to select it";
-					Debug.WriteLine ("EDITING");
-					MessagingCenter.Send(this, Values.ISEDITING);
-                    if (Device.OS == TargetPlatform.iOS) ToolbarItems.Remove (AddTBI);
-					ToolbarItems.Insert(0, MoveToTBI);
-					if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Insert (1, DeleteTBI);
-					
+					UpdateUI_DisableAutoCallingBeforeEditing();
 				}else{
-					cmdAutocall.IsEnabled = true;
-					cmdAutocall.BackgroundColor = Color.Green;
-					EditTBI.Text = "Edit";
-					this.Title = title;
-					App.IsEditing = false;
-					MessagingCenter.Send(this, Values.DONEEDITING);
-					DeselectAll (App.Database.GetItems(this.playlist));
-					if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Remove (DeleteTBI);
-					ToolbarItems.Remove (MoveToTBI);
-					if(Device.OS == TargetPlatform.iOS) ToolbarItems.Insert (0, AddTBI);
+					UpdateUI_EnableAutoCallingAfterEditing();
 				}
 			});
 			this.ToolbarItems.Add (EditTBI);
@@ -266,7 +251,36 @@ namespace Capp2
 
             
         }
+		void UpdateUI_DisableAutoCallingBeforeEditing(){
+			cmdAutocall.IsEnabled = false;
+			cmdAutocall.BackgroundColor = Color.Gray;
+			App.IsEditing = true;
+			EditTBI.Text = "Done";
+			//EditTBI.Icon = "";
+			this.Title = "Moving to namelist";
+			Debug.WriteLine ("EDITING");
+			MessagingCenter.Send(this, Values.ISEDITING);
+			if (Device.OS == TargetPlatform.iOS) ToolbarItems.Remove (AddTBI);
+			ToolbarItems.Insert(0, MoveToTBI);
+			if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Insert (1, DeleteTBI);
 
+		}
+		void UpdateUI_EnableAutoCallingAfterEditing(){
+			cmdAutocall.IsEnabled = true;
+			cmdAutocall.BackgroundColor = Color.Green;
+			EditTBI.Text = "Edit";
+			this.Title = title;
+			App.IsEditing = false;
+			MessagingCenter.Send(this, Values.DONEEDITING);
+			DeselectAll (App.Database.GetItems(this.playlist));
+			if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Remove (DeleteTBI);
+			ToolbarItems.Remove (MoveToTBI);
+			if(Device.OS == TargetPlatform.iOS) ToolbarItems.Insert (0, AddTBI);
+		}
+		void ClearSearchBar(){
+			searchBar.Text = string.Empty;
+			searchBar.Unfocus();
+		}
 		public string[] PlaylistsIntoStringArr(){
 			Playlist[] list = App.Database.GetPlaylistItems().ToArray ();
 			List<string> finalList = new List<string> ();
@@ -307,31 +321,52 @@ namespace Capp2
 			cmdAutocall.Text = "START CALLING";
 			calling = false;
 			AutoCallContinue = false;
-			cmdAutocall.BackgroundColor = Color.Green;
+            App.AutoCallStatus = false;
+            cmdAutocall.BackgroundColor = Color.Green;
 		}
 		public void SetupAutoCalling(){
 			cmdAutocall.Text = "STOP CALLING";
 			calling = true;
-
-			cmdAutocall.BackgroundColor = Color.Red;
+            App.AutoCallStatus = true;
+            cmdAutocall.BackgroundColor = Color.Red;
 		}
 		public void SubscribeForAutoCallListeners(){
-			MessagingCenter.Subscribe<TextTemplatePage>(this, Values.DONEWITHCALL, (args) =>{ 
-				Navigation.PopModalAsync ();//exception on lollipop
-				Navigation.PopModalAsync ();
+            MessagingCenter.Subscribe<TextTemplatePage>(this, Values.DONEWITHCALL, (args) =>{ 
+				try{
+					Navigation.PopModalAsync();
+					Navigation.PopModalAsync();
+				}catch(Exception e){
+					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
+				}
 
 				Debug.WriteLine ("CALL FINISHED");
 				AutoCallContinue = true;
 				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
 				StartContinueAutoCall ();
 			});
-			MessagingCenter.Subscribe<DatePage>(this, Values.DONEWITHNOCALL, (args) =>{ 
-				Navigation.PopModalAsync ();
+			MessagingCenter.Subscribe<string>(this, Values.iOSDONEWITHCALL, (args) => {//if on iOS, DONEWITHCALL will be sent after Message viewcontroller presents SMS dialogue and receives "Send" command from user
+				Debug.WriteLine("CALL FINISHED iOSDONEWITHCALL RECEIVED");
+				try{
+					NavigationHelper.ClearModals(this);
+				
+	                AutoCallContinue = true;
+	                Debug.WriteLine("CONTINUING TO NEXT NUMBER");
+	                StartContinueAutoCall();
+				}catch(Exception e){
+					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
+				}
+            });
+            MessagingCenter.Subscribe<DatePage>(this, Values.DONEWITHNOCALL, (args) =>{ 
+				try{
+					Navigation.PopModalAsync ();
 
-				Debug.WriteLine ("NO-CALL FINISHED");
-				AutoCallContinue = true;
-				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
-				StartContinueAutoCall ();
+					Debug.WriteLine ("NO-CALL FINISHED");
+					AutoCallContinue = true;
+					Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
+					StartContinueAutoCall ();
+				}catch(Exception e){
+					Debug.WriteLine("DONEWITHNOCALL error: {0}",e.Message);
+				}
 			});
 		}
 		public void SubscribeForEditingListener(){
@@ -417,28 +452,24 @@ namespace Capp2
                 listView.GroupDisplayBinding = new Binding(".");
                 listView.GroupShortNameBinding = new Binding(".");
                 listView.GroupHeaderTemplate = null;
-                listView.ItemsSource = App.Database.GetItems(this.playlist)
-                    .Where(x => x.Name.ToLower().Contains(filter.ToLower()));
-
+                listView.ItemsSource = Util.FilterNameNumberOrg(App.Database.GetItems(this.playlist), filter);
+                
                 listView.EndRefresh();
             }
         }
-        ObservableCollection<ContactData> ConvertToObservableCollection(IEnumerable<ContactData> eList) {
-            var arr = eList.ToArray<ContactData>();
-            ObservableCollection<ContactData> ocList = new ObservableCollection<ContactData>();
-            for (int c = 0;c < arr.Length;c++) {
-                ocList.Add(arr[c]);
-            }
-            return ocList;
-        }
-		public void call(ContactData contact, bool autocall){
+       
+		public async Task call(ContactData contact, bool autocall){
 			Debug.WriteLine ("Calling "+contact.Name+" autocall: "+autocall.ToString ());
 			var dialer = DependencyService.Get<IDialer> ();
 			if (dialer != null) {
-				//if (await dialer.Dial (Phone.ToNumber (person.Number))) {
-				if (dialer.Dial (contact.Number).Result) {
+				if (await dialer.Dial (contact.Number)) {
 					contact.Called = DateTime.Now;
 					App.Database.UpdateItem (contact);
+					Debug.WriteLine ("Delaying 4s");
+					/*if (App.AutoCallStatus) {
+						await Task.Delay (Values.CALLTOTEXTDELAY);
+					}*/
+					await Task.Delay (Values.CALLTOTEXTDELAY);
 					Navigation.PushModalAsync (new DatePage (Values.APPOINTED, contact, autocall));
 				} 
 			}else
@@ -446,15 +477,24 @@ namespace Capp2
 		}
 
 		public void autoCall(string playlist){
-			PrepareForAutoCall ();
-			StartContinueAutoCall ();
+			try{
+				PrepareForAutoCall ();
+				StartContinueAutoCall ();
+			}catch(Exception e){
+				Debug.WriteLine ("PrepareForAutoCall() error: {0}", e.Message);
+				UserDialogs.Instance.WarnToast ("Your phone may have randomly lagged. Please try again");
+			}
 		}
 		void PrepareForAutoCall(){
 			AutoCallCounter = 0;
 			AutoCallContinue = true;
-			AutoCallList = App.Database.GetItems(playlist).ToList (); 
-		}
+			AutoCallList = App.Database.GetItems(playlist).ToList ();
+        }
 		void StartContinueAutoCall(){
+			if(AutoCallCounter >= AutoCallList.Count){
+				SetupNotAutoCalling ();
+
+			}
 			if(AutoCallContinue && (AutoCallCounter < AutoCallList.Count)){
 				Debug.WriteLine ("ITERATION "+AutoCallCounter+" IN AUTOCALL, "+AutoCallList.Count+" Numbers in list");
 				AutoCallContinue = false;
@@ -464,15 +504,15 @@ namespace Capp2
 				AutoCallCounter++;
 			}
 			Debug.WriteLine ("EXITING WHILE CONTINUE");
-
-			if(AutoCallCounter >= AutoCallList.Count){
-				SetupNotAutoCalling ();
-			}
 		}
 
 		protected override void OnAppearing(){
 			Debug.WriteLine ("Appearing");
-			App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
+			/*if (Device.OS == TargetPlatform.Android) {
+				App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
+			} else if (Device.OS == TargetPlatform.iOS) {
+				App.NavPage.BackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
+			}*/
 		}
 		protected override void OnDisappearing(){
 			Debug.WriteLine ("OnDisappearing");

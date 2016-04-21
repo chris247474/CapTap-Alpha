@@ -14,12 +14,13 @@ namespace Capp2.iOS
 
     public class AppDelegate : XFormsApplicationDelegate//global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
-
+		public override UIWindow Window {
+			get;
+			set;
+		}
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-
-            //var notiftest = new Helpers.iOSReminderService();
-            //notiftest.Remind(DateTime.Now, "test", "test");
+			SetUIStyles ();
 
             // check for a notification
             if (options != null)
@@ -75,6 +76,7 @@ namespace Capp2.iOS
             
             return base.FinishedLaunching(app, options);
         }
+
         public override void ReceivedLocalNotification(UIApplication application, UILocalNotification notification)
         {
             // show an alert
@@ -86,6 +88,48 @@ namespace Capp2.iOS
             // reset our badge
             UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
         }
+
+		void SetUIStyles(){
+			//UINavigationBar.Appearance.BarTintColor = UIColor.FromRGB(43, 132, 211); //bar background 
+			UINavigationBar.Appearance.TintColor = ColorFromHex(Values.GOOGLEBLUE); //Tint color of button items 
+			/*UINavigationBar.Appearance.SetTitleTextAttributes(new UITextAttributes() { 
+				Font = UIFont.FromName("HelveticaNeue-Light", (nfloat)20f), TextColor = UIColor.White 
+			});*/
+		}
+
+		UIColor ColorFromHex (string hexValue, float alpha = 1.0f)
+		{
+			var colorString = hexValue.Replace ("#", "");
+			if (alpha > 1.0f) {
+				alpha = 1.0f;
+			} else if (alpha < 0.0f) {
+				alpha = 0.0f;
+			}
+
+			float red, green, blue;
+
+			switch (colorString.Length) 
+			{
+			case 3 : // #RGB
+				{
+					red = Convert.ToInt32(string.Format("{0}{0}", colorString.Substring(0, 1)), 16) / 255f;
+					green = Convert.ToInt32(string.Format("{0}{0}", colorString.Substring(1, 1)), 16) / 255f;
+					blue = Convert.ToInt32(string.Format("{0}{0}", colorString.Substring(2, 1)), 16) / 255f;
+					return UIColor.FromRGBA(red, green, blue, alpha);
+				}
+			case 6 : // #RRGGBB
+				{
+					red = Convert.ToInt32(colorString.Substring(0, 2), 16) / 255f;
+					green = Convert.ToInt32(colorString.Substring(2, 2), 16) / 255f;
+					blue = Convert.ToInt32(colorString.Substring(4, 2), 16) / 255f;
+					return UIColor.FromRGBA(red, green, blue, alpha);
+				}   
+
+			default :
+				throw new ArgumentOutOfRangeException(string.Format("Invalid color value {0} is invalid. It should be a hex value of the form #RBG, #RRGGBB", hexValue));
+
+			}
+		}
     }
 }
 

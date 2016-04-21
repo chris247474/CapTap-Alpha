@@ -180,9 +180,9 @@ namespace Capp2.Helpers
     #region Setting BOMTemplateText
 
     private const string BOMKey = "bom_key";
-		private static readonly string BOMDefault = "we can meet at "+LocSettings+". We introduce our guests to the speaker " +
+		private static readonly string BOMDefault = "we can meet at <meetup here>. We introduce our guests to the speaker " +
 			"then all go up together. " +
-			"See you "+DayTimeSettings+" :). Please reply if recieved ";
+			"See you <date here> :). Please reply if recieved ";
 
 		#endregion
     public static string BOMTemplateSettings

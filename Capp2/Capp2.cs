@@ -28,6 +28,8 @@ namespace Capp2
 		public static int lastIndex{ get; set;}
 		public static bool IsEditing{ get; set;}
 		public static NavigationPage NavPage;
+        public static bool AutoCallStatus { get; set; }
+        public static CAPP CapPage { get; set; }
 
 		public App ()
 		{			
@@ -37,6 +39,7 @@ namespace Capp2
 
 		public async void PrepareAppData(){
 			IsEditing = false;
+            AutoCallStatus = false;
 			contactFuncs = new Util ();
 
 			await contactFuncs.loadDeviceContactsIntoDBSingleTransaction (false);

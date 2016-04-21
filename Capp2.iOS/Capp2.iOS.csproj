@@ -113,7 +113,6 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\iOSReminderService.cs" />
     <Compile Include="Helpers\NativeDialer.cs" />
     <Compile Include="Helpers\PhoneContacts.cs" />
@@ -136,6 +135,7 @@
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </InterfaceDefinition>
+    <BundleResource Include="Resources\capicon.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
