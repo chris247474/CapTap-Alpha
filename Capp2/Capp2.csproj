@@ -52,7 +52,6 @@
     <Compile Include="Model\IReminderService.cs" />
     <Compile Include="Views\TextTemplatePage.cs" />
     <Compile Include="Helpers\Settings.cs" />
-    <Compile Include="Views\SettingsPage.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />
     <Compile Include="Views\StartPage.cs" />
     <Compile Include="Helpers\DB.cs" />
@@ -68,6 +67,10 @@
     <Compile Include="Helpers\DateFormatHelper.cs" />
     <Compile Include="Helpers\TextTemplateHelper.cs" />
     <Compile Include="Helpers\NavigationHelper.cs" />
+    <Compile Include="Views\TemplateSettingsPage.cs" />
+    <Compile Include="Views\GradientContentPage.cs" />
+    <Compile Include="Helpers\StringUtil.cs" />
+    <Compile Include="Helpers\IEmailService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

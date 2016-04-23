@@ -23,7 +23,7 @@ namespace Capp2
 			nameLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				VerticalOptions = LayoutOptions.CenterAndExpand,
-				HorizontalTextAlignment = TextAlignment.Start,
+				HorizontalTextAlignment = TextAlignment.Center,
 			};
 			nameLabel.SetBinding(Label.TextProperty, "Name");//"Name" links directly to the ContactData.Name property
 

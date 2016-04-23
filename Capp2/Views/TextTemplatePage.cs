@@ -22,14 +22,6 @@ namespace Capp2
 		bool AutoCall;
 		ContactData person;
 
-		/*public TextTemplatePage (string name, string meetupLoc, string meetupDate, bool smiley)
-		{
-			if(smiley) Smiley = ":)";
-			BOMTextTemplate = " we can meet at "+meetupLoc+". We introduce our guests to the speaker then all go up together. " +
-				"See you "+meetupDate+" "+Smiley+". Please reply if recieved ";
-
-			Content = createUI ();
-		}*/
 		public TextTemplatePage (ContactData person, bool autocall)
 		{
 			AutoCall = autocall;
@@ -49,19 +41,8 @@ namespace Capp2
 
 			cmdSMS = new Button {Text = "Send"};
 			cmdSMS.Clicked += async (sender, e) => {
-				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, SMSEntry.Text, person.Name, Values.BOM);
-				(BindingContext as SettingsViewModel).BOMTemplateSettings = (BindingContext as SettingsViewModel).BOMTemplateSettings.Replace("Hi " + person.FirstName + ", ", "");
-
-				if(AutoCall){
-					Debug.WriteLine ("SENDING DONEWITHCALL MESSAGE");
-					if(Device.OS == TargetPlatform.Android) MessagingCenter.Send(this, Values.DONEWITHCALL);//iOS sends 'DONEWITHCALL' in IPhoneContacts impl, to leave room for iOS required manual user SMS
-				}else{
-                    try {
-						NavigationHelper.ClearModals(this);
-                    } catch (IndexOutOfRangeException ex) {
-                        Debug.WriteLine("Error popping datepage and texttemplate modals possibly due to using 'await Navigation.PopModalAsync()': {0} ", ex.Message);
-                    }
-				}
+				
+				TextTemplateHelper.BookProspectOrMarkForCallBackDate(person, AutoCall, (BindingContext as SettingsViewModel));
             };
 
 			lbl = new Label{ 
@@ -94,3 +75,16 @@ namespace Capp2
 	}
 }
 
+/*await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, SMSEntry.Text, person.Name, Values.BOM);
+				(BindingContext as SettingsViewModel).BOMTemplateSettings = (BindingContext as SettingsViewModel).BOMTemplateSettings.Replace("Hi " + person.FirstName + ", ", "");
+
+				if(AutoCall){
+					Debug.WriteLine ("SENDING DONEWITHCALL MESSAGE");
+					if(Device.OS == TargetPlatform.Android) MessagingCenter.Send(this, Values.DONEWITHCALL);//iOS sends 'DONEWITHCALL' in IPhoneContacts impl, to leave room for iOS required manual user SMS
+				}else{
+                    try {
+						NavigationHelper.ClearModals(this);
+                    } catch (IndexOutOfRangeException ex) {
+                        Debug.WriteLine("Error popping datepage and texttemplate modals possibly due to using 'await Navigation.PopModalAsync()': {0} ", ex.Message);
+                    }
+				}*/

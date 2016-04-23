@@ -51,13 +51,9 @@ namespace Capp2
 				}
 				else if(yescall){
 					timePicker.IsEnabled = true;
-					timePicker.Unfocused/*.PropertyChanged*/ += (sender,e) =>
+					timePicker.Unfocused += (sender,e) =>
 					{
-						//if(e.PropertyName == TimePicker.TimeProperty.PropertyName)
-						//{
-							SetAppointmentHandler (whichCapp, personCalled);
-						//}
-
+						SetAppointmentHandler (whichCapp, personCalled);
 					};
 				}
 			};
@@ -105,7 +101,7 @@ namespace Capp2
                             await this.Navigation.PopModalAsync();
                             break;
                         case Values.APPOINTED:
-                            personCalled.Appointed = datePicker.Date;
+							personCalled.Appointed = datePicker.Date.AddHours(timePicker.Time.Hours).AddMinutes(timePicker.Time.Minutes);
 
                             personCalled.NextMeetingID = await CalendarService.CreateAppointment(personCalled.NextMeetingID, personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, datePicker.Date.AddHours(timePicker.Time.Hours));
                             Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);

@@ -7,36 +7,52 @@ using System.Diagnostics;
 
 namespace Capp2
 {
-	public class SettingsPage:ContentPage
+	public class TemplateSettingsPage:ContentPage
 	{
-		Label MainLabel;
+		Label MainLabel, EmptyLabel;
+		Image DoneImage;
 		Editor SMSEntry, LocEntry;
 		StackLayout SettingsList1, SettingsList2;
 		bool SMSEntryShown = false, LocEntrySHown = false;
 
-		public SettingsPage ()
+		public TemplateSettingsPage ()
 		{
+			WarnUserNotToDeleteMeetingAndTimePlaceholders ();
 			Content = createUI ();
+		}
+		void WarnUserNotToDeleteMeetingAndTimePlaceholders(){
+			DisplayAlert ("Warning", "Please don't delete the <meeting here> and <date here> parts. CapTap looks for those to automatically input your meetup details", "OK");
 		}
 		ScrollView createUI(){
 			this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
 			BindingContext = new SettingsViewModel();
 
+			DoneImage = UIBuilder.CreateTappableImage ("", LayoutOptions.Start, Aspect.AspectFit, new Command(() => {
+				CheckIfUserChangedMeetingAndTimeStringTags(SMSEntry.Text, true);
+			}));
+
+			EmptyLabel = new Label{
+				//HeightRequest = MainLabel.Height
+			};
 			MainLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
-				Text = "BOM Text Template",
+				Text = "Text Templates",
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				HorizontalTextAlignment = TextAlignment.Start
 			};
 
 			SMSEntry = new Editor ();
 			SMSEntry.SetBinding (Editor.TextProperty, new Xamarin.Forms.Binding(){Path="BOMTemplateSettings"});
+			SMSEntry.Completed += (sender, e) => {
+				CheckIfUserChangedMeetingAndTimeStringTags(SMSEntry.Text, false);
+			};
 
 			LocEntry = new Editor ();
 			LocEntry.SetBinding (Editor.TextProperty, new Xamarin.Forms.Binding(){Path="BOMLocationSettings"});
 
 			SettingsList1 = new StackLayout{
 				Orientation = StackOrientation.Vertical,
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
 				Children = {
 					UIBuilder.CreateSetting ("", "BOM Text Template", 
 						new TapGestureRecognizer {Command = new Command (() => 
@@ -47,8 +63,9 @@ namespace Capp2
 			};
 			SettingsList2 = new StackLayout{
 				Orientation = StackOrientation.Vertical,
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
 				Children = {
-					UIBuilder.CreateSetting ("", "Regular Meeting Place", 
+					UIBuilder.CreateSetting ("", "Meeting Place Text Template", 
 						new TapGestureRecognizer {Command = new Command (() => 
 							ShowOrHideLocTemplate(LocEntry, SettingsList2, 1)
 						)}),
@@ -65,8 +82,12 @@ namespace Capp2
 							new StackLayout {
 								Orientation = StackOrientation.Vertical,
 								HorizontalOptions = LayoutOptions.Fill,
-								VerticalOptions = LayoutOptions.StartAndExpand, 
+								VerticalOptions = LayoutOptions.CenterAndExpand, 
 								Children = {
+									new StackLayout{
+										Orientation = StackOrientation.Horizontal,
+										Children = {EmptyLabel, DoneImage, MainLabel}
+									},
 									SettingsList2, SettingsList1, 
 								}
 							}
@@ -74,12 +95,19 @@ namespace Capp2
 				}
 			};
 		}
+		void CheckIfUserChangedMeetingAndTimeStringTags(string input, bool poppage){
+			if(input.ToLower().Contains("<meeting here>") && input.ToLower().Contains("<date here>")){
+				if(poppage) App.NavPage.Navigation.PopModalAsync ();
+			}else{
+				this.DisplayAlert("Oops!", "Please don't touch the '<meeting here>' and '<date here>' tags", "OK");
+			}
+		}
 		void ShowOrHideTextTemplate(Editor entry, StackLayout parent, int indexToInsertAt){
 			if (!SMSEntryShown) {
 				entry.Focus ();
 				parent.Children.Insert (indexToInsertAt, entry);
 				SMSEntryShown = true;
-				entry.Text = "Hi (name will auto fill), " + (this.BindingContext as SettingsViewModel).BOMTemplateSettings;
+				entry.Text = (this.BindingContext as SettingsViewModel).BOMTemplateSettings;
 				Debug.WriteLine (entry.Text);
 			}else{
 				parent.Children.Remove (entry);

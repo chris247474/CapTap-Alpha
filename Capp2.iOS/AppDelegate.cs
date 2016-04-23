@@ -7,6 +7,8 @@ using XLabs.Forms;
 using XLabs.Ioc;
 using XLabs.Platform.Device;
 using XLabs.Platform.Services;
+using CoreAnimation;
+using CoreGraphics;
 
 namespace Capp2.iOS
 {
@@ -18,10 +20,9 @@ namespace Capp2.iOS
 			get;
 			set;
 		}
+
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-			SetUIStyles ();
-
             // check for a notification
             if (options != null)
             {
@@ -71,9 +72,10 @@ namespace Capp2.iOS
             }
 
             global::Xamarin.Forms.Forms.Init();
+
+			SetUIStyles (app);
             
             LoadApplication(new App());
-            
             return base.FinishedLaunching(app, options);
         }
 
@@ -82,21 +84,33 @@ namespace Capp2.iOS
             // show an alert
             UIAlertController okayAlertController = UIAlertController.Create(notification.AlertAction, notification.AlertBody, UIAlertControllerStyle.Alert);
             okayAlertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
-            //viewController.PresentViewController(okayAlertController, true, null);
             UserDialogs.Instance.ShowSuccess(notification.AlertBody, 3000);
 
             // reset our badge
             UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
         }
 
-		void SetUIStyles(){
+		void SetUIStyles(UIApplication iOSApp){
+			var win = new UIWindow(UIScreen.MainScreen.Bounds);
+
+			/*var StartColor = ColorFromHex(Values.PURPLE);  
+			var EndColor = ColorFromHex(Values.GOOGLEBLUE);*/
+
 			//UINavigationBar.Appearance.BarTintColor = UIColor.FromRGB(43, 132, 211); //bar background 
-			UINavigationBar.Appearance.TintColor = ColorFromHex(Values.GOOGLEBLUE); //Tint color of button items 
+			UINavigationBar.Appearance.TintColor = ColorFromHex(Values.GOOGLEBLUE); //Tint color of button items  
 			/*UINavigationBar.Appearance.SetTitleTextAttributes(new UITextAttributes() { 
 				Font = UIFont.FromName("HelveticaNeue-Light", (nfloat)20f), TextColor = UIColor.White 
 			});*/
-		}
 
+			/*var gradientLayer = new CAGradientLayer ();
+			gradientLayer.Frame = win.Bounds;//View.Bounds;
+			gradientLayer.Colors = new CGColor[] { StartColor.CGColor, EndColor.CGColor };
+			win.Layer.InsertSublayer (gradientLayer, 0);*/
+		}
+		void SetGradientLayerAsiOSBackground(UIWindow win, UIColor StartColor, UIColor EndColor)
+		{
+			
+		}
 		UIColor ColorFromHex (string hexValue, float alpha = 1.0f)
 		{
 			var colorString = hexValue.Replace ("#", "");
@@ -122,6 +136,7 @@ namespace Capp2.iOS
 					red = Convert.ToInt32(colorString.Substring(0, 2), 16) / 255f;
 					green = Convert.ToInt32(colorString.Substring(2, 2), 16) / 255f;
 					blue = Convert.ToInt32(colorString.Substring(4, 2), 16) / 255f;
+
 					return UIColor.FromRGBA(red, green, blue, alpha);
 				}   
 

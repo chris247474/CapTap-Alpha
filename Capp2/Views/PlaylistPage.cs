@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Capp2
 {
-	public class PlaylistPage:ContentPage//MasterDetailPage
+	public class PlaylistPage:GradientContentPage//MasterDetailPage
 	{
 		public ListView listView{ get; set;}
 		public Playlist playlistSelected;
@@ -17,14 +17,16 @@ namespace Capp2
 
         public PlaylistPage()
         {
+			//this.Opacity = 0.3;
             this.Title = "Namelists";
-            this.BackgroundColor = Color.White;
+			this.BackgroundColor = Color.Transparent;
 
             foreach (Playlist p in App.Database.GetPlaylistItems()) {
                 Debug.WriteLine("playlist: {0}", p.PlaylistName);
             }
 
             var searchBar = new SearchBar {
+				BackgroundColor = Color.Transparent,
                 Placeholder = "Enter a namelist",
                 VerticalOptions = LayoutOptions.FillAndExpand,
                 HorizontalOptions = LayoutOptions.FillAndExpand
@@ -50,12 +52,13 @@ namespace Capp2
             }
 
             listView = new ListView {
+				BackgroundColor = Color.Transparent,
                 ItemsSource = App.Database.GetPlaylistItems(),
-                SeparatorColor = this.BackgroundColor,
+				SeparatorColor = Color.Transparent,//this.BackgroundColor,
                 ItemTemplate = new DataTemplate(() =>
                     {
                         return new PlaylistViewCell(this);
-                    })
+                    }),
             };
             listView.ItemSelected += (sender, e) => {
                 
@@ -67,7 +70,10 @@ namespace Capp2
 
                 //load contacts based on type of playlist (warm, cold, semi warm whatever playlist is tapped)
                 UserDialogs.Instance.ShowLoading();
-                Navigation.PushAsync(new CAPP(playlistSelected));
+
+				//App.StartColor = Color.FromHex(Values.STACKVIEWSCYANBLUE);
+				//App.EndColor = Color.FromHex(Values.STACKVIEWSCYAN);
+				Navigation.PushAsync(new CAPP(playlistSelected));
 
                 // de-select the row
                 ((ListView)sender).SelectedItem = null;
@@ -76,7 +82,7 @@ namespace Capp2
             if (Device.OS == TargetPlatform.iOS) {
                 stack = new StackLayout
                 {
-                    //Padding = new Thickness(10),
+					BackgroundColor = Color.Transparent,
                     Children = {
                         searchBar,
                         new StackLayout{
@@ -98,8 +104,8 @@ namespace Capp2
                 }
                 };
             }
-
-			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "ic_add_white_24dp.png", new Command (async () =>
+				
+			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, UIBuilder.GetPlatformFABIcon(), new Command (async () =>
 				{
 					var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
 					if(string.IsNullOrWhiteSpace(result.Text) || string.IsNullOrEmpty(result.Text)){
@@ -129,9 +135,16 @@ namespace Capp2
 
 			listView.EndRefresh ();
 		}
+		protected override void OnAppearing(){
+			Debug.WriteLine ("OnAppearing");
+		}
 		protected override void OnDisappearing(){
 			Debug.WriteLine ("OnDisappearing");
-			if(Device.OS == TargetPlatform.iOS) App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
+			if (Device.OS == TargetPlatform.iOS){
+				App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);//STACKVIEWSDARKERCYANBLUE);//GOOGLEBLUE);
+				//App.NavPage.BarTextColor = Color.FromHex(Values.STACKVIEWSCYAN);
+
+			}
 			else App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
 		}
 	}
@@ -142,6 +155,8 @@ namespace Capp2
 		{
 			Label playlistLabel = new Label();
 			playlistLabel.SetBinding(Label.TextProperty, "PlaylistName");//"Name" binds directly to the ContactData.Name property
+			playlistLabel.HorizontalTextAlignment = TextAlignment.Center;
+			playlistLabel.HorizontalOptions = LayoutOptions.CenterAndExpand;
 
 			var EditAction = new MenuItem { Text = "Edit" };
 			EditAction.SetBinding (MenuItem.CommandParameterProperty, new Binding ("."));
@@ -161,8 +176,8 @@ namespace Capp2
 
 			View = new StackLayout {
 				Orientation = StackOrientation.Horizontal,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				Padding = new Thickness (15, 5, 5, 15),
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				Padding = new Thickness (0, 5, 5, 15),
 				Children = { playlistLabel }
 			};
 

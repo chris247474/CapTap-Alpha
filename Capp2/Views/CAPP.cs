@@ -14,7 +14,7 @@ using FAB.Forms;
 
 namespace Capp2
 {
-	public class CAPP:ContentPage, INotifyPropertyChanged
+	public class CAPP:GradientContentPage, INotifyPropertyChanged
 	{
 		ContactData personCalled;
 		public ListView listView{ get; set;}
@@ -44,7 +44,8 @@ namespace Capp2
             title = playlistChosen.PlaylistName + " Contacts";
 			this.playlistChosen = playlistChosen;
 			this.playlist = this.playlistChosen.PlaylistName;
-			this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
+
+			this.BackgroundColor = Color.Transparent;//FromHex (Values.BACKGROUNDLIGHTSILVER);
 			if (Device.OS == TargetPlatform.iOS)
 				App.NavPage.BackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
 
@@ -55,6 +56,7 @@ namespace Capp2
 			cameraOps = new CameraViewModel();
 
 			searchBar = new SearchBar {
+				BackgroundColor = Color.Transparent,
 				Placeholder = "Enter someone's name",
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.FillAndExpand
@@ -171,8 +173,9 @@ namespace Capp2
 
 			listView = new ListView ()
 			{
+				BackgroundColor = Color.Transparent,
                 ItemsSource = PreLoadedGroupedList,
-                SeparatorColor = this.BackgroundColor,
+				SeparatorColor = Color.Transparent,
                 ItemTemplate = new DataTemplate(() => {
 					return new ContactViewCell (this);
 				}),
@@ -207,7 +210,7 @@ namespace Capp2
             if (Device.OS == TargetPlatform.iOS) {
                 stack = new StackLayout()
                 {
-                    BackgroundColor = Color.White,
+					BackgroundColor = Color.Transparent,//White,
                     Orientation = StackOrientation.Vertical,
                     //Padding = new Thickness(0, 0, 10, 0),
                     Children =
@@ -222,7 +225,7 @@ namespace Capp2
             } else if (Device.OS == TargetPlatform.Android) {
                 stack = new StackLayout()
                 {
-                    BackgroundColor = Color.White,
+					BackgroundColor = Color.Transparent,//White,
                     Orientation = StackOrientation.Vertical,
                     Padding = new Thickness(7, 3, 7, 7),
                     Children =
@@ -331,10 +334,21 @@ namespace Capp2
             cmdAutocall.BackgroundColor = Color.Red;
 		}
 		public void SubscribeForAutoCallListeners(){
-            MessagingCenter.Subscribe<TextTemplatePage>(this, Values.DONEWITHCALL, (args) =>{ 
+			MessagingCenter.Subscribe<string>(this, Values.DONEWITHCALL, (args) =>{ 
 				try{
-					Navigation.PopModalAsync();
-					Navigation.PopModalAsync();
+					NavigationHelper.ClearModals(this);
+				}catch(Exception e){
+					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
+				}
+
+				Debug.WriteLine ("CALL FINISHED");
+				AutoCallContinue = true;
+				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
+				StartContinueAutoCall ();
+			});
+			MessagingCenter.Subscribe<TextTemplatePage>(this, Values.DONEWITHCALL, (args) =>{ 
+				try{
+					NavigationHelper.ClearModals(this);
 				}catch(Exception e){
 					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
 				}
@@ -389,8 +403,9 @@ namespace Capp2
                 stack.Children.RemoveAt(3);
                 listView = new ListView()
                 {
+					BackgroundColor = Color.Transparent,
                     ItemsSource = groupedList,
-                    SeparatorColor = this.BackgroundColor,
+					SeparatorColor = Color.Transparent,//this.BackgroundColor,
                     ItemTemplate = new DataTemplate(() =>
                     {
                         return new ContactViewCell(this);
@@ -516,7 +531,11 @@ namespace Capp2
 		}
 		protected override void OnDisappearing(){
 			Debug.WriteLine ("OnDisappearing");
-			App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
+			App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);//STACKVIEWSDARKERPURPLE);
+			/*App.NavPage.BarTextColor = Color.FromHex (Values.STACKVIEWSORANGE);
+
+			App.StartColor = Color.FromHex(Values.STACKVIEWSORANGE);
+			App.EndColor = Color.FromHex(Values.STACKVIEWSPURPLE);*/
 		}
 	}
 	public class Grouping<S, T> : ObservableCollection<T>
@@ -538,10 +557,11 @@ namespace Capp2
 	public class HeaderCell : ViewCell 
 	{ 
 		public HeaderCell() 
-		{ 
+		{
 			this.Height = 27; 
 			var title = new Label 
 			{ 
+				BackgroundColor = Color.Transparent,
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 				FontAttributes = FontAttributes.Bold,
 				TextColor = Color.Black,
@@ -550,6 +570,7 @@ namespace Capp2
 			title.SetBinding(Label.TextProperty, "Key"); 
 			View = new StackLayout 
 			{ 
+				BackgroundColor = Color.Transparent,
 				HorizontalOptions = LayoutOptions.FillAndExpand, 
 				HeightRequest = 25, 
 				//BackgroundColor = Color.FromRgb(52, 152, 218), 
@@ -557,6 +578,7 @@ namespace Capp2
 				Orientation = StackOrientation.Horizontal, 
 				Children = { title } 
 			}; 
+			this.View.BackgroundColor = Color.Transparent;
 		} 
 	}
 

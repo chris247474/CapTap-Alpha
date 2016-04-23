@@ -8,6 +8,11 @@ namespace Capp2
 {
 	public static class UIBuilder
 	{
+		public static string GetPlatformFABIcon(){
+			if(Device.OS == TargetPlatform.Android)  return "ic_add_white_24dp.png";
+			else if(Device.OS == TargetPlatform.iOS) return "Add";
+			return string.Empty;
+		}
 		public static StackLayout AddFloatingActionButtonToStackLayout(StackLayout stack, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
 			var layout = new RelativeLayout ();
 			layout.Children.Add(
@@ -19,11 +24,13 @@ namespace Capp2
 			);
 
 			return new StackLayout{
+				BackgroundColor = Color.Transparent,
 				Children = {
 					AddFloatingActionButtonToRelativeLayout(layout, icon, FabTapped, NormalColor, PressedColor)
 				}
 			};
 		}
+
 		public static RelativeLayout AddFloatingActionButtonToRelativeLayout(RelativeLayout layout, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
             var normalFab = new FAB.Forms.FloatingActionButton();
 
@@ -82,25 +89,23 @@ namespace Capp2
 				}
 			};
 		}
-		public static Image CreateTappableImage(string source, Command TapAction = null){
-			Image img = new Image{
-				Aspect = Aspect.AspectFit,
-				Source = source
+
+
+		public static Image CreateTappableImage(string icon, LayoutOptions layout, Aspect aspect, Command handlerCommand){
+			TapGestureRecognizer handler = new TapGestureRecognizer{Command = handlerCommand};
+			var img = new Image{
+				Source = icon,
+				HorizontalOptions = layout,
+				Aspect = aspect,
 			};
-			if (TapAction != null) {
-				img.GestureRecognizers.Add (new TapGestureRecognizer{ Command = TapAction});
-			} else {
-				//img.GestureRecognizers.Add (new TapGestureRecognizer{ Command = new Command (() => Util.ChangeProfilePic (img)) });
-			}
+			img.GestureRecognizers.Add (handler);
 			return img;
 		}
-
-
 		public static StackLayout CreateSetting(string icon, string name, TapGestureRecognizer handler){
 			
 			StackLayout Setting = new StackLayout { 
 				Orientation = StackOrientation.Horizontal,
-				HorizontalOptions = LayoutOptions.Start,
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
 				Padding = new Thickness(20),
 				Children = {
 					new Image{

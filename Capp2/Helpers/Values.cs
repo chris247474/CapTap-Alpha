@@ -14,6 +14,15 @@ namespace Capp2
 		public const string CYAN = "#00BCD4";
 		public const string TEAL = "#009688";
 		public const string ORANGE = "#FF9800";
+		public const string STACKVIEWSDARKERPURPLE = "#944A7F";
+		public const string STACKVIEWSPURPLE = "#9F527E";
+		public const string STACKVIEWSORANGE = "#F1AC81";
+		public const string STACKVIEWSDARKERCYANBLUE = "#2C7FAB";
+		public const string STACKVIEWSCYANBLUE = "#2A93B3";
+		public const string STACKVIEWSCYAN = "#26CFCE";
+
+		public const string BACKGROUNDPURPLEGRADIENT = "#7C6E9F";
+		public const string BACKGROUNDDARKPURPLEGRADIENT = "#1E1F47";
 
 		public static string ApplicationURL = @"https://secretfiles.azurewebsites.net";
 

@@ -120,9 +120,14 @@ namespace Capp2
 					numberLabel, numberEntry,
 					affLabel, affEntry,
 					playlistLabel,playlistPicker,
-					cancelButton
+					//cancelButton
 				}
 			};
+
+		}
+		protected override void OnDisappearing(){
+			Debug.WriteLine ("OnDisappearing");
+			App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
 		}
 	}
 }

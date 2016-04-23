@@ -144,7 +144,7 @@ namespace Capp2.Helpers
 	#region Setting Location Constants
 
 	private const string LocKey = "name_key";
-	private static readonly string LocDefault = "(enter location)";
+	private static readonly string LocDefault = "<meetup here>";
 	#endregion
 	
 	public static string LocSettings
@@ -180,7 +180,7 @@ namespace Capp2.Helpers
     #region Setting BOMTemplateText
 
     private const string BOMKey = "bom_key";
-		private static readonly string BOMDefault = "we can meet at <meetup here>. We introduce our guests to the speaker " +
+		private static readonly string BOMDefault = "we can meet at <meeting here>. We introduce our guests to the speaker " +
 			"then all go up together. " +
 			"See you <date here> :). Please reply if recieved ";
 

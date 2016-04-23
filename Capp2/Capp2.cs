@@ -16,13 +16,13 @@ using Plugin.Calendars;
 using Plugin.LocalNotifications;
 using Plugin.Contacts.Abstractions;
 using Capp2.Helpers;
+using System.Globalization;
 
 namespace Capp2
 {
 	public class App : Application
 	{
 		public static DB database;
-		//public static PlaylistDB playlists;
 		public static Util contactFuncs;
 		public static bool firstRun = false;
 		public static int lastIndex{ get; set;}
@@ -30,6 +30,11 @@ namespace Capp2
 		public static NavigationPage NavPage;
         public static bool AutoCallStatus { get; set; }
         public static CAPP CapPage { get; set; }
+		public static Color StartColor;
+		public static Color EndColor;
+		public static string Width;
+		public static string Height;
+		public static bool OnAppStart;
 
 		public App ()
 		{			
@@ -42,6 +47,8 @@ namespace Capp2
             AutoCallStatus = false;
 			contactFuncs = new Util ();
 
+			SetupGradientBackground ();
+
 			await contactFuncs.loadDeviceContactsIntoDBSingleTransaction (false);
 
             try {
@@ -53,6 +60,14 @@ namespace Capp2
                 }
             } catch(Exception e){ Debug.WriteLine("Calendar error {0}", e.Message);}
 		}
+		void SetupGradientBackground(){
+			if(Device.OS == TargetPlatform.iOS)
+			{
+				OnAppStart = true;
+			}
+			StartColor = Color.White;//FromHex (Values.GOOGLEBLUE);//BACKGROUNDPURPLEGRADIENT); 
+			EndColor = Color.White;//FromHex (Values.BACKGROUNDDARKPURPLEGRADIENT);
+		}
 		public static DB Database {
 			get { 
 				if (database == null) {
@@ -61,14 +76,6 @@ namespace Capp2
 				return database; 
 			}
 		}
-		/*public static PlaylistDB Playlists {
-			get { 
-				if (playlists == null) {
-					playlists = new PlaylistDB ();
-				}
-				return playlists; 
-			}
-		}*/
 
 		protected override void OnStart ()
 		{
