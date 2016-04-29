@@ -3666,61 +3666,58 @@ namespace Capp2.Droid
 			public const int icon = 2130837603;
 			
 			// aapt resource value: 0x7f020064
-			public const int monoandroidsplash = 2130837604;
+			public const int mr_ic_cast_dark = 2130837604;
 			
 			// aapt resource value: 0x7f020065
-			public const int mr_ic_cast_dark = 2130837605;
+			public const int mr_ic_cast_light = 2130837605;
 			
 			// aapt resource value: 0x7f020066
-			public const int mr_ic_cast_light = 2130837606;
+			public const int mr_ic_media_route_connecting_mono_dark = 2130837606;
 			
 			// aapt resource value: 0x7f020067
-			public const int mr_ic_media_route_connecting_mono_dark = 2130837607;
+			public const int mr_ic_media_route_connecting_mono_light = 2130837607;
 			
 			// aapt resource value: 0x7f020068
-			public const int mr_ic_media_route_connecting_mono_light = 2130837608;
+			public const int mr_ic_media_route_mono_dark = 2130837608;
 			
 			// aapt resource value: 0x7f020069
-			public const int mr_ic_media_route_mono_dark = 2130837609;
+			public const int mr_ic_media_route_mono_light = 2130837609;
 			
 			// aapt resource value: 0x7f02006a
-			public const int mr_ic_media_route_mono_light = 2130837610;
+			public const int mr_ic_pause_dark = 2130837610;
 			
 			// aapt resource value: 0x7f02006b
-			public const int mr_ic_pause_dark = 2130837611;
+			public const int mr_ic_pause_light = 2130837611;
 			
 			// aapt resource value: 0x7f02006c
-			public const int mr_ic_pause_light = 2130837612;
+			public const int mr_ic_play_dark = 2130837612;
 			
 			// aapt resource value: 0x7f02006d
-			public const int mr_ic_play_dark = 2130837613;
+			public const int mr_ic_play_light = 2130837613;
 			
 			// aapt resource value: 0x7f02006e
-			public const int mr_ic_play_light = 2130837614;
+			public const int mr_ic_settings_dark = 2130837614;
 			
 			// aapt resource value: 0x7f02006f
-			public const int mr_ic_settings_dark = 2130837615;
-			
-			// aapt resource value: 0x7f020070
-			public const int mr_ic_settings_light = 2130837616;
-			
-			// aapt resource value: 0x7f020076
-			public const int notification_template_icon_bg = 2130837622;
-			
-			// aapt resource value: 0x7f020071
-			public const int Phone = 2130837617;
-			
-			// aapt resource value: 0x7f020072
-			public const int plugin_lc_smallicon = 2130837618;
-			
-			// aapt resource value: 0x7f020073
-			public const int roundedbg = 2130837619;
-			
-			// aapt resource value: 0x7f020074
-			public const int roundedbgdark = 2130837620;
+			public const int mr_ic_settings_light = 2130837615;
 			
 			// aapt resource value: 0x7f020075
-			public const int SplashScreen = 2130837621;
+			public const int notification_template_icon_bg = 2130837621;
+			
+			// aapt resource value: 0x7f020070
+			public const int Phone = 2130837616;
+			
+			// aapt resource value: 0x7f020071
+			public const int plugin_lc_smallicon = 2130837617;
+			
+			// aapt resource value: 0x7f020072
+			public const int roundedbg = 2130837618;
+			
+			// aapt resource value: 0x7f020073
+			public const int roundedbgdark = 2130837619;
+			
+			// aapt resource value: 0x7f020074
+			public const int SplashScreen = 2130837620;
 			
 			static Drawable()
 			{
@@ -5011,9 +5008,6 @@ namespace Capp2.Droid
 			
 			// aapt resource value: 0x7f080006
 			public const int CardView_Light = 2131230726;
-			
-			// aapt resource value: 0x7f08014d
-			public const int Mono_Android_Theme_Splash = 2131231053;
 			
 			// aapt resource value: 0x7f080025
 			public const int Platform_AppCompat = 2131230757;

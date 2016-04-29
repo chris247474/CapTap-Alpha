@@ -20,24 +20,24 @@ namespace Capp2.Helpers
         return CrossSettings.Current;
       }
     }
-	/*
-	#region Setting ListViewItemBackgroundColor
-	private const string ListViewItemBackgroundColor = "";
-	private static readonly string ListViewItemBackgroundColorDefault = "1"; 
+	
+	#region DefaultNamelist
+	private const string DefaultNamelist = Values.ALLPLAYLISTPARAM;
+	private static readonly string DefaultNamelistDefault = Values.ALLPLAYLISTPARAM;
 	#endregion
 
-		public static string ListViewItemBackgroundColorSettings
+	public static string DefaultNamelistSettings
 	{
 		get
 		{
-			return AppSettings.GetValueOrDefault<string>(ListViewItemBackgroundColor, ListViewItemBackgroundColorDefault);
+			return AppSettings.GetValueOrDefault<string>(DefaultNamelist, DefaultNamelistDefault);
 		}
 		set
 		{
-			AppSettings.AddOrUpdateValue<string>(ListViewItemBackgroundColor, value);
+			AppSettings.AddOrUpdateValue<string>(DefaultNamelist, value);
 		}
 	}
-*/
+
 	#region Setting RemindedForToday
 		private const string RemindedForToday = "";
 		private static readonly string RemindedForTodayDefault = Values.MEETINGSNOTYETREMINDED;

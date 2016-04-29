@@ -24,23 +24,28 @@ namespace Capp2
 		public Util ()
 		{
 		}
-        /*public async Task<bool> CreateDefaultPlaylistsIfNoneExists(){
-			Debug.WriteLine ("Checking playlists");
-			PlaylistItemAzure[] playlists = (await App.AzurePlaylistDB.GetPlaylistItems ()).ToArray ();
-			for(int c = 0;c < playlists.Length;c++){
-				Debug.WriteLine ("Entered loop");
-				if (string.Equals (playlists [c].PlaylistName, Values.ALLPLAYLISTPARAM) || string.Equals (playlists [c].PlaylistName, Values.TODAYSCALLS)) {
-					Debug.WriteLine ("default playlists exist already");
-				} else {
-					Debug.WriteLine ("First run, default playlists dont exist yet");
-					await App.AzurePlaylistDB.SaveItem (new PlaylistItemAzure{PlaylistName = Values.ALLPLAYLISTPARAM }, false);
-					await App.AzurePlaylistDB.SaveItem (new PlaylistItemAzure{PlaylistName = Values.TODAYSCALLS}, false);
-					await App.AzurePlaylistDB.SyncAsync ();
+		public static string[] ImportChoices(string playlist){
+			var arr = (App.Database.GetPlaylistItems ()).ToArray();
+			string[] importchoices = new string[arr.Length+2];
+
+			importchoices [0] = Values.IMPORTCHOICEMANUAL;
+			importchoices [1] = Values.IMPORTCHOICEGDRIVE;
+			try{
+				
+				for (int c = 0; c < arr.Length; c++) {
+					if(string.Equals(importchoices[c], playlist))
+					{
+						//
+					}else{
+						importchoices [c+2] = arr [c].PlaylistName;
+					}
 				}
+			}catch(Exception e){
+				Debug.WriteLine ("Couldn't get PlaylistItems: {0}", e.Message);
 			}
 
-			return true;
-		}*/
+			return importchoices;
+		}
 
 		public static async Task<string> GetUserInputSingleLinePromptDialogue(){
 			var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
@@ -53,6 +58,24 @@ namespace Capp2
 				}
 			}
 			return string.Empty;
+		}
+		public static async Task ChooseNewDefaultNamelist(string[] buttons){
+			try{
+				var result = await UserDialogs.Instance.ActionSheetAsync("When I launch CapTap, open this namelist", "OK", "Cancel", buttons);
+				if (!string.Equals(result, "OK")) {
+					if (!string.IsNullOrWhiteSpace(result) && !string.Equals(result, "Cancel"))
+					{
+						Settings.DefaultNamelistSettings = result;
+
+						UserDialogs.Instance.ShowSuccess("Namelist set!", 2000);
+					}
+					else {
+						UserDialogs.Instance.WarnToast("Oops! You didn't choose a default namelist. Please try again", null, 2000);
+					}
+				}
+			}catch(Exception e){
+				Debug.WriteLine ("ChooseNewDefaultName error: {0}", e.Message);
+			}
 		}
         public static ObservableCollection<ContactData> ConvertToObservableCollection(IEnumerable<ContactData> eList)
         {

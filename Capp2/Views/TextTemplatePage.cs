@@ -35,15 +35,13 @@ namespace Capp2
 			BindingContext = new SettingsViewModel();
 			
 			SMSEntry = new Editor ();
-			(BindingContext as SettingsViewModel).BOMTemplateSettings = string.Format ("Hi {0}, {1}", person.FirstName, (BindingContext as SettingsViewModel).BOMTemplateSettings);
-
+			//(BindingContext as SettingsViewModel).BOMTemplateSettings = string.Format ("Hi {0}, {1}", person.FirstName, (BindingContext as SettingsViewModel).BOMTemplateSettings);
 			SMSEntry.SetBinding<SettingsViewModel> (Editor.TextProperty, vm => vm.BOMTemplateSettings);
 
 			cmdSMS = new Button {Text = "Send"};
 			cmdSMS.Clicked += async (sender, e) => {
-				
 				TextTemplateHelper.BookProspectOrMarkForCallBackDate(person, AutoCall, (BindingContext as SettingsViewModel));
-            };
+			};
 
 			lbl = new Label{ 
 				Text = "Send Text",
@@ -65,11 +63,6 @@ namespace Capp2
 					}
 				}
 			};
-		}
-		protected override void OnDisappearing(){
-			Debug.WriteLine ("OnDisappearing");
-			if(Device.OS == TargetPlatform.iOS) App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
-			else App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
 		}
 
 	}

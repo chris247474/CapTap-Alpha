@@ -131,6 +131,8 @@
     <Compile Include="CustomRenderers\GradientContentPageRenderer.cs" />
     <Compile Include="CustomRenderers\CustomNavigationRenderer.cs" />
     <Compile Include="Helpers\EmailService.cs" />
+    <BundleResource Include="Resources\trending-Small.png" />
+    <BundleResource Include="Resources\clear-Small.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

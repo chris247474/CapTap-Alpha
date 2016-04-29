@@ -199,6 +199,32 @@ namespace Capp2
             Debug.WriteLine(App.lastIndex + ": lastIndex");
             return list;
         }
+		public string[] GetPlaylistNames(){
+			try{
+				var playlists = GetPlaylistItems();
+				Playlist[] playlistarr = playlists.ToArray();
+				var pnames = new string[playlistarr.Length];
+				for(int c = 0;c < playlistarr.Length;c++){
+					pnames[c] = playlistarr[c].PlaylistName;
+				}
+				return pnames;
+			}catch(Exception e){
+				Debug.WriteLine ("GetPlaylistNames() error: {0}", e.Message);
+			}
+			return null;
+		}
+		public List<ContactData> GetSelectedItems(string playlist){
+			var wholeList = GetItems (playlist).ToArray();
+			List<ContactData> selectedItems = new List<ContactData> ();
+
+			for (int c = 0; c < wholeList.Length; c++) {
+				if (wholeList [c].IsSelected) {
+					selectedItems.Add (wholeList [c]);
+				}
+			}
+
+			return selectedItems;
+		}
         public int DeletePlaylistItem(Playlist item)
         {
             if (string.Equals(Values.ALLPLAYLISTPARAM, item.PlaylistName) || string.Equals(Values.TODAYSCALLS, item.PlaylistName))
@@ -234,6 +260,24 @@ namespace Capp2
                 return database.Update(item);
             }
         }
+
+		public async Task DeselectAll(IEnumerable<ContactData> list, CAPPBase capp){
+			ContactData[] arr = list.ToArray ();
+			for(int c = 0;c < arr.Length;c++){
+				arr [c].IsSelected = false;
+			}
+			App.Database.UpdateAll (arr.AsEnumerable ());
+			capp.refresh ();
+		}
+
+		public void EnableAll(IEnumerable<ContactData> list, CAPPBase capp){
+			ContactData[] arr = list.ToArray ();
+			for(int c = 0;c < arr.Length;c++){
+				arr [c].IsSelected = true;
+			}
+			App.Database.UpdateAll (arr.AsEnumerable ());
+			capp.refresh ();
+		}
     }
 }
 

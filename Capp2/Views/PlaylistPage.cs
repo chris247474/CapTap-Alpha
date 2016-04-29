@@ -73,7 +73,7 @@ namespace Capp2
 
 				//App.StartColor = Color.FromHex(Values.STACKVIEWSCYANBLUE);
 				//App.EndColor = Color.FromHex(Values.STACKVIEWSCYAN);
-				Navigation.PushAsync(new CAPP(playlistSelected));
+				Navigation.PushAsync(new CAPP(playlistSelected.PlaylistName));
 
                 // de-select the row
                 ((ListView)sender).SelectedItem = null;
@@ -134,18 +134,6 @@ namespace Capp2
 			}
 
 			listView.EndRefresh ();
-		}
-		protected override void OnAppearing(){
-			Debug.WriteLine ("OnAppearing");
-		}
-		protected override void OnDisappearing(){
-			Debug.WriteLine ("OnDisappearing");
-			if (Device.OS == TargetPlatform.iOS){
-				App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);//STACKVIEWSDARKERCYANBLUE);//GOOGLEBLUE);
-				//App.NavPage.BarTextColor = Color.FromHex(Values.STACKVIEWSCYAN);
-
-			}
-			else App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
 		}
 	}
 

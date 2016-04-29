@@ -71,6 +71,12 @@
     <Compile Include="Views\GradientContentPage.cs" />
     <Compile Include="Helpers\StringUtil.cs" />
     <Compile Include="Helpers\IEmailService.cs" />
+    <Compile Include="Helpers\AlertHelper.cs" />
+    <Compile Include="Helpers\UIAnimationHelper.cs" />
+    <Compile Include="Helpers\CallHelper.cs" />
+    <Compile Include="Views\CappModal.cs" />
+    <Compile Include="Helpers\CappBuilder.cs" />
+    <Compile Include="Views\CAPPBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

@@ -18,7 +18,7 @@ namespace Capp2
 		public AddContactPage (CAPP capp, ContactData contactDuplicate = null)
 		{
 			this.capp = capp;
-			this.playlist = capp.playlistChosen.PlaylistName;
+			this.playlist = capp.playlist;
 
 			this.Title = "Adding to "+this.playlist+" namelist";
 

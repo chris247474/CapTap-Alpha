@@ -28,7 +28,6 @@ namespace Capp2
 			Settings.BOMTemplateSettings = PlaceLocationAndDatesIntoTemplateText (Settings.BOMTemplateSettings, person);
 
 			await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, Settings.BOMTemplateSettings, person.Name, Values.BOM);
-			//Settings.BOMTemplateSettings = Settings.BOMTemplateSettings.Replace("Hi " + person.FirstName + ", ", "");
 			Settings.BOMTemplateSettings = DefaultTemplateText;
 
 			if (AutoCall) {
@@ -38,11 +37,14 @@ namespace Capp2
 				}
 			} else {
 				try {
+					
 					NavigationHelper.ClearModals (App.NavPage);
+					CallHelper.ShowUserYesCallTime(App.CapPage, false);
 				} catch (IndexOutOfRangeException ex) {
 					Debug.WriteLine ("Error popping datepage and texttemplate modals possibly due to using 'await Navigation.PopModalAsync()': {0} ", ex.Message);
 				}
 			}
+
 		}
 
 		public static string PlaceLocationAndDatesIntoTemplateText(string template, ContactData person){

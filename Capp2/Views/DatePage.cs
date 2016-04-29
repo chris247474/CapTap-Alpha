@@ -6,6 +6,7 @@ using Plugin.Calendars.Abstractions;
 using System.Threading.Tasks;
 using Capp2.Helpers;
 using Acr.UserDialogs;
+using System.Globalization;
 
 namespace Capp2
 {
@@ -19,16 +20,13 @@ namespace Capp2
 
 		public DatePage (string whichCapp, ContactData personCalled, bool autocall)
 		{
-			Debug.WriteLine ("Entered DatePage()");
 			BackgroundColor = Color.White;
 			AutoCall = autocall;
 			this.SetBinding (ContentPage.TitleProperty, "Name");
 			Name = personCalled.Name;
 
-			//NavigationPage.SetHasNavigationBar (this, true);
-
 			Label lbl = new Label{
-				Text = "When did we book " + personCalled.Name + "?",
+				Text = LabelForPartOfCall(whichCapp, personCalled),
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 				FontAttributes = FontAttributes.Bold,
 				VerticalOptions = LayoutOptions.Center,
@@ -63,6 +61,10 @@ namespace Capp2
 				Text = personCalled.Name+" hasn't said yes yet" 
 			};
 			cancelButton.Clicked += (sender, e) => {
+				UIAnimationHelper.ShrinkUnshrinkElement(lbl);
+				UIAnimationHelper.ZoomUnZoomElement(datePicker);
+				UIAnimationHelper.ShrinkUnshrinkElement(timePicker);
+
 				if(cancelButton.Text.Contains(" hasn't said yes yet")){
 					lbl.Text = "When should we call "+personCalled.Name+" again?";
 					yescall = false;
@@ -87,6 +89,23 @@ namespace Capp2
 			};
 
 		}
+		string LabelForPartOfCall(string whichcapp, ContactData personCalled){
+			switch (whichcapp) {
+			case Values.APPOINTED:
+				return "When did we book " + personCalled.Name + "?";
+				break;
+			case Values.PRESENTED:
+				return "When did we present " + personCalled.Name + " ?";
+				break;
+			case Values.PURCHASED:
+				return "When did " + personCalled.Name + " signup/purchase?";
+				break;
+			case Values.NEXT:
+				return "When are following up " + personCalled.Name + "?";
+				break;
+			}
+			return string.Empty;
+		}
 		public async void SetAppointmentHandler(string whichCapp, ContactData personCalled){
             try {
                 if (yescall)
@@ -95,9 +114,10 @@ namespace Capp2
                     {
                         case Values.NEXT:
                             Debug.WriteLine("ABOUT TO RESCHED: NEXTMEETINGID " + personCalled.NextMeetingID);
-                            await CalendarService.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours(timePicker.Time.Hours));
+							await CalendarService.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours(timePicker.Time.Hours));
 
                             App.Database.UpdateItem(personCalled);
+
                             await this.Navigation.PopModalAsync();
                             break;
                         case Values.APPOINTED:
@@ -107,6 +127,7 @@ namespace Capp2
                             Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
 
                             App.Database.UpdateItem(personCalled);
+
 							if(Device.OS == TargetPlatform.Android) {
 								await Navigation.PushModalAsync(new TextTemplatePage(personCalled, AutoCall));
 							}
@@ -119,6 +140,7 @@ namespace Capp2
                             personCalled.Presented = datePicker.Date;
 
                             App.Database.UpdateItem(personCalled);
+							await DisplayAlert ("Presented", "Noted in virtual CapSheet!", "Great!");
 
                             //Navigation.PushModalAsync (new FollowUp(personCalled));//for follow ups
                             await this.Navigation.PopModalAsync();  //test
@@ -127,6 +149,7 @@ namespace Capp2
                             //add date to contact's "purchased" property
                             personCalled.Purchased = datePicker.Date;
                             App.Database.UpdateItem(personCalled);
+							await DisplayAlert ("Purchased", "Signup recorded in virtual CapSheet!", "Great!");
                             await this.Navigation.PopModalAsync();
                             break;
                     }
@@ -137,10 +160,9 @@ namespace Capp2
                         MessagingCenter.Send(this, Values.DONEWITHNOCALL);
                     }
                     else {
-						//UserDialogs.Instance.ShowSuccess(string.Format("{0} will show up in 'Today's Calls' on {2} {3}", personCalled.Name, Util.MonthInWords(datePicker.Date.Month), datePicker.Date.DayOfWeek.ToString()));
                         personCalled.NextCall = datePicker.Date;
                         App.Database.UpdateItem(personCalled);
-                        Navigation.PopModalAsync();
+						NavigationHelper.ClearModals(this);
                     }
                 }
             }
@@ -160,11 +182,6 @@ namespace Capp2
 				Debug.WriteLine ("POPPING DATEPAGE OF "+this.Name);
 				await Navigation.PopModalAsync ();
 			});
-		}
-		protected override void OnDisappearing(){
-			Debug.WriteLine ("OnDisappearing");
-			if(Device.OS == TargetPlatform.iOS) App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
-			else App.NavPage.BarBackgroundColor = Color.FromHex (Values.PURPLE);
 		}
 	}
 

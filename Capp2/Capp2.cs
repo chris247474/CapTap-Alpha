@@ -35,6 +35,8 @@ namespace Capp2
 		public static string Width;
 		public static string Height;
 		public static bool OnAppStart;
+		public static TimeSpan SingleCallTimeEllapsed;
+		public static string DefaultNamelist;
 
 		public App ()
 		{			
@@ -46,6 +48,7 @@ namespace Capp2
 			IsEditing = false;
             AutoCallStatus = false;
 			contactFuncs = new Util ();
+			DefaultNamelist = Settings.DefaultNamelistSettings;
 
 			SetupGradientBackground ();
 

@@ -4,6 +4,13 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const string INFOTOAST = "INFO";
+		public const string SUCCESSTOAST = "SUCCESS";
+		public const string ERRORTOAST = "ERRROR";
+
+		public const string IMPORTCHOICEMANUAL = "Enter Manually";
+		public const string IMPORTCHOICEGDRIVE = "Google Drive";
+
 		public const int CALLTOTEXTDELAY = 4000;
 
 		public const string BACKGROUNDLIGHTSILVER = "#F5F6F7";

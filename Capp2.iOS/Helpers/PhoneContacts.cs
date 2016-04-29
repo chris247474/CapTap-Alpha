@@ -32,12 +32,13 @@ namespace Capp2.iOS.Helpers
                 ab.Add(p);
                 ab.Save();
 
-                UserDialogs.Instance.SuccessToast("Contact saved: " + firstName + " " + lastName, null, 2000);
+				UserDialogs.Instance.ShowSuccess("Contact saved: " + firstName + " " + lastName, 2000);
+
                 return true;
             } catch (Exception e) {
                 System.Console.WriteLine("[iOS.PhoneContacts] Couldn't save contact: {0} {1}, {2}", firstName, lastName, e.Message);
-                UserDialogs.Instance.ErrorToast("Failed to save contact: "+ firstName + " " + lastName + ". Pls try again.", null, 2000);
-            }
+				UserDialogs.Instance.ShowError("Failed to save contact: "+ firstName + " " + lastName + ". Pls try again.", 2000);
+			}
             return false;
         }
 
@@ -72,16 +73,25 @@ namespace Capp2.iOS.Helpers
 						}
                         if (string.Equals(ConfirmOrBOM, Values.BOM))
                         {
-                            notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation texted to " + name, "Text Confirmation");;
+							//replace all notifiers with native Alert Dialogue
+
+							//too many alerts to user at the same time, this one isn't necessary
+							//notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation texted to " + name, "Text Confirmation");
+
+							//AlertHelper.Alert(App.Current.MainPage, "Text Sent!", "Sent BOM Meetup Text to "+name, "OK");
                         }
                         else {
                             if (string.Equals(TodayOrTomorrow, Values.TODAY))
                             {
                                 notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for later", "Confirming " + name);
-                            }
+								//AlertHelper.Alert(App.CapPage, "Confirming " + name,  "Texted " + name + " for today's meeting", "OK");
+
+							}
                             else {
                                 notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
-                            }
+								//AlertHelper.Alert(App.CapPage, "Confirming " + name,  "Texted " + name + " for tomorrow's meeting", "OK");
+
+							}
                         }
                         messageController.DismissViewController(true, null);
                     };

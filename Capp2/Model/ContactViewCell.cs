@@ -22,8 +22,8 @@ namespace Capp2
 			this.Height = 56;
 			nameLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
-				VerticalOptions = LayoutOptions.CenterAndExpand,
-				HorizontalTextAlignment = TextAlignment.Center,
+				VerticalOptions = LayoutOptions.StartAndExpand,
+				HorizontalTextAlignment = TextAlignment.Start,
 			};
 			nameLabel.SetBinding(Label.TextProperty, "Name");//"Name" links directly to the ContactData.Name property
 
@@ -58,7 +58,8 @@ namespace Capp2
 				HorizontalOptions = LayoutOptions.End
 			};
 			tapGestureRecognizer = new TapGestureRecognizer ();
-			tapGestureRecognizer.Tapped += (s, e) => {
+			tapGestureRecognizer.Tapped += async (s, e) => {
+				UIAnimationHelper.ZoomUnZoomElement(phone);
 				personCalled = (s as Image).Parent.Parent.Parent.BindingContext as ContactData;
 				page.call(personCalled, false);
 			};
@@ -105,7 +106,7 @@ namespace Capp2
 				page.Navigation.PushModalAsync(new DatePage(Values.PURCHASED, personCalled, false));
 			};
 
-			View = createView (page.playlistChosen.PlaylistName);
+			View = createView (page.playlist);
 
 			// add context actions to the cell
 			ContextActions.Add(nextAction);
@@ -118,71 +119,56 @@ namespace Capp2
 		{
 			if (App.IsEditing) {
 				if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
-					return new StackLayout {
-						Orientation = StackOrientation.Horizontal,
-						HorizontalOptions = LayoutOptions.FillAndExpand,
-						Padding = new Thickness (15, 5, 5, 15),
-						Children = { new StackLayout {
-								Orientation = StackOrientation.Vertical,
-								HorizontalOptions = LayoutOptions.Start,
-								Children = { nameLabel, playlistLabel }
-							}, new StackLayout {
-								Orientation = StackOrientation.Horizontal,
-								HorizontalOptions = LayoutOptions.EndAndExpand,
-								Children = { checkbox }
-							}
+					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
+						new StackLayout {
+							Orientation = StackOrientation.Vertical,
+							HorizontalOptions = LayoutOptions.StartAndExpand,
+							Children = { nameLabel, playlistLabel }
+						},
+						new StackLayout{
+							HorizontalOptions = LayoutOptions.End,
+							Children = {checkbox}
 						}
-					};
+					);
 				} else {
-					return new StackLayout {
-						Orientation = StackOrientation.Horizontal,
-						HorizontalOptions = LayoutOptions.FillAndExpand,
-						Padding = new Thickness (15, 5, 5, 15),
-						Children = {
-							nameLabel, 
-							new StackLayout {
-								Orientation = StackOrientation.Horizontal,
-								HorizontalOptions = LayoutOptions.EndAndExpand,
-								Children = { checkbox }
-							}
+					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
+						new StackLayout{
+							HorizontalOptions = LayoutOptions.StartAndExpand,
+							Children = {nameLabel}
+						},
+						new StackLayout{
+							HorizontalOptions = LayoutOptions.End,
+							Children = {checkbox}
 						}
-					};
+					);
 				}
 			} else {
 				if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
-					return new StackLayout {
-						Orientation = StackOrientation.Horizontal,
-						HorizontalOptions = LayoutOptions.FillAndExpand,
-						Padding = new Thickness (15, 5, 5, 15),
-						Children = { new StackLayout {
-								Orientation = StackOrientation.Vertical,
-								HorizontalOptions = LayoutOptions.Start,
-								Children = { nameLabel, playlistLabel }
-							}, new StackLayout {
-								Orientation = StackOrientation.Horizontal,
-								HorizontalOptions = LayoutOptions.EndAndExpand,
-								Children = { phone }
-							}
+					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
+						new StackLayout {
+							Orientation = StackOrientation.Vertical,
+							HorizontalOptions = LayoutOptions.StartAndExpand,
+							Children = { nameLabel, playlistLabel }
+						},
+						new StackLayout{
+							HorizontalOptions = LayoutOptions.End,
+							Children = {phone}
 						}
-					};
+					);
 				} else {
-					return new StackLayout {
-						Orientation = StackOrientation.Horizontal,
-						HorizontalOptions = LayoutOptions.FillAndExpand,
-						Padding = new Thickness (15, 5, 5, 15),
-						Children = {
-							nameLabel, 
-							new StackLayout {
-								Orientation = StackOrientation.Horizontal,
-								HorizontalOptions = LayoutOptions.EndAndExpand,
-								Children = { phone }
-							}
+					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding( 
+						new StackLayout{
+							HorizontalOptions = LayoutOptions.StartAndExpand,
+							Children = {nameLabel}
+						},
+						new StackLayout{
+							HorizontalOptions = LayoutOptions.End,
+							Children = {phone}
 						}
-					};
+					);
 				}
 			}
 		}
-
 
 	}
 }

@@ -266,25 +266,35 @@ namespace Capp2.Helpers
         {
             if (CalendarExists)
             {
-                CalendarEvent ce;
+				CalendarEvent ce;
 
                 try
                 {
-                    ce = await GetAppointmentByID(ID);
+					if(await ReschedAppointment (ID, startDate)){
+						Debug.WriteLine("Rescheduled: {0}", ID);
+						return ID;//return NextMeetingID if a previous meeting event was found
+					}else{
+						Debug.WriteLine("No previous meeting found, creating one");
+
+						ce = new CalendarEvent {
+							Name = eventName,
+							Description = description,
+							Start = startDate,
+							End = startDate.AddHours (Values.MEETINGLENGTH)
+						};
+						await CrossCalendars.Current.AddOrUpdateEventAsync(PrimaryCalendar, ce);
+						Debug.WriteLine("ADDED CALENDAREVENT " + ce.ExternalID);
+						return ce.ExternalID;//return a new one if no previous meeting yet
+
+					}
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    ce = new CalendarEvent
-                    {
-                        Name = eventName,
-                        Description = description,
-                        Start = startDate,
-                        End = startDate.AddHours(Values.MEETINGLENGTH)
-                    };
+					Debug.WriteLine ("Creating event error: {0}", e.Message);
                 }
 
-                try
-                {
+                /*try  
+                { 
                     await CrossCalendars.Current.AddOrUpdateEventAsync(PrimaryCalendar, ce);
                     Debug.WriteLine("ADDED CALENDAREVENT " + ce.ExternalID);
                     return ce.ExternalID;
@@ -293,25 +303,30 @@ namespace Capp2.Helpers
                 {
                     Debug.WriteLine("[CreateAppointment()] " + ex.Message);
                 }
-                return null;
-            }
+                return null;*/
+            } 
             return null;
         }
         public static async Task<bool> ReschedAppointment(string ID, DateTime startDate)
         {
-            if (CalendarExists)
-            {
-                Debug.WriteLine("STRING ID " + ID);
-                Debug.WriteLine("ABOUT TO GETAPPOINTMENT");
-                CalendarEvent ce = await GetAppointmentByID(ID);
-                Debug.WriteLine("GOT APPOINTMENT");
+			try{
+				if (CalendarExists)
+				{
+					Debug.WriteLine("STRING ID " + ID);
+					Debug.WriteLine("ABOUT TO GETAPPOINTMENT");
+					CalendarEvent ce = await GetAppointmentByID(ID);
+					Debug.WriteLine("GOT APPOINTMENT");
 
-                ce.Start = startDate;
-                ce.End = startDate.AddHours(Values.MEETINGLENGTH);
-                await CrossCalendars.Current.AddOrUpdateEventAsync(PrimaryCalendar, ce);
-                UserDialogs.Instance.ShowSuccess("I rescheduled your appointment in your calendar!");
-                return true;
-            }
+					ce.Start = startDate;
+					ce.End = startDate.AddHours(Values.MEETINGLENGTH);
+					await CrossCalendars.Current.AddOrUpdateEventAsync(PrimaryCalendar, ce);
+					UserDialogs.Instance.ShowSuccess("I rescheduled your appointment in your calendar!");
+
+					return true;
+				}
+			}catch(Exception e){
+				Debug.WriteLine ("ReschedAppointment error: {0}", e.Message);
+			}
             return false;
         }
     }

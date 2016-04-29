@@ -35,7 +35,7 @@ namespace Capp2
 			else
 				affEntry.Text = " ";
 
-			Label playlistLabel = new Label { Text = "Choose a Playlist" };
+			Label playlistLabel = new Label { Text = "Choose a Namelist" };
 			Picker playlistPicker = new Picker
 			{
 				Title = "Playlist",
@@ -124,10 +124,6 @@ namespace Capp2
 				}
 			};
 
-		}
-		protected override void OnDisappearing(){
-			Debug.WriteLine ("OnDisappearing");
-			App.NavPage.BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
 		}
 	}
 }

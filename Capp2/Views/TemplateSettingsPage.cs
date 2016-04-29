@@ -27,18 +27,20 @@ namespace Capp2
 			this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
 			BindingContext = new SettingsViewModel();
 
-			DoneImage = UIBuilder.CreateTappableImage ("", LayoutOptions.Start, Aspect.AspectFit, new Command(() => {
+			DoneImage = UIBuilder.CreateTappableImage ("clear-Small.png", LayoutOptions.Start, Aspect.AspectFit, new Command(() => {
+				UIAnimationHelper.ShrinkUnshrinkElement(DoneImage);
 				CheckIfUserChangedMeetingAndTimeStringTags(SMSEntry.Text, true);
 			}));
 
 			EmptyLabel = new Label{
-				//HeightRequest = MainLabel.Height
+				Text = "     "
 			};
 			MainLabel = new Label{
-				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 				Text = "Text Templates",
 				VerticalOptions = LayoutOptions.StartAndExpand,
-				HorizontalTextAlignment = TextAlignment.Start
+				HorizontalTextAlignment = TextAlignment.Start,
+				VerticalTextAlignment = TextAlignment.Center
 			};
 
 			SMSEntry = new Editor ();
@@ -52,54 +54,72 @@ namespace Capp2
 
 			SettingsList1 = new StackLayout{
 				Orientation = StackOrientation.Vertical,
-				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Children = {
+					
 					UIBuilder.CreateSetting ("", "BOM Text Template", 
 						new TapGestureRecognizer {Command = new Command (() => 
-							ShowOrHideTextTemplate(SMSEntry, SettingsList1, 1)
-						)}),
+						{
+								UIAnimationHelper.ShrinkUnshrinkElement(SettingsList1);
+								ShowOrHideTextTemplate(SMSEntry, SettingsList1, 1);
+						}
+						)}, true),
 					UIBuilder.CreateSeparator (Color.Gray, 0.3),
 				}
 			};
 			SettingsList2 = new StackLayout{
 				Orientation = StackOrientation.Vertical,
-				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 					UIBuilder.CreateSetting ("", "Meeting Place Text Template", 
 						new TapGestureRecognizer {Command = new Command (() => 
-							ShowOrHideLocTemplate(LocEntry, SettingsList2, 1)
-						)}),
+							{
+								UIAnimationHelper.ShrinkUnshrinkElement(SettingsList2);
+								ShowOrHideLocTemplate(LocEntry, SettingsList2, 1);
+							}
+						)}, true),
 					UIBuilder.CreateSeparator (Color.Gray, 0.3),
 				}
 			};
 			return new ScrollView {
 				Content = new StackLayout{
 					Orientation = StackOrientation.Vertical,
-					HorizontalOptions = LayoutOptions.Fill,
-					VerticalOptions = LayoutOptions.StartAndExpand,
+					HorizontalOptions = LayoutOptions.FillAndExpand,
+					VerticalOptions = LayoutOptions.FillAndExpand,
 					BackgroundColor = Color.White,
 					Children = { 
-							new StackLayout {
-								Orientation = StackOrientation.Vertical,
-								HorizontalOptions = LayoutOptions.Fill,
-								VerticalOptions = LayoutOptions.CenterAndExpand, 
-								Children = {
-									new StackLayout{
-										Orientation = StackOrientation.Horizontal,
-										Children = {EmptyLabel, DoneImage, MainLabel}
-									},
-									SettingsList2, SettingsList1, 
-								}
+						UIBuilder.CreateEmptyStackSpace(),
+						UIBuilder.CreateEmptyStackSpace(),
+						new StackLayout{
+							Orientation = StackOrientation.Horizontal,
+							Children = {
+								EmptyLabel, DoneImage, MainLabel, 
 							}
+						},
+						UIBuilder.CreateEmptyStackSpace(),
+						UIBuilder.CreateSeparator (Color.Gray, 0.3),
+						new StackLayout {
+							Orientation = StackOrientation.Vertical,
+							HorizontalOptions = LayoutOptions.Fill,
+							VerticalOptions = LayoutOptions.FillAndExpand, 
+							Children = {
+								SettingsList2, SettingsList1, 
+							}
+						}
 					}
 				}
 			};
 		}
 		void CheckIfUserChangedMeetingAndTimeStringTags(string input, bool poppage){
-			if(input.ToLower().Contains("<meeting here>") && input.ToLower().Contains("<date here>")){
+			if (!string.IsNullOrEmpty (input)) {
+				if (input.ToLower ().Contains ("<meeting here>") && input.ToLower ().Contains ("<date here>")) {
+					if (poppage)
+						App.NavPage.Navigation.PopModalAsync ();
+				} else {
+					this.DisplayAlert ("Oops!", "Please don't touch the '<meeting here>' and '<date here>' tags", "OK");
+				}
+			} else {
 				if(poppage) App.NavPage.Navigation.PopModalAsync ();
-			}else{
-				this.DisplayAlert("Oops!", "Please don't touch the '<meeting here>' and '<date here>' tags", "OK");
 			}
 		}
 		void ShowOrHideTextTemplate(Editor entry, StackLayout parent, int indexToInsertAt){

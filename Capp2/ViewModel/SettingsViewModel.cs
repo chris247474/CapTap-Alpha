@@ -37,6 +37,20 @@ namespace Capp2
 		}
 		#endregion
 
+		#region Setting DefaultNamelist
+		public string DefaultNamelistSettings { 
+			get { return Settings.DefaultNamelistSettings; } 
+			set { if (Settings.DefaultNamelistSettings == value) 
+				return; Settings.DefaultNamelistSettings = value; OnDefaultNamelistPropertyChanged(); 
+			} 
+		} 
+		public event PropertyChangedEventHandler DefaultNamelistPropertyChanged;
+		public void OnDefaultNamelistPropertyChanged([CallerMemberName]string name = "") { 
+			var changed = DefaultNamelistPropertyChanged; if (changed == null) return; 
+			changed(this, new PropertyChangedEventArgs(name)); 
+		}
+		#endregion
+
 		#region Setting BOMLocationSettings
 		public string BOMLocationSettings { 
 			get { return Settings.LocSettings; } 
