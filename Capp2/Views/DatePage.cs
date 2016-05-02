@@ -43,7 +43,7 @@ namespace Capp2
 				Format = "D",
 				VerticalOptions = LayoutOptions.CenterAndExpand,
 			};
-			datePicker.DateSelected += (dateSender, de) => {
+			datePicker.Unfocused += (dateSender, de) => {
 				if(!yescall && timePicker.IsEnabled == false){
 					SetAppointmentHandler (whichCapp, personCalled);
 				}

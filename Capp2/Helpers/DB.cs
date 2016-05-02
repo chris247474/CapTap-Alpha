@@ -48,13 +48,52 @@ namespace Capp2
 			}
 			foreach(ContactData c in list){
 				c.Number = App.contactFuncs.MakeDBContactCallable (c.Number, false);
+				c.Number2 = App.contactFuncs.MakeDBContactCallable (c.Number2, false);
+				c.Number3 = App.contactFuncs.MakeDBContactCallable (c.Number3, false);
+				c.Number4 = App.contactFuncs.MakeDBContactCallable (c.Number4, false);
+				c.Number5 = App.contactFuncs.MakeDBContactCallable (c.Number5, false);
 			}
 			return list;
 		}
         
+		public ChartData[] GetCappStats(){
+			var ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
 
-        //public static Func<DataContext, string, IQueryable<ContactData>>
-        //getCustomers= CompiledQuery.Compile((DataContext db, string strCustCode)=>  database.Table<ContactData> ().OrderBy (x => x.LastName));
+			List<ContactData> CalledList = new List<ContactData> ();
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Called.Date > DateTime.MinValue) {
+					CalledList.Add (ListArr [c]);
+				}
+			}
+			List<ContactData> AppointedList = new List<ContactData> ();
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Appointed.Date > DateTime.MinValue) {
+					AppointedList.Add (ListArr [c]);
+				}
+			}
+			List<ContactData> PresentedList = new List<ContactData> ();
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Presented.Date > DateTime.MinValue) {
+					PresentedList.Add (ListArr [c]);
+				}
+			}
+			List<ContactData> PurchasedList = new List<ContactData> ();
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Purchased.Date > DateTime.MinValue) {
+					PurchasedList.Add (ListArr [c]);
+				}
+			}
+
+			ChartData Called = new ChartData{Name = "Called", Value = CalledList.Count};
+			ChartData Appointed = new ChartData{Name = "Appointed", Value = AppointedList.Count};
+			ChartData Presented = new ChartData{Name = "Presented", Value = PresentedList.Count};
+			ChartData Purchased = new ChartData{Name = "Purchased", Value = PurchasedList.Count};
+
+			Debug.WriteLine ("Called: {0}, Appointed: {1}, Presented: {2}, Purchased: {3}", 
+				CalledList.Count, AppointedList.Count, PresentedList.Count, PurchasedList.Count);
+
+			return new ChartData[]{ Called, Appointed, Presented, Purchased};
+		}
 
         public async Task<List<Grouping<string, ContactData>>> GetGroupedItemsFasterAsync (string playlist){
 			List<Grouping<string, ContactData>> groupedList = new List<Grouping<string, ContactData>> ();
@@ -160,9 +199,9 @@ namespace Capp2
 		{
 			try{
 				item.Name = item.FirstName + " " + item.LastName;
-				Debug.WriteLine("UpdateItem(): "+item.Name+" Number: "+item.Number+" ExternalID:"+item.NextMeetingID+" Playlist:"+item.Playlist); 
-				//App.AzureDB.ConvertThenUpdateToAzureDB(item);
-
+				Debug.WriteLine("Updated {0}: Called: {1}, Appointed: {2}, Presented: {3}, Purchased: {4}", 
+					item.Name, item.Called, item.Appointed, item.Presented, item.Purchased);
+					
 				lock (locker) {
 					return database.Update(item);
 				}

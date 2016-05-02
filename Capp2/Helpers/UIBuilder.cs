@@ -145,7 +145,7 @@ namespace Capp2
 			};
 		}
 
-		public static StackLayout CreateModalXPopper(string icon, Command CloseCommand, string text = null){
+		public static StackLayout CreateModalXPopper(Command CloseCommand, string text = "", string icon = "clear-Small.png"){
 			Image DoneImage = new Image ();
 			DoneImage = UIBuilder.CreateTappableImage ("clear-Small.png", LayoutOptions.Start, Aspect.AspectFit, new Command(() => {
 				UIAnimationHelper.ShrinkUnshrinkElement(DoneImage);

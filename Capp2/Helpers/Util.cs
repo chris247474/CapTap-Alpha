@@ -158,22 +158,26 @@ namespace Capp2
 		}
 
 		public string MakeDBContactCallable(string number, bool debug){
-			if(debug) Debug.WriteLine ("DB NUMBER "+number);
-
-			var completeSpecialReg = new Regex (Values.COMPLETESINGLESPECIALCHARREGEX);
-			var strictNumReg = new Regex (Values.STRICTNUMREGEX);
-
-			string callableNumber = RemoveMatchingString (number, completeSpecialReg);
-			if(debug) Debug.WriteLine ("DB FILTERED NUMBER "+callableNumber);
-
-			Match callableMatch = strictNumReg.Match(callableNumber);
-
-			if (callableMatch.Success) {
-				if(debug) Debug.WriteLine ("Made number callable - 0" + callableMatch.Groups [0].Value);
-				return "0" + callableMatch.Groups [0].Value;
+			if (string.IsNullOrWhiteSpace (number)) {
+				return string.Empty;
 			} else {
-				//add anyway
-				return callableNumber;
+				if(debug) Debug.WriteLine ("DB NUMBER "+number);
+
+				var completeSpecialReg = new Regex (Values.COMPLETESINGLESPECIALCHARREGEX);
+				var strictNumReg = new Regex (Values.STRICTNUMREGEX);
+
+				string callableNumber = RemoveMatchingString (number, completeSpecialReg);
+				if(debug) Debug.WriteLine ("DB FILTERED NUMBER "+callableNumber);
+
+				Match callableMatch = strictNumReg.Match(callableNumber);
+
+				if (callableMatch.Success) {
+					if(debug) Debug.WriteLine ("Made number callable - 0" + callableMatch.Groups [0].Value);
+					return "0" + callableMatch.Groups [0].Value;
+				} else {
+					//add anyway
+					return callableNumber;
+				}
 			}
 		}
 
@@ -548,6 +552,7 @@ namespace Capp2
 				stopwatch = Stopwatch.StartNew();
 			}
 
+			IPhoneContacts PhoneContacts = DependencyService.Get<IPhoneContacts> ();
 			string aff = "";
 			List<Plugin.Contacts.Abstractions.Phone> listp;
 
@@ -555,6 +560,7 @@ namespace Capp2
 
 			var listArr = list.ToArray ();
 			List<ContactData> formattedList = new List<ContactData>();
+			ContactData contact = new ContactData ();
 
 			if (contactPermission) {
 				Debug.WriteLine ("In contactPermission");
@@ -566,15 +572,72 @@ namespace Capp2
 					}
 					try {
 						listp = (List<Plugin.Contacts.Abstractions.Phone>)listArr[c].Phones;
+						var listpArr = listp.ToArray();
+						
+						try{
+							contact = new ContactData {
+								FirstName = listArr[c].FirstName,
+								LastName = listArr[c].LastName,
+								Number = listpArr[0].Number,
+								Number2 = listpArr[1].Number,
+								Number3 = listpArr[2].Number,
+								Number4 = listpArr[3].Number,
+								Number5 = listpArr[4].Number,
+								Playlist = Values.ALLPLAYLISTPARAM,
+								Aff = aff
+							};
+						}catch(Exception){
+							try{
+								contact = new ContactData {
+									FirstName = listArr[c].FirstName,
+									LastName = listArr[c].LastName,
+									Number = listpArr[0].Number,
+									Number2 = listpArr[1].Number,
+									Number3 = listpArr[2].Number,
+									Number4 = listpArr[3].Number,
+									Playlist = Values.ALLPLAYLISTPARAM,
+									Aff = aff
+								};
+							}catch(Exception){
+								try{
+									contact = new ContactData {
+										FirstName = listArr[c].FirstName,
+										LastName = listArr[c].LastName,
+										Number = listpArr[0].Number,
+										Number2 = listpArr[1].Number,
+										Number3 = listpArr[2].Number,
+										Playlist = Values.ALLPLAYLISTPARAM,
+										Aff = aff
+									};
+								}catch(Exception){
+									try{
+										contact = new ContactData {
+											FirstName = listArr[c].FirstName,
+											LastName = listArr[c].LastName,
+											Number = listpArr[0].Number,
+											Number2 = listpArr[1].Number,
+											Playlist = Values.ALLPLAYLISTPARAM,
+											Aff = aff
+										};
+									}catch(Exception){
+										try{
+											contact = new ContactData {
+												FirstName = listArr[c].FirstName,
+												LastName = listArr[c].LastName,
+												Number = listpArr[0].Number,
+												Playlist = Values.ALLPLAYLISTPARAM,
+												Aff = aff
+											};
+										}catch(Exception){
+											//nothing
+										}
+									}
+								}
+							}
+						}
 
-						//Debug.WriteLine ("Adding to list");
-						formattedList.Add(new ContactData {
-							FirstName = listArr[c].FirstName,
-							LastName = listArr[c].LastName,
-							Number = listp.ElementAtOrDefault(0).Number,
-							Playlist = Values.ALLPLAYLISTPARAM,
-							Aff = aff
-						});
+						//contact = await PhoneContacts.GetProfilePic(contact);
+						formattedList.Add(contact);
 
 					} catch (NullReferenceException) {
 						Debug.WriteLine (listArr[c].DisplayName + " doesn't have a phone number, skipping");
@@ -593,6 +656,7 @@ namespace Capp2
 			Debug.WriteLine ("Device contacts loaded into DB");
 			return true;
 		}
+
 		public async Task<bool> loadDeviceContactsIntoDB(bool timeExecution){
 			Stopwatch stopwatch = null;
 			if (timeExecution) {

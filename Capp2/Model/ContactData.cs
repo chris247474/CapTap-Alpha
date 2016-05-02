@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using Xamarin.Forms;
 
-namespace Capp2//backup DB to cloud?
+namespace Capp2
 {
 	[Table ("Contacts")]
 	public class ContactData
@@ -63,6 +63,9 @@ namespace Capp2//backup DB to cloud?
 
 		[Column("AzureID")]
 		public string AzureID{ get; set;}
+
+		[Column("PicStringBase64")]
+		public string PicStringBase64{ get; set;}
 	}
 }
 

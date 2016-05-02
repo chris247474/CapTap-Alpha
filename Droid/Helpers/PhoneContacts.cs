@@ -15,7 +15,15 @@ namespace Capp2.Droid
 	{
 		public PhoneContacts(){
 		}
-		public async Task SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null){
+
+		public async Task<ContactData> GetProfilePic(ContactData contact){
+			return contact;
+		}
+		public async Task<List<ContactData>> GetProfilePicPerPerson(List<ContactData> contactList){
+			return contactList;
+		}
+
+		public async Task<bool> SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null){
             System.Console.WriteLine("ENTERED PhoneContacts.SendSMS()");
             AndroidReminderService notifier = new AndroidReminderService ();
 			try{
@@ -31,7 +39,7 @@ namespace Capp2.Droid
 						notifier.Remind (DateTime.Now.AddMilliseconds (0), "Confirming "+name, "Texted "+name+" for tomorrow");
 					}
 				}
-				//return true;
+				return true;
 			}catch(Exception){
 				if (string.Equals (ConfirmOrBOM, Values.BOM)) {
 					notifier.Remind (DateTime.Now.AddMilliseconds (0), "Text Confirmation Failed", "BOM Confirmation failed sending to " + name);
@@ -45,7 +53,7 @@ namespace Capp2.Droid
 				}
 				//return false;
 			}
-
+			return false;
 		}
 		/*public bool SendSMS(string number, string message){
 			AndroidReminderService notifier = new AndroidReminderService ();

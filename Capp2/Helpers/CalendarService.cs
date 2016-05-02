@@ -54,7 +54,9 @@ namespace Capp2.Helpers
 
             }
             else {
-                if (showMessages) UserDialogs.Instance.WarnToast("DateRemidned Settings already checked", "DateRemidned Settings already checked", 4000);
+				if (showMessages) {
+					UserDialogs.Instance.InfoToast ("DateRemidned Settings already checked");
+				}
             }
         }
         public static async void CheckIfMeetingsTodayConfirmSentSendIfNot(bool showMessages)

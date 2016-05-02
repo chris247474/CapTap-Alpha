@@ -9,36 +9,57 @@ namespace Capp2
 {
 	public class EditContactPage:ContentPage
 	{
+		StackLayout stack = new StackLayout();
 		ToolbarItem addTB;
 		string[] playlistArr;
+		Label numberLabel, number2Label, number3Label, number4Label, number5Label, firstNameLabel, lastNameLabel, affLabel, playlistLabel;
+		Entry numberEntry, number2Entry, number3Entry, number4Entry, number5Entry, firstNameEntry, lastNameEntry, affEntry;
+		Picker playlistPicker;
+		Button MarkAutoCall = new Button ();
 
 		public EditContactPage (ContactData contact, CAPP page)  
 		{
 			NavigationPage.SetHasNavigationBar (this, true);
 
-			var firstNameLabel = new Label { Text = "First Name" };
-			var firstNameEntry = new Entry ();
+			firstNameLabel = new Label { Text = "First Name" };
+			firstNameEntry = new Entry ();
 			firstNameEntry.Text = contact.FirstName;
 
-			var lastNameLabel = new Label { Text = "Last Name" };
-			var lastNameEntry = new Entry ();
+			lastNameLabel = new Label { Text = "Last Name" };
+			lastNameEntry = new Entry ();
 			lastNameEntry.Text = contact.LastName;
 
-			var numberLabel = new Label { Text = "Number" };
-			var numberEntry = new Entry ();
+			numberLabel = new Label { Text = "Number" };
+			numberEntry = new Entry ();
 			numberEntry.Text = contact.Number;
 
-			var affLabel = new Label { Text = "Affiliation" };
-			var affEntry = new Entry ();
+			number2Label = new Label { Text = "Number" };
+			number2Entry = new Entry ();
+			number2Entry.Text = contact.Number2;
+
+			number3Label = new Label { Text = "Number" };
+			number3Entry = new Entry ();
+			number3Entry.Text = contact.Number3;
+
+			number4Label = new Label { Text = "Number" };
+			number4Entry = new Entry ();
+			number4Entry.Text = contact.Number4;
+
+			number5Label = new Label { Text = "Number" };
+			number5Entry = new Entry ();
+			number5Entry.Text = contact.Number5;
+
+			affLabel = new Label { Text = "Affiliation" };
+			affEntry = new Entry ();
 			if (contact.Aff != null)
 				affEntry.Text = contact.Aff;
 			else
 				affEntry.Text = " ";
 
-			Label playlistLabel = new Label { Text = "Choose a Namelist" };
-			Picker playlistPicker = new Picker
+			playlistLabel = new Label { Text = "Choose a Namelist" };
+			playlistPicker = new Picker
 			{
-				Title = "Playlist",
+				Title = "Choose a Namelist",
 				SelectedIndex = -1
 			};
 
@@ -111,19 +132,130 @@ namespace Capp2
 				this.Navigation.PopAsync();
 			};
 
-			Content = new StackLayout {
-				VerticalOptions = LayoutOptions.StartAndExpand,
-				Padding = new Thickness(20),
-				Children = {
-					firstNameLabel, firstNameEntry,
-					lastNameLabel, lastNameEntry,
-					numberLabel, numberEntry,
-					affLabel, affEntry,
-					playlistLabel,playlistPicker,
-					//cancelButton
-				}
+			MarkAutoCall = new Button{
+				Text = "Use for Calls",
+			};
+			MarkAutoCall.Clicked += (object sender, EventArgs e) => {
+				
 			};
 
+			Content = CreateEditContactLayout (contact);
+		}
+		StackLayout CreateEditContactLayout(ContactData contact){
+			if(Number5Exists(contact)){
+				return new StackLayout {
+					VerticalOptions = LayoutOptions.StartAndExpand,
+					Padding = new Thickness(20),
+					Children = {
+						firstNameLabel, firstNameEntry,
+						lastNameLabel, lastNameEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						numberLabel, numberEntry,
+						number2Label, number2Entry,
+						number3Label, number3Entry,
+						number4Label, number4Entry,
+						number5Label, number5Entry,
+						UIBuilder.CreateEmptyStackSpace(),
+						affLabel, affEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						playlistLabel,playlistPicker,
+					}
+				};
+			}else if(!Number5Exists(contact) && Number4Exists(contact)){
+				return new StackLayout {
+					VerticalOptions = LayoutOptions.StartAndExpand,
+					Padding = new Thickness(20),
+					Children = {
+						firstNameLabel, firstNameEntry,
+						lastNameLabel, lastNameEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						numberLabel, numberEntry,
+						number2Label, number2Entry,
+						number3Label, number3Entry,
+						number4Label, number4Entry,
+						UIBuilder.CreateEmptyStackSpace(),
+						affLabel, affEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						playlistLabel,playlistPicker,
+					}
+				};
+			}else if(!Number5Exists(contact) && !Number4Exists(contact) && Number3Exists(contact)){
+				return new StackLayout {
+					VerticalOptions = LayoutOptions.StartAndExpand,
+					Padding = new Thickness(20),
+					Children = {
+						firstNameLabel, firstNameEntry,
+						lastNameLabel, lastNameEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						numberLabel, numberEntry,
+						number2Label, number2Entry,
+						number3Label, number3Entry,
+						UIBuilder.CreateEmptyStackSpace(),
+						affLabel, affEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						playlistLabel,playlistPicker,
+					}
+				};
+			}else if(!Number5Exists(contact) && !Number4Exists(contact) && !Number3Exists(contact) && Number2Exists(contact)){
+				return new StackLayout {
+					VerticalOptions = LayoutOptions.StartAndExpand,
+					Padding = new Thickness(20),
+					Children = {
+						firstNameLabel, firstNameEntry,
+						lastNameLabel, lastNameEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						numberLabel, numberEntry,
+						number2Label, number2Entry,
+						UIBuilder.CreateEmptyStackSpace(),
+						affLabel, affEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						playlistLabel,playlistPicker,
+					}
+				};
+			}else {
+				return new StackLayout {
+					VerticalOptions = LayoutOptions.StartAndExpand,
+					Padding = new Thickness(20),
+					Children = {
+						firstNameLabel, firstNameEntry,
+						lastNameLabel, lastNameEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						numberLabel, numberEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						affLabel, affEntry,
+						UIBuilder.CreateEmptyStackSpace(),
+						playlistLabel,playlistPicker,
+					}
+				};
+			}
+		}
+		bool Number2Exists(ContactData contact){
+			if (string.IsNullOrWhiteSpace (contact.Number2)) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+		bool Number3Exists(ContactData contact){
+			if (string.IsNullOrWhiteSpace (contact.Number3)) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+		bool Number4Exists(ContactData contact){
+			if (string.IsNullOrWhiteSpace (contact.Number4)) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+		bool Number5Exists(ContactData contact){
+			if (string.IsNullOrWhiteSpace (contact.Number5)) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 	}
 }

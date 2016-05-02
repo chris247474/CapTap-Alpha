@@ -9,6 +9,7 @@ using XLabs.Platform.Device;
 using XLabs.Platform.Services;
 using CoreAnimation;
 using CoreGraphics;
+using Syncfusion.SfChart.XForms.iOS.Renderers;
 
 namespace Capp2.iOS
 {
@@ -42,6 +43,9 @@ namespace Capp2.iOS
                     }
                 }
             }
+
+			//SyncFusion charts
+			new SfChartRenderer();
 
             //implement corresponding Init on Android
             #region Resolver Init

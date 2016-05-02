@@ -14,7 +14,7 @@
 	 <item name="android:windowNoTitle">true</item>  
     <item name="android:windowActionBar">false</item>
     <item name="android:colorPrimary">#512DA8</item>
-    <item name="android:colorPrimaryDark">#512DA8</item>
+    <item name="android:colorPrimaryDark">#1976D2</item>
     <item name="android:colorAccent">#512DA8</item>
     <item name="windowActionModeOverlay">true</item>
   </style>  

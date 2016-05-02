@@ -87,14 +87,28 @@ namespace Capp2
 
 			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "ic_add_white_24dp.png", new Command (async () =>
 				{
-					import = new string[]{ "Enter manually", "Load from Google Drive" };
-					var importResult = await this.DisplayActionSheet("Import Contacts", "OK", "Cancel", import);
+					import = Util.ImportChoices(playlist);
+					var importResult = await this.DisplayActionSheet("Choose a source to get contacts from", "OK", "Cancel", import);
 					try{
-						if(importResult == "Enter manually"){
-							await Navigation.PushAsync(new AddContactPage (this));
-						}else if(importResult == "Load from Google Drive"){
-							UserDialogs.Instance.InfoToast ("Under construction");
+						if (importResult == Values.IMPORTCHOICEMANUAL)
+						{
+							await Navigation.PushAsync(new AddContactPage(this));
 						}
+						else if (importResult == Values.IMPORTCHOICEGDRIVE)
+						{
+							UserDialogs.Instance.InfoToast("Not yet implemented", null, 2000);
+						}else
+						{
+							Debug.WriteLine("Importing from {0}", importResult);
+							var list = App.Database.GetItems(importResult).ToList();
+							if(list.Count == 0){
+								AlertHelper.Alert(this, "Empty Namelist", importResult+" has no contacts", "OK");
+							}else{
+								await Navigation.PushModalAsync(new CappModal(importResult, this.playlist, App.Database.GetGroupedItems(importResult), 
+									list, App.Database.GetItems(this.playlist).ToList()));
+							}
+						}
+
 					}catch(Exception){}
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 		}
@@ -107,7 +121,7 @@ namespace Capp2
 			
 			searchBar = new SearchBar {
 				BackgroundColor = Color.Transparent,
-				Placeholder = "Enter someone's name",
+				Placeholder = "Search",
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand
 			};
@@ -492,7 +506,30 @@ namespace Capp2
                 listView.EndRefresh();
             }
         }
-       
+
+		async Task<string> HandleMutlipleNumbers(ContactData contact){
+			List<string> list = new List<string> ();
+
+			if (!string.IsNullOrWhiteSpace (contact.Number2)) {
+				list.Add (contact.Number);
+				list.Add (contact.Number2);
+				if (!string.IsNullOrWhiteSpace (contact.Number3)) {
+					list.Add (contact.Number3);
+				}
+				if (!string.IsNullOrWhiteSpace (contact.Number4)) {
+					list.Add (contact.Number4);
+				}
+				if (!string.IsNullOrWhiteSpace (contact.Number5)) {
+					list.Add (contact.Number5);
+				}
+
+				return await this.DisplayActionSheet ("Which number do we call?", null, null,
+					list.ToArray ()
+				);
+			} 
+			return contact.Number;
+		}
+
 		public async Task call(ContactData contact, bool autocall){
 			//to time call cycle of user
 			if(!CallHelper.IsTimerRunning()){
@@ -503,7 +540,7 @@ namespace Capp2
 			Debug.WriteLine ("Calling "+contact.Name+" autocall: "+autocall.ToString ());
 			var dialer = DependencyService.Get<IDialer> ();
 			if (dialer != null) {
-				if (await dialer.Dial (contact.Number)) {
+				if (await dialer.Dial (await HandleMutlipleNumbers(contact))) {
 					contact.Called = DateTime.Now;
 					App.Database.UpdateItem (contact);
 					Debug.WriteLine ("Delaying 4s");

@@ -44,7 +44,7 @@ namespace Capp2
 				Padding = new Thickness(5),
 				Children = {
 					UIBuilder.CreateEmptyStackSpace(),
-					UIBuilder.CreateModalXPopper("clear-Small.png", new Command(() => {
+					UIBuilder.CreateModalXPopper(new Command(() => {
 						App.Database.DeselectAll(this.list, this);
 						Navigation.PopModalAsync();
 					})),

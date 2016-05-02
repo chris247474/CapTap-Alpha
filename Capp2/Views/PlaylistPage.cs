@@ -27,7 +27,7 @@ namespace Capp2
 
             var searchBar = new SearchBar {
 				BackgroundColor = Color.Transparent,
-                Placeholder = "Enter a namelist",
+                Placeholder = "Search",
                 VerticalOptions = LayoutOptions.FillAndExpand,
                 HorizontalOptions = LayoutOptions.FillAndExpand
             };

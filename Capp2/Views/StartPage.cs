@@ -9,23 +9,21 @@ namespace Capp2
 	public class StartPage:MasterDetailPage
 	{
 		StackLayout StatsSettings = new StackLayout(), TemplateSettings = new StackLayout(), 
-		FeedbackSettings = new StackLayout(), DefaultNamelistSettings = new StackLayout();
+		FeedbackSettings = new StackLayout(), DefaultNamelistSettings = new StackLayout(), DailyEmailSettings = new StackLayout();
 
 		public StartPage ()
 		{
 			this.Title = "Namelists";
 
-			//this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
 			App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, EndColor = App.EndColor}){
-				BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),//STACKVIEWSDARKERPURPLE),//Values.PURPLE),
-				BarTextColor = Color.White//FromHex (Values.GOOGLEBLUE),//STACKVIEWSORANGE),//BACKGROUNDLIGHTSILVER),
+				BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),
+				BarTextColor = Color.White
 
 			};
 			App.NavPage.Navigation.PopAsync ();
 			App.NavPage.Navigation.PushAsync (new CAPP (App.DefaultNamelist));
 			this.Detail = App.NavPage;
 			this.Master = new ContentPage { 
-				//BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER),
 				Title = "Options", 
 				Icon = "ic_menu_white_24dp.png",
 				Content = createUI ()
@@ -66,6 +64,21 @@ namespace Capp2
 						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
+						UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
+
+						App.NavPage.Navigation.PushModalAsync(new CapStats());
+					}
+				)});
+			DailyEmailSettings = UIBuilder.CreateSetting ("", "\tDaily Emails", 
+				new TapGestureRecognizer{Command = new Command(() =>
+					{
+						UIAnimationHelper.ZoomUnZoomElement(DailyEmailSettings); 
+						UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
+						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
+						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
+						UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
+
+						//App.NavPage.Navigation.PushModalAsync(new DailyEmailSettingsPage());
 					}
 				)});
 			DefaultNamelistSettings = UIBuilder.CreateSetting ("", "\tStarting Namelist", 
@@ -75,6 +88,7 @@ namespace Capp2
 						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings);
+						UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
 
 						await Util.ChooseNewDefaultNamelist(App.Database.GetPlaylistNames());
 					}
@@ -85,6 +99,8 @@ namespace Capp2
 					UIAnimationHelper.ZoomUnZoomElement(TemplateSettings);
 					UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
 					UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
+					UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
+
 					App.NavPage.Navigation.PushModalAsync (new TemplateSettingsPage ());
 				}
 				)});
@@ -94,6 +110,8 @@ namespace Capp2
 					UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
 					UIAnimationHelper.ZoomUnZoomElement(FeedbackSettings);
 					UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
+					UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
+
 					if (Device.OS == TargetPlatform.Android){
 						//Device.OpenUri (new Uri ("mailto:captapuserfeedback@gmail.com"));
 					}

@@ -8,12 +8,75 @@ using UIKit;
 using Capp2.Helpers;
 using System.Threading.Tasks;
 using MessageUI;
+using System.Linq;
+using Plugin.Contacts.Abstractions;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 
 [assembly: Dependency(typeof(PhoneContacts))]
 namespace Capp2.iOS.Helpers
 {
     class PhoneContacts : IPhoneContacts
-    {
+	{
+		ABAddressBook abb = new ABAddressBook();
+		ABPerson[] contacts = null;
+		public PhoneContacts(){
+			Console.WriteLine ("Storing all contacts in iOS memory");
+			contacts = abb.GetPeople ();
+		}
+		public async Task<ContactData> GetProfilePic(ContactData contact){
+			
+
+			try{
+				for(int x = 0;x < contacts.Length/2;x++){
+					if(string.Equals(contact.FirstName, contacts[x].FirstName) && 
+						string.Equals(contact.LastName, contacts[x].LastName) && 
+						contacts[x].HasImage)
+					{
+						/*contact.PicStringBase64 = ToBase64String(
+							contacts[x].GetImage(ABPersonImageFormat.Thumbnail)
+						);*/
+						Console.WriteLine("Found {0} {1}'s image. Adding it", contact.FirstName, contact.LastName);
+					}
+				}
+
+				/*var contacts = ab.GetPeople().Where(x => x.HasImage).Where(x => x.FirstName == contact.FirstName).Where(x => x.LastName == contact.LastName).Select(x => x);
+				var contactsarr = contacts.ToArray ();
+				Console.WriteLine ("{0} Contacts found", contactsarr.Length);
+				contact.PicStringBase64 = ToBase64String(contactsarr[0].GetImage(ABPersonImageFormat.Thumbnail));*/
+			}catch(Exception e){
+				Console.WriteLine ("PhoneContacts.GetProfilePic() iOS error: {0}", e.Message);
+			}
+			return contact;
+		}
+
+		public async Task<List<ContactData>> GetProfilePicPerPerson(List<ContactData> contactList){
+			ABAddressBook ab = new ABAddressBook();
+			var contacts = ab.GetPeople();
+			var contactListArr = contactList.ToArray ();
+
+			try{
+				for(int c = 0;c < contactListArr.Length;c++){
+					for(int x = 0;x < contacts.Length;x++){
+						if(string.Equals(contactListArr[c].FirstName, contacts[x].FirstName) && 
+							string.Equals(contactListArr[c].LastName, contacts[x].LastName) && 
+							contacts[x].HasImage)
+						{
+							contactListArr[c].PicStringBase64 = ToBase64String(
+							contacts[x].GetImage(ABPersonImageFormat.Thumbnail)
+							);
+							Console.WriteLine("Found {0} {1}'s image. Adding it", contactListArr[c].FirstName, contactListArr[c].LastName);
+						}
+					}
+				}
+				return contactListArr.ToList();
+			}catch(Exception e){
+				Console.WriteLine ("PhoneContacts.GetProfilePicPerPerson() iOS error: {0}", e.Message);
+			}
+			return contactList;
+		}
+
         public bool SaveContactToDevice(string firstName, string lastName, string phone, string aff)
         {
             try {
@@ -23,6 +86,7 @@ namespace Capp2.iOS.Helpers
                 p.FirstName = firstName;
                 p.LastName = lastName;
                 p.Organization = aff;
+				//p.GetImage(ABPersonImageFormat.Thumbnail).
 
                 ABMutableMultiValue<string> phones = new ABMutableStringMultiValue();
                 phones.Add(phone, ABPersonPhoneLabel.Mobile);
@@ -42,7 +106,7 @@ namespace Capp2.iOS.Helpers
             return false;
         }
 
-        public async Task SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null)
+		public async Task<bool> SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null)
         {
             var notifier = new iOSReminderService();
             try
@@ -100,22 +164,11 @@ namespace Capp2.iOS.Helpers
                     messageController.Recipients = new string[] {number };
                     vc.PresentModalViewController(messageController, false);
                 }
-
-                /* if (string.Equals(ConfirmOrBOM, Values.BOM))
-                 {
-                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation failed sending to " + name, "Device can't send SMS");
-                 }
-
-                 if (string.Equals(TodayOrTomorrow, Values.TODAY))
-                 {
-                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "Device can't send SMS", "Couldn't confirm " + name + " for later's meeting");
-                 }
-                 else {
-                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "Device can't send SMS", "Couldn't confirm " + name + " for tomorrow's meeting");
-                 }*/
+				return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+				Console.WriteLine ("PhoneContacts.SendSMS() error: {0}", e.Message);
                 if (string.Equals(ConfirmOrBOM, Values.BOM))
                 {
                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation failed sending to " + name, "Text Confirmation Failed");
@@ -131,6 +184,31 @@ namespace Capp2.iOS.Helpers
                     }
                 }
             }
+			return false;
         }
+		public byte[] ToByte (NSData data)
+		{
+			byte[] result = new byte[data.Length];
+			Marshal.Copy (data.Bytes, result, 0, (int) data.Length);
+			return result;
+		}
+		public string ToBase64String (NSData data)
+		{
+			return Convert.ToBase64String (ToByte (data));
+		}
     }
 }
+
+
+/* if (string.Equals(ConfirmOrBOM, Values.BOM))
+                 {
+                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation failed sending to " + name, "Device can't send SMS");
+                 }
+
+                 if (string.Equals(TodayOrTomorrow, Values.TODAY))
+                 {
+                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "Device can't send SMS", "Couldn't confirm " + name + " for later's meeting");
+                 }
+                 else {
+                     notifier.Remind(DateTime.Now.AddMilliseconds(0), "Device can't send SMS", "Couldn't confirm " + name + " for tomorrow's meeting");
+                 }*/

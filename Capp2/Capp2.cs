@@ -53,15 +53,17 @@ namespace Capp2
 			SetupGradientBackground ();
 
 			await contactFuncs.loadDeviceContactsIntoDBSingleTransaction (false);
-
-            try {
-                //returns true, then device calendar has at least one calendar account
-                if (await App.contactFuncs.DeviceCalendarExistsAndInit())
-                {
-                    CalendarService.CheckIfMeetingsTomorrowConfirmSentSendIfNot(false);//notifications replace each other, instead of stacking in KitKat API 19
-                    CalendarService.CheckIfMeetingsTodayConfirmSentSendIfNot(false);
-                }
-            } catch(Exception e){ Debug.WriteLine("Calendar error {0}", e.Message);}
+			CheckForMeetingsTodayTomorrowThenSendSMSToConfirm (false);
+		}
+		async Task CheckForMeetingsTodayTomorrowThenSendSMSToConfirm(bool showMessages){
+			try {
+				//returns true, then device calendar has at least one calendar account
+				if (await App.contactFuncs.DeviceCalendarExistsAndInit())
+				{
+					CalendarService.CheckIfMeetingsTomorrowConfirmSentSendIfNot(showMessages);//notifications replace each other, instead of stacking in KitKat API 19
+					CalendarService.CheckIfMeetingsTodayConfirmSentSendIfNot(showMessages);
+				}
+			} catch(Exception e){ Debug.WriteLine("Calendar error {0}", e.Message);}
 		}
 		void SetupGradientBackground(){
 			if(Device.OS == TargetPlatform.iOS)
