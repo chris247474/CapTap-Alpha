@@ -37,6 +37,20 @@ namespace Capp2
 		}
 		#endregion
 
+		#region Setting DailyEmailTemplateSettings
+		public string DailyEmailTemplateSettings { 
+			get { return Settings.DailyEmailTemplateSettings; } 
+			set { if (Settings.DailyEmailTemplateSettings == value) 
+				return; Settings.DailyEmailTemplateSettings = value; OnDailyEmailTemplateSettingsPropertyChanged(); 
+			} 
+		} 
+		public event PropertyChangedEventHandler DailyEmailTemplateSettingsPropertyChanged;
+		public void OnDailyEmailTemplateSettingsPropertyChanged([CallerMemberName]string emailname = "") { 
+			var changed = DailyEmailTemplateSettingsPropertyChanged; if (changed == null) return; 
+			changed(this, new PropertyChangedEventArgs(emailname)); 
+		}
+		#endregion
+
 		#region Setting DefaultNamelist
 		public string DefaultNamelistSettings { 
 			get { return Settings.DefaultNamelistSettings; } 

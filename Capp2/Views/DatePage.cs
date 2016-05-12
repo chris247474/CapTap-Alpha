@@ -17,6 +17,7 @@ namespace Capp2
 		TimePicker timePicker{get;set;}
 		bool AutoCall;
 		string Name;
+		SettingsViewModel settings = new SettingsViewModel ();
 
 		public DatePage (string whichCapp, ContactData personCalled, bool autocall)
 		{
@@ -122,8 +123,13 @@ namespace Capp2
                             break;
                         case Values.APPOINTED:
 							personCalled.Appointed = datePicker.Date.AddHours(timePicker.Time.Hours).AddMinutes(timePicker.Time.Minutes);
+							/*if(personCalled.Appointed.Date != DateTime.Today){
+								App.SettingsHelper.DateRemindedSettings = DateTime.MinValue.ToString();
+							}*/
 
-                            personCalled.NextMeetingID = await CalendarService.CreateAppointment(personCalled.NextMeetingID, personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, datePicker.Date.AddHours(timePicker.Time.Hours));
+                            personCalled.NextMeetingID = await CalendarService.CreateAppointment(personCalled.NextMeetingID, 
+								personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, 
+								datePicker.Date.AddHours(timePicker.Time.Hours));
                             Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
 
                             App.Database.UpdateItem(personCalled);

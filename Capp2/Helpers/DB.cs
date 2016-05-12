@@ -56,6 +56,97 @@ namespace Capp2
 			return list;
 		}
         
+		public int GetTodaysYesCalls(){
+			var ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
+
+			List<ContactData> CalledList = new List<ContactData> ();
+
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Called.Date == DateTime.Today && ListArr[c].Appointed.Date > DateTime.MinValue) {
+					CalledList.Add (ListArr [c]);
+				}
+			}
+
+			return CalledList.Count;
+		}
+
+		public List<ContactData> GetCalledContacts(string playlist){
+			ContactData[] ListArr = new ContactData[]{ };
+			if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
+				ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
+			}else{
+				ListArr = (from x in (database.Table<ContactData> ().Where(contact => contact.Playlist == playlist)) 
+					select x).ToArray ();
+			}
+
+			List<ContactData> CalledList = new List<ContactData> ();
+
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Called.Date > DateTime.MinValue) {
+					CalledList.Add (ListArr [c]);
+				}
+			}
+
+			return CalledList;
+		}
+
+		public List<ContactData> GetAppointedContacts(string playlist){
+			ContactData[] ListArr = new ContactData[]{ };
+			if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
+				ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
+			}else{
+				ListArr = (from x in (database.Table<ContactData> ().Where(contact => contact.Playlist == playlist)) 
+					select x).ToArray ();
+			}
+
+			List<ContactData> AppointedList = new List<ContactData> ();
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Appointed.Date > DateTime.MinValue) {
+					AppointedList.Add (ListArr [c]);
+				}
+			}
+
+			return AppointedList;
+		}
+
+		public List<ContactData> GetPresentedContacts(string playlist){
+			ContactData[] ListArr = new ContactData[]{ };
+			if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
+				ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
+			}else{
+				ListArr = (from x in (database.Table<ContactData> ().Where(contact => contact.Playlist == playlist)) 
+					select x).ToArray ();
+			}
+
+			List<ContactData> PresentedList = new List<ContactData> ();
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Presented.Date > DateTime.MinValue) {
+					PresentedList.Add (ListArr [c]);
+				}
+			}
+
+			return PresentedList;
+		}
+
+		public List<ContactData> GetPurchasedContacts(string playlist){
+			ContactData[] ListArr = new ContactData[]{ };
+			if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
+				ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
+			}else{
+				ListArr = (from x in (database.Table<ContactData> ().Where(contact => contact.Playlist == playlist)) 
+					select x).ToArray ();
+			}
+
+			List<ContactData> PurchasedList = new List<ContactData> ();
+			for (int c = 0; c < ListArr.Length; c++) {
+				if (ListArr [c].Purchased.Date > DateTime.MinValue) {
+					PurchasedList.Add (ListArr [c]);
+				}
+			}
+
+			return PurchasedList;
+		}
+
 		public ChartData[] GetCappStats(){
 			var ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
 
@@ -95,7 +186,7 @@ namespace Capp2
 			return new ChartData[]{ Called, Appointed, Presented, Purchased};
 		}
 
-        public async Task<List<Grouping<string, ContactData>>> GetGroupedItemsFasterAsync (string playlist){
+        /*public async Task<List<Grouping<string, ContactData>>> GetGroupedItemsFasterAsync (string playlist){
 			List<Grouping<string, ContactData>> groupedList = new List<Grouping<string, ContactData>> ();
 			await Task.Run ( async () => {
 				groupedList = await GetGroupedItemsFaster (playlist);
@@ -115,7 +206,7 @@ namespace Capp2
 				UserDialogs.Instance.ErrorToast ("Error", "Couldn't load call list");
 				return null;
 			}
-		}
+		}*/
 		public List<Grouping<string, ContactData>> GetGroupedItems (string playlist) {
 			try{
 				if (playlist == Values.ALLPLAYLISTPARAM) {
@@ -199,8 +290,8 @@ namespace Capp2
 		{
 			try{
 				item.Name = item.FirstName + " " + item.LastName;
-				Debug.WriteLine("Updated {0}: Called: {1}, Appointed: {2}, Presented: {3}, Purchased: {4}", 
-					item.Name, item.Called, item.Appointed, item.Presented, item.Purchased);
+				Debug.WriteLine("Updated {0}: image: {1}", 
+					item.Name, item.PicStringBase64);
 					
 				lock (locker) {
 					return database.Update(item);

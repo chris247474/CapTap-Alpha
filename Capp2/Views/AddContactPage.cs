@@ -92,6 +92,9 @@ namespace Capp2
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				Padding = new Thickness(20),
 				Children = {
+					UIBuilder.CreateEmptyStackSpace(),
+					UIBuilder.CreateEmptyStackSpace(),
+
 					firstNameLabel, firstNameEntry,
 					lastNameLabel, lastNameEntry,
 					numberLabel, numberEntry,

@@ -14,6 +14,7 @@ namespace Capp2
 			if (piedata.Count > 0) {
 				Content = new StackLayout{ 
 					Orientation = StackOrientation.Vertical,
+					Padding = new Thickness(20),
 					Children = {
 						UIBuilder.CreateEmptyStackSpace(),
 						UIBuilder.CreateEmptyStackSpace(),

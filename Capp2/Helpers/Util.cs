@@ -47,8 +47,8 @@ namespace Capp2
 			return importchoices;
 		}
 
-		public static async Task<string> GetUserInputSingleLinePromptDialogue(){
-			var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
+		public static async Task<string> GetUserInputSingleLinePromptDialogue(string message = "Please enter a name for this list:", string title = "New namelist", string template = ""){
+			var result = await UserDialogs.Instance.PromptAsync(message, title, "OK");
 			if (result.Ok) {
 				if (string.IsNullOrWhiteSpace(result.Text))
 				{
@@ -57,13 +57,13 @@ namespace Capp2
 					return result.Text;
 				}
 			}
-			return string.Empty;
+			return template;
 		}
 		public static async Task ChooseNewDefaultNamelist(string[] buttons){
 			try{
-				var result = await UserDialogs.Instance.ActionSheetAsync("When I launch CapTap, open this namelist", "OK", "Cancel", buttons);
-				if (!string.Equals(result, "OK")) {
-					if (!string.IsNullOrWhiteSpace(result) && !string.Equals(result, "Cancel"))
+				var result = await UserDialogs.Instance.ActionSheetAsync("When I launch CapTap, open this namelist", "Cancel", null, buttons);
+				if (!string.Equals(result, "Cancel")) {
+					if (!string.IsNullOrWhiteSpace(result)/* && !string.Equals(result, "Cancel")*/)
 					{
 						Settings.DefaultNamelistSettings = result;
 
@@ -104,7 +104,7 @@ namespace Capp2
                     var arr = list.ToArray();
                     for (int c = 0; c < arr.Length; c++)
                     {
-                        if (arr[c].Name.ToLower().Contains(filter.ToLower()) || arr[c].Number.Contains(filter.ToLower()) || arr[c].Aff.ToLower().Contains(filter.ToLower()))
+                        if (arr[c].Name.ToLower().Contains(filter.ToLower()) || arr[c].Number.Contains(filter.ToLower()) /*|| arr[c].Aff.ToLower().Contains(filter.ToLower())*/)
                         {
                             filteredList.Add(arr[c]);
                         }
@@ -415,7 +415,7 @@ namespace Capp2
 				UserDialogs.Instance.WarnToast ("Duplicates detected", "Some of these contacts already exist in this namelist. Try adding them to another namelist:\n" + duplicates, 8000);
 			} else {
 				string[] choices = new string[]{"Ignore", "Edit Manually"};
-				var duplicateChoice = await page.DisplayActionSheet("Fixing Duplicates...", "OK", "Cancel", choices);
+				var duplicateChoice = await page.DisplayActionSheet("Fixing Duplicates...", "Cancel", null, choices);
 				if (string.Equals (duplicateChoice, "Edit Manually")) {
 					foreach(ContactData x in dList){
 						if(!string.IsNullOrWhiteSpace (x.LastName) && !string.IsNullOrWhiteSpace (x.Number)){
@@ -720,6 +720,11 @@ namespace Capp2
 					.Where(c => !string.IsNullOrWhiteSpace(c.LastName) && c.Phones.Count > 0).OrderBy(c => c.DisplayName);
 			}
 			return list;
+		}
+
+		public static async Task GetContactsImagesInBackground(){
+			var ContactListWithImages = await DependencyService.Get<IPhoneContacts> ().GetProfilePicPerPerson (App.Database.GetItems (Values.ALLPLAYLISTPARAM).ToList());
+			App.Database.UpdateAll (ContactListWithImages);
 		}
 	}
 }

@@ -21,55 +21,89 @@ namespace Capp2.iOS.Helpers
 	{
 		ABAddressBook abb = new ABAddressBook();
 		ABPerson[] contacts = null;
+
 		public PhoneContacts(){
 			Console.WriteLine ("Storing all contacts in iOS memory");
 			contacts = abb.GetPeople ();
 		}
-		public async Task<ContactData> GetProfilePic(ContactData contact){
-			
 
-			try{
-				for(int x = 0;x < contacts.Length/2;x++){
-					if(string.Equals(contact.FirstName, contacts[x].FirstName) && 
-						string.Equals(contact.LastName, contacts[x].LastName) && 
-						contacts[x].HasImage)
-					{
-						/*contact.PicStringBase64 = ToBase64String(
-							contacts[x].GetImage(ABPersonImageFormat.Thumbnail)
-						);*/
-						Console.WriteLine("Found {0} {1}'s image. Adding it", contact.FirstName, contact.LastName);
-					}
-				}
+		public async Task Share (string message)
+		{
+			var messagecontent = message;
+			var msg = UIActivity.FromObject (messagecontent);
 
-				/*var contacts = ab.GetPeople().Where(x => x.HasImage).Where(x => x.FirstName == contact.FirstName).Where(x => x.LastName == contact.LastName).Select(x => x);
-				var contactsarr = contacts.ToArray ();
-				Console.WriteLine ("{0} Contacts found", contactsarr.Length);
-				contact.PicStringBase64 = ToBase64String(contactsarr[0].GetImage(ABPersonImageFormat.Thumbnail));*/
-			}catch(Exception e){
-				Console.WriteLine ("PhoneContacts.GetProfilePic() iOS error: {0}", e.Message);
+			var item = NSObject.FromObject (msg);
+			var activityItems = new[] { item }; 
+			var activityController = new UIActivityViewController (activityItems, null);
+
+			var topController = UIApplication.SharedApplication.KeyWindow.RootViewController;
+
+			while (topController.PresentedViewController != null) {
+				topController = topController.PresentedViewController;
 			}
-			return contact;
+
+			topController.PresentViewController (activityController, true, () => {
+				/*App.SettingsHelper.DailyEmailTemplateSettings = Settings.DailyEmailTemplateDefault;
+				Console.WriteLine("Daily Email Template: {0}", App.SettingsHelper.DailyEmailTemplateSettings);
+				Console.WriteLine("Daily Email Template Default: {0}", Settings.DailyEmailTemplateDefault);*/
+			});
+
+		}
+
+		public async Task SendSMS (string number){
+			var smsTo = NSUrl.FromString("sms:"+number);
+			UIApplication.SharedApplication.OpenUrl(smsTo);
 		}
 
 		public async Task<List<ContactData>> GetProfilePicPerPerson(List<ContactData> contactList){
 			ABAddressBook ab = new ABAddressBook();
 			var contacts = ab.GetPeople();
 			var contactListArr = contactList.ToArray ();
+			int c = 0;
 
 			try{
-				for(int c = 0;c < contactListArr.Length;c++){
-					for(int x = 0;x < contacts.Length;x++){
-						if(string.Equals(contactListArr[c].FirstName, contacts[x].FirstName) && 
-							string.Equals(contactListArr[c].LastName, contacts[x].LastName) && 
-							contacts[x].HasImage)
-						{
-							contactListArr[c].PicStringBase64 = ToBase64String(
-							contacts[x].GetImage(ABPersonImageFormat.Thumbnail)
-							);
-							Console.WriteLine("Found {0} {1}'s image. Adding it", contactListArr[c].FirstName, contactListArr[c].LastName);
+				c = ContinueImportingFromLastImageIfNotDone(c);
+				for(;c < contactListArr.Length;c++){
+					/*if(string.IsNullOrWhiteSpace(contactListArr[c].PicStringBase64) || 
+						string.IsNullOrWhiteSpace(contactListArr[c].LargePic))
+					{*/
+						for(int x = 0;x < contacts.Length;x++){
+							App.DeviceImageCtr = x;
+							if(string.Equals(contactListArr[c].FirstName, contacts[x].FirstName) && 
+								string.Equals(contactListArr[c].LastName, contacts[x].LastName) && 
+								contacts[x].HasImage)
+							{
+								//for listview row
+								contactListArr[c].PicStringBase64 = 
+									SaveImageThenGetPath(contactListArr[c], 
+										contacts[x].GetImage(ABPersonImageFormat.Thumbnail), 
+										ABPersonImageFormat.Thumbnail);
+								
+
+								//for single page
+								contactListArr[c].LargePic = 
+									SaveImageThenGetPath(contactListArr[c],
+										contacts[x].GetImage(ABPersonImageFormat.OriginalSize), 
+										ABPersonImageFormat.OriginalSize);
+
+								//update db for bindings
+								App.Database.UpdateItem(contactListArr[c]);
+							}
 						}
-					}
+					/*}else{
+						Console.WriteLine("{0}'s image already imported", contactListArr[c].Name);
+					}*/
+
+					/*if(string.IsNullOrWhiteSpace(contactListArr[c].PicStringBase64) && 
+						string.IsNullOrWhiteSpace(contactListArr[c].LargePic))
+					{
+						contactListArr[c].PicStringBase64 = 
+							contactListArr[c].LargePic  = "placeholder-contact-male.png";
+						App.Database.UpdateItem(contactListArr[c]);
+					}*/
 				}
+				App.DeviceImageCtr = 0;
+				Console.WriteLine("Done w all images, {0}", App.DeviceImageCtr);
 				return contactListArr.ToList();
 			}catch(Exception e){
 				Console.WriteLine ("PhoneContacts.GetProfilePicPerPerson() iOS error: {0}", e.Message);
@@ -77,6 +111,56 @@ namespace Capp2.iOS.Helpers
 			return contactList;
 		}
 
+		int ContinueImportingFromLastImageIfNotDone(int c){
+			if(!IsImageImportingDone()){
+				Console.WriteLine("Resuming background image importing at index {0}", c);
+				return App.DeviceImageCtr;
+			}
+			return c;
+		}
+
+		bool IsImageImportingDone(){
+			if (App.DeviceImageCtr == 0)
+				return true;
+			else
+				return false;
+		}
+
+		string SaveDefaultImage(ContactData contact){
+			string filename = System.IO.Path.Combine (Environment.GetFolderPath 
+				(Environment.SpecialFolder.Personal), 
+				"placeholder-contact-male.png");
+
+			Console.WriteLine("Assigned default image to {0} {1}. Saving it as {1}", 
+				contact.FirstName, contact.LastName, filename);
+			
+			return filename;
+		}
+		string SaveImageThenGetPath(ContactData contact, NSData image, ABPersonImageFormat format){
+			string filename = "";
+
+			try{
+				if(format == ABPersonImageFormat.Thumbnail){
+					filename = System.IO.Path.Combine (Environment.GetFolderPath
+						(Environment.SpecialFolder.Personal), 
+						string.Format("{0}.jpg", contact.ID)); 
+				}else{
+					filename = System.IO.Path.Combine (Environment.GetFolderPath
+						(Environment.SpecialFolder.Personal), 
+						string.Format("{0}-large.jpg", contact.ID));
+				}
+
+				image.Save (filename, true);
+
+				Console.WriteLine("Found {0} {1}'s image. Saving it as {2}", 
+					contact.FirstName, contact.LastName, filename);
+				
+				return filename;
+			}catch(Exception e){
+				Console.WriteLine ("Error in SaveImageThenGetPath(): {0}", e.Message);
+			}
+			return string.Empty;
+		}
         public bool SaveContactToDevice(string firstName, string lastName, string phone, string aff)
         {
             try {
@@ -105,25 +189,30 @@ namespace Capp2.iOS.Helpers
 			}
             return false;
         }
-
 		public async Task<bool> SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null)
         {
             var notifier = new iOSReminderService();
             try
             {
-                //in iOS, only way to send text is by hand which means no programmatical sms send. This calls Messages without inputting initial text
-                //var smsTo = NSUrl.FromString("sms:"+number);
-                //UIApplication.SharedApplication.OpenUrl(smsTo);
+				Console.WriteLine ("Start SendSMS");
 
                 //inputs initial text
                 var window = UIApplication.SharedApplication.KeyWindow;
-                var vc = window.RootViewController;
+				Console.WriteLine ("window retrieved");
+
+				var vc = UIApplication.SharedApplication.KeyWindow.RootViewController;
+				Console.WriteLine ("rootviewcontroller retrieved");//returns null when called in App
+
                 while (vc.PresentedViewController != null)
                 {
                     vc = vc.PresentedViewController;
+					Console.WriteLine ("presentedviewcontroller retrieved");
+
                 }
                 if (MFMessageComposeViewController.CanSendText)
                 {
+					Console.WriteLine ("SMS available");
+
                     MFMessageComposeViewController messageController =
                         new MFMessageComposeViewController();
 
@@ -163,7 +252,9 @@ namespace Capp2.iOS.Helpers
                     messageController.Body = message;
                     messageController.Recipients = new string[] {number };
                     vc.PresentModalViewController(messageController, false);
-                }
+				}else{
+					Console.WriteLine ("Can't send text");
+				}
 				return true;
             }
             catch (Exception e)

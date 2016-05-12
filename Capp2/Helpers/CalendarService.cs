@@ -16,89 +16,99 @@ namespace Capp2.Helpers
         public static Calendar PrimaryCalendar { get; set; }
         static bool CalendarExists { get; set; }
 
-        public static async void CheckIfMeetingsTomorrowConfirmSentSendIfNot(bool showMessages)
-        {
-            SettingsViewModel vm;
-            vm = new SettingsViewModel();
-            List<ContactData> peopleTomorrow = PeopleForTomorrow();
+		static async Task<bool> CheckToday(bool alerted){
+			SettingsViewModel vm;
+			vm = new SettingsViewModel();
+			List<ContactData> peopleToday = PeopleForToday();
 
-            if (!string.Equals(DateTime.Today.Day.ToString(), vm.DateRemindedSettings))
-            {
-                if (showMessages) UserDialogs.Instance.InfoToast("Tomorrows appointments not yet confirmed", "Tomorrows appointments not yet confirmed", 4000);
-                try
-                {
-                    if (peopleTomorrow != null && peopleTomorrow.Count != 0)
-                    {
-                        if (showMessages) UserDialogs.Instance.InfoToast("Going thorugh tomorrows meetings", "", 4000);
-                        for (int c = 0; c < peopleTomorrow.Count; c++)
-                        {
-                            var person = peopleTomorrow.ElementAt(c);
-                            var meeting = await GetAppointmentByID(person.NextMeetingID);
-                            await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number,
-                                App.contactFuncs.ConnectStrings(new string[] {
-                                    "Hi",
-                                    person.Name,
-                                    vm.MeetingConfirmSettings,
-                                    meeting.Start.Hour.ToString (),
-                                    ":",
-                                    meeting.Start.Minute.ToString ()
-                                }), person.Name, Values.CONFIRM, Values.TOMORROW);
-                        }
-                        vm.DateRemindedSettings = DateTime.Today.Day.ToString();
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("" + e.Message);
-                }
+			//confirm today
+			if (!string.Equals(DateTime.Today.Day.ToString(), Settings.DateRemindedForTodaySettings))
+			{
+				Debug.WriteLine ("Todays appointments not yet confirmed");
+				try
+				{
+					if (peopleToday != null && peopleToday.Count != 0)
+					{
+						Debug.WriteLine("Going thorugh Todays meetings");
+						if(!alerted){
+							await AlertHelper.Alert("Confirming appointments", 
+								"Let's confirm appointments before starting calls");
+							alerted = true;
+						}
 
-            }
-            else {
-				if (showMessages) {
-					UserDialogs.Instance.InfoToast ("DateRemidned Settings already checked");
+						for (int c = 0; c < peopleToday.Count; c++)
+						{
+							var person = peopleToday.ElementAt(c);
+							await Task.Delay(1000);
+							await TextTemplateHelper.PrepareConfirmTodaysMeetingsTemplateThenSendText(person);
+						}
+						vm.DateRemindedForTodaySettings = DateTime.Today.Day.ToString();
+					}
 				}
-            }
-        }
-        public static async void CheckIfMeetingsTodayConfirmSentSendIfNot(bool showMessages)
-        {//testing
-            SettingsViewModel vm;
-            vm = new SettingsViewModel();
-            List<ContactData> peopleToday = PeopleForToday();
+				catch (Exception e)
+				{
+					Debug.WriteLine("" + e.Message);
+				}
 
-            if (!string.Equals(DateTime.Today.Day.ToString(), vm.DateRemindedForTodaySettings/*make new settings field*/))
-            {
-                if (showMessages) UserDialogs.Instance.InfoToast("Todays appointments not yet confirmed", "Todays appointments not yet confirmed", 4000);
-                try
-                {
-                    if (peopleToday != null && peopleToday.Count != 0)
-                    {
-                        if (showMessages) UserDialogs.Instance.InfoToast("Going thorugh Todays meetings", "", 4000);
-                        for (int c = 0; c < peopleToday.Count; c++)
-                        {
-                            var person = peopleToday.ElementAt(c);
-                            var meeting = await GetAppointmentByID(person.NextMeetingID);
-                           await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number,
-                                App.contactFuncs.ConnectStrings(new string[] {
-                                    "Hi",
-                                    person.Name,
-                                    vm.MeetingTodayConfirmSettings,//make new settings field
-									meeting.Start.Hour.ToString (),
-                                    ":",
-                                    meeting.Start.Minute.ToString ()
-                                }), person.Name, Values.CONFIRM, Values.TODAY);
-                        }
-                        vm.DateRemindedForTodaySettings = DateTime.Today.Day.ToString();//make new settings field
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("" + e.Message);
-                }
+			}
+			else {
+				Debug.WriteLine ("Todays appointments already checked");
+			}
+			return alerted;
+		}
 
-            }
-            else {
-                if (showMessages) UserDialogs.Instance.WarnToast("DateRemidnedForToday Settings already checked", "DateRemidnedForToday Settings already checked", 4000);
-            }
+		static async Task<bool> CheckTomorrow(bool alerted){
+			SettingsViewModel vm;
+			vm = new SettingsViewModel();
+			List<ContactData> peopleTomorrow = PeopleForTomorrow();
+
+			//confirm tomorrow
+			if (!string.Equals(DateTime.Today.Day.ToString(), Settings.DateRemindedSettings))
+			{
+				Debug.WriteLine ("Tomorrows appointments not yet confirmed");
+				try
+				{
+					if (peopleTomorrow != null && peopleTomorrow.Count != 0)
+					{
+						if (!alerted){
+							await AlertHelper.Alert ("Confirming appointments", 
+								"Let's confirm appointments before starting calls");
+							alerted = true;
+						}
+							
+						Debug.WriteLine("Going thorugh tomorrows meetings: {0}", peopleTomorrow.Count);
+
+						for (int c = 0; c < peopleTomorrow.Count; c++)
+						{
+							Debug.WriteLine("Start Iteration {0}", c);
+							var person = peopleTomorrow.ElementAt(c);
+							Debug.WriteLine("after peopleTomorrow.ElementAt(c);");
+							await Task.Delay(1000);
+							await TextTemplateHelper.PrepareConfirmTomorrowsMeetingsTemplateThenSendText(person);
+							Debug.WriteLine("Done w Iteration {0}", c);
+						}
+						Settings.DateRemindedSettings = DateTime.Today.Day.ToString();
+					}else{
+						Debug.WriteLine("No meetings tomorrow");
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.WriteLine("" + e.Message);
+				}
+			}
+			else {
+				Debug.WriteLine ("Tomorrows appointments already checked");
+			}
+			return alerted;
+		}
+
+		public static async Task CheckMeetingsTodayTomorrowConfirmSentSendIfNot()
+        {
+			bool alerted = false;
+			//alerted = await CheckToday(alerted);
+			//await Task.Delay (3000);
+			await CheckTomorrow (alerted);
         }
 
         public static void NotifyUserForTomorrowsAppointments(int hour, int seconds/*, string number = "", string message = "", string name = ""*/)
@@ -339,3 +349,13 @@ namespace Capp2.Helpers
 
 
 
+//var meeting = await GetAppointmentByID(person.NextMeetingID);
+/*await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number,
+                                App.contactFuncs.ConnectStrings(new string[] {
+                                    "Hi",
+                                    person.Name,
+                                    vm.MeetingConfirmSettings,
+                                    meeting.Start.Hour.ToString (),
+                                    ":",
+                                    meeting.Start.Minute.ToString ()
+                                }), person.Name, Values.CONFIRM, Values.TOMORROW);*/

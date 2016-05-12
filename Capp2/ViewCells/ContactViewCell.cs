@@ -8,7 +8,7 @@ using Acr.UserDialogs;
 
 namespace Capp2
 {
-	public class ContactViewCell:ViewCell
+	public class ContactViewCell:NativeCell
 	{
 		public ContactData personCalled{ set; get;}
 		TapGestureRecognizer tapGestureRecognizer;
@@ -16,16 +16,24 @@ namespace Capp2
 		Label playlistLabel;
 		Image phone;
 		CheckBox checkbox;
+		CircleImage circleImage;
 
 		public ContactViewCell (CAPP page)
 		{
 			this.Height = 56;
+			this.Height *= 1.3;
 			nameLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				HorizontalTextAlignment = TextAlignment.Start,
 			};
 			nameLabel.SetBinding(Label.TextProperty, "Name");//"Name" links directly to the ContactData.Name property
+
+			circleImage = new CircleImage{
+				HorizontalOptions = LayoutOptions.Fill,
+				Aspect = Aspect.AspectFit,
+			};
+			circleImage.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
 			playlistLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), 
@@ -55,18 +63,21 @@ namespace Capp2
 			phone = new Image {
 				Aspect = Aspect.AspectFit,
 				Source = FileImageSource.FromFile ("Phone"),
-				HorizontalOptions = LayoutOptions.End
+				HorizontalOptions = LayoutOptions.End,
+				HeightRequest = nameLabel.FontSize *1.5,
+				WidthRequest = nameLabel.FontSize *1.5,
 			};
+
 			tapGestureRecognizer = new TapGestureRecognizer ();
 			tapGestureRecognizer.Tapped += async (s, e) => {
 				UIAnimationHelper.ZoomUnZoomElement(phone);
 				personCalled = (s as Image).Parent.Parent.Parent.BindingContext as ContactData;
-				page.call(personCalled, false);
+				CallHelper.call(personCalled, false);
 			};
 			phone.GestureRecognizers.Add (tapGestureRecognizer);
 			tapGestureRecognizer.NumberOfTapsRequired = 1;
 
-			var nextAction = new MenuItem { Text = "Next Meeting" };
+			var nextAction = new MenuItem { Text = "Next Meeting", IsDestructive = true };
 			nextAction.SetBinding (MenuItem.CommandParameterProperty, new Binding ("."));
 			nextAction.Clicked += (sender, e) => {
 				var mi = ((MenuItem)sender);
@@ -120,24 +131,42 @@ namespace Capp2
 			if (App.IsEditing) {
 				if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
 					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
-						new StackLayout {
-							Orientation = StackOrientation.Vertical,
+						new StackLayout{
+							Orientation = StackOrientation.Horizontal,
 							HorizontalOptions = LayoutOptions.StartAndExpand,
-							Children = { nameLabel, playlistLabel }
+							Children = {
+								circleImage, 
+								new StackLayout {
+									Orientation = StackOrientation.Vertical,
+									Children = { nameLabel, playlistLabel }
+								}
+							}
 						},
 						new StackLayout{
 							HorizontalOptions = LayoutOptions.End,
+							VerticalOptions = LayoutOptions.Center,
+
 							Children = {checkbox}
 						}
 					);
 				} else {
 					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
 						new StackLayout{
+							Orientation = StackOrientation.Horizontal,
 							HorizontalOptions = LayoutOptions.StartAndExpand,
-							Children = {nameLabel}
+							Children = {
+								circleImage, 
+								new StackLayout{
+									Children = {
+										nameLabel
+									}
+								}
+							}
 						},
 						new StackLayout{
 							HorizontalOptions = LayoutOptions.End,
+							VerticalOptions = LayoutOptions.Center,
+
 							Children = {checkbox}
 						}
 					);
@@ -145,24 +174,40 @@ namespace Capp2
 			} else {
 				if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
 					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
-						new StackLayout {
-							Orientation = StackOrientation.Vertical,
+						new StackLayout{
+							Orientation = StackOrientation.Horizontal,
 							HorizontalOptions = LayoutOptions.StartAndExpand,
-							Children = { nameLabel, playlistLabel }
+							Children = {
+								circleImage,
+								new StackLayout {
+									Orientation = StackOrientation.Vertical,
+									Children = { nameLabel, playlistLabel }
+								}
+							}
 						},
 						new StackLayout{
 							HorizontalOptions = LayoutOptions.End,
+							VerticalOptions = LayoutOptions.Center,
 							Children = {phone}
 						}
 					);
 				} else {
 					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding( 
 						new StackLayout{
+							Orientation = StackOrientation.Horizontal,
 							HorizontalOptions = LayoutOptions.StartAndExpand,
-							Children = {nameLabel}
+							Children = {
+								circleImage, 
+								new StackLayout{
+									Children = {
+										nameLabel
+									}
+								}
+							}
 						},
 						new StackLayout{
 							HorizontalOptions = LayoutOptions.End,
+							VerticalOptions = LayoutOptions.Center,
 							Children = {phone}
 						}
 					);

@@ -15,7 +15,11 @@ namespace Capp2.iOS
 		{
 		}
 
-		public void SendEmail(){
+		public void SendDailyEmail(){
+			
+		}
+
+		public void SendEmail(string body = ""){
 			try{
 				var window = UIApplication.SharedApplication.KeyWindow;
 				var vc = window.RootViewController;
@@ -32,7 +36,7 @@ namespace Capp2.iOS
 				mailController = new MFMailComposeViewController ();
 				mailController.SetToRecipients (new string[]{"captapuserfeedback@gmail.com"});
 				mailController.SetSubject ("CapTap User Feedback");
-				//mailController.SetMessageBody ("this is a test", false);
+				mailController.SetMessageBody (body, false);
 
 				mailController.Finished += ( object s, MFComposeResultEventArgs args) => {
 					Console.WriteLine ("Email sent: {0}", args.Result.ToString ());

@@ -25,12 +25,13 @@ namespace Capp2
 		int contactsCount = 0, AutoCallCounter;
 		Label lblContactsCount = null;
 		Button cmdAutocall;
-		ToolbarItem EditTBI, DeleteTBI, MoveToTBI, AddTBI;
+		public ToolbarItem EditTBI, DeleteTBI, MoveToTBI, AddTBI;
 		string title;
-        StackLayout stack = new StackLayout();
+		StackLayout stack = new StackLayout(), AutoCallStack = new StackLayout();
         List<Grouping<string, ContactData>> PreLoadedGroupedList;
 		SearchBar searchBar;
 		List<ContactData> AutoCallList;
+		ScrollView scroller = new ScrollView();
 
 		public CAPP (string playlistChosen)
 		{
@@ -48,69 +49,110 @@ namespace Capp2
 			CreateUIElements ();
 
 			CreateLayouts ();
+
+			UIAnimationHelper.FlyIn(searchBar, 600, App.AppJustLaunched);
+			UIAnimationHelper.FlyIn(listView, 600, App.AppJustLaunched);
         }
 
 		void CreateLayouts(){
+			scroller = new ScrollView {
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Content = //stack
+					new StackLayout {
+					Orientation = StackOrientation.Vertical,
+					VerticalOptions = LayoutOptions.FillAndExpand,
+					Children = {
+						UIBuilder.CreateEmptyStackSpace (),
+						UIBuilder.CreateEmptyStackSpace (),
+						new StackLayout{
+							Padding = new Thickness(0, 10, 0, 0),
+							Children = { searchBar }
+						}, 
+						/*new StackLayout {
+							Padding = new Thickness (7, 0, 7, 0),
+							Children = { cmdAutocall }
+						}, */
+						/*lblContactsCount,*/ listView
+					}
+				},
+			};
+
 			if (Device.OS == TargetPlatform.iOS) {
 				stack = new StackLayout()
 				{
 					BackgroundColor = Color.Transparent,//White,
+					VerticalOptions = LayoutOptions.FillAndExpand,
 					Orientation = StackOrientation.Vertical,
 					//Padding = new Thickness(0, 0, 10, 0),
 					Children =
-					{
-						searchBar, new StackLayout
 						{
-							Padding = new Thickness(7,0,7,0),
-							Children = {cmdAutocall}
-						}, 
-						lblContactsCount,listView
-					}
+							scroller
+							/*UIBuilder.CreateEmptyStackSpace (),
+							UIBuilder.CreateEmptyStackSpace (),
+							searchBar, new StackLayout {
+								Padding = new Thickness (7, 0, 7, 0),
+								Children = { cmdAutocall }
+							}, 
+							lblContactsCount, listView*/
+						}
 					};
 			} else if (Device.OS == TargetPlatform.Android) {
 				stack = new StackLayout()
 				{
 					BackgroundColor = Color.Transparent,//White,
+					VerticalOptions = LayoutOptions.FillAndExpand,
 					Orientation = StackOrientation.Vertical,
 					Padding = new Thickness(7, 3, 7, 7),
 					Children =
 					{
-						searchBar, new StackLayout
+						scroller
+						/*searchBar, new StackLayout
 						{
 							Padding = new Thickness(7,0,7,0),
 							Children = {cmdAutocall}
 						}, 
-						lblContactsCount,listView
+						lblContactsCount,listView*/
 					}
 					};
 			}
 
-			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "ic_add_white_24dp.png", new Command (async () =>
+			Content = //stack;
+			UIBuilder.AddFloatingActionButtonToStackLayout(stack, "", new Command (async () =>
 				{
-					import = Util.ImportChoices(playlist);
-					var importResult = await this.DisplayActionSheet("Choose a source to get contacts from", "OK", "Cancel", import);
-					try{
-						if (importResult == Values.IMPORTCHOICEMANUAL)
-						{
-							await Navigation.PushAsync(new AddContactPage(this));
-						}
-						else if (importResult == Values.IMPORTCHOICEGDRIVE)
-						{
-							UserDialogs.Instance.InfoToast("Not yet implemented", null, 2000);
-						}else
-						{
-							Debug.WriteLine("Importing from {0}", importResult);
-							var list = App.Database.GetItems(importResult).ToList();
-							if(list.Count == 0){
-								AlertHelper.Alert(this, "Empty Namelist", importResult+" has no contacts", "OK");
-							}else{
-								await Navigation.PushModalAsync(new CappModal(importResult, this.playlist, App.Database.GetGroupedItems(importResult), 
-									list, App.Database.GetItems(this.playlist).ToList()));
-							}
-						}
-
-					}catch(Exception){}
+					//AddContacts();
+					AutoCall();
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
+		}
+
+		async void AddContacts(){
+			import = Util.ImportChoices(playlist);
+			var importResult = await this.DisplayActionSheet("Choose a source to get contacts from", "Cancel", null, import);
+			try{
+				if (importResult == Values.IMPORTCHOICEMANUAL)
+				{
+					await Navigation.PushAsync(new AddContactPage(this));
+				}
+				else if (importResult == Values.IMPORTCHOICEGDRIVE)
+				{
+					UserDialogs.Instance.InfoToast("Not yet implemented", null, 2000);
+				}else if(string.Equals(importResult, "Cancel")){
+					//do nothing
+				}else
+				{
+					Debug.WriteLine("Importing from {0}", importResult);
+					var list = App.Database.GetItems(importResult).ToList();
+					if(list.Count == 0){
+						AlertHelper.Alert(this, "Empty Namelist", importResult+" has no contacts", "OK");
+					}else{
+						await Navigation.PushModalAsync(new CappModal(importResult, this.playlist, App.Database.GetGroupedItems(importResult), 
+							list, App.Database.GetItems(this.playlist).ToList()));
+						
+					}
+				}
+
+			}catch(Exception){}
+
+
 		}
 
 		void CreateUIElements(){
@@ -141,12 +183,7 @@ namespace Capp2
 			cmdAutocall = new Button { Text = "START CALLING", BackgroundColor = Color.Green, TextColor = Color.Black, FontAttributes = FontAttributes.Bold };
 			cmdAutocall.Clicked += (sender, e) => {
 				UIAnimationHelper.ShrinkUnshrinkElement(cmdAutocall);
-				if(calling){
-					SetupNotAutoCalling ();
-				}else{
-					SetupAutoCalling ();
-					autoCall(this.playlist);
-				}
+				AutoCall();
 			};
 			cmdAutocall.BackgroundColor = Color.Green;
 
@@ -154,12 +191,45 @@ namespace Capp2
 			CreateListView ();
 		}
 
+		async Task AutoCall(){
+			if (App.Database.GetItems (playlist).Count () == 0) {
+				AlertHelper.Alert (string.Format ("{0} has no contacts to call", playlist), "");
+			} else {
+				if (string.Equals (App.SettingsHelper.BOMLocationSettings, "<meetup here>")) {
+					App.SettingsHelper.BOMLocationSettings = await Util.GetUserInputSingleLinePromptDialogue ("You haven't entered a meetup place in your meetup templates (go to Settings)", 
+						"Enter a default meetup location, then try again", "<meetup here>");
+
+					DoAutoCall ();
+				} else {
+					DoAutoCall ();
+				}
+			}
+
+		}
+
+		async Task DoAutoCall(){
+			if(calling){
+				SetupNotAutoCalling ();
+			}else{
+				SetupAutoCalling ();
+				autoCall(this.playlist);
+			}
+		}
+
+		protected override void OnAppearing ()
+		{
+			base.OnAppearing ();
+			scroller.VerticalOptions = LayoutOptions.FillAndExpand;
+			stack.VerticalOptions = LayoutOptions.FillAndExpand;
+			listView.VerticalOptions = LayoutOptions.FillAndExpand;
+		}
+
 		void CreateListView(){
-			
 			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(App.Database.GetGroupedItems (playlist));
 
 			listView = new ListView ()
 			{
+				VerticalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = Color.Transparent,
 				ItemsSource = PreLoadedGroupedList,
 				SeparatorColor = Color.Transparent,
@@ -172,7 +242,18 @@ namespace Capp2
 				GroupShortNameBinding = new Binding ("Key"),//doesnt work android, works iOS
 				GroupHeaderTemplate = new DataTemplate (() => {
 					return new HeaderCell ();
+				}),
+				Header = contactsCount,
+				HeaderTemplate = new DataTemplate(() => {
+					return new StackLayout{
+						Children = {
+							lblContactsCount
+						}
+					};
 				})
+			};
+			listView.Focused += (object sender, FocusEventArgs e) => {
+				scroller.ScrollToAsync(0, listView.Y, true);
 			};
 
 			listView.ItemSelected += (sender, e) => {
@@ -198,28 +279,7 @@ namespace Capp2
 			import = Util.ImportChoices(playlist);
 			AddTBI = new ToolbarItem("Add", "", async () =>
 				{
-					var importResult = await this.DisplayActionSheet("Choose a source to get contacts from", "OK", "Cancel", import);
-					try{
-						if (importResult == Values.IMPORTCHOICEMANUAL)
-						{
-							await Navigation.PushAsync(new AddContactPage(this));
-						}
-						else if (importResult == Values.IMPORTCHOICEGDRIVE)
-						{
-							UserDialogs.Instance.InfoToast("Not yet implemented", null, 2000);
-						}else
-						{
-							Debug.WriteLine("Importing from {0}", importResult);
-							var list = App.Database.GetItems(importResult).ToList();
-							if(list.Count == 0){
-								AlertHelper.Alert(this, "Empty Namelist", importResult+" has no contacts", "OK");
-							}else{
-								await Navigation.PushModalAsync(new CappModal(importResult, this.playlist, App.Database.GetGroupedItems(importResult), 
-									list, App.Database.GetItems(this.playlist).ToList()));
-							}
-						}
-
-					}catch(Exception){}
+					AddContacts();
 				});
 			if (Device.OS == TargetPlatform.iOS) {
 				Debug.WriteLine("Adding add tbi temporarily");
@@ -232,10 +292,10 @@ namespace Capp2
 					var contactsArr = enumerableList.ToArray ();
 					var saveList = new List<ContactData>();
 
-					var MoveToResult = await this.DisplayActionSheet("Move to Namelist", "OK", "Cancel", PlaylistsIntoStringArr ());
+					var MoveToResult = await this.DisplayActionSheet("Move to Namelist", "Cancel", null, PlaylistsIntoStringArr ());
 					Debug.WriteLine ("MoveResult {0}, contactsArr.Length {1}",MoveToResult, contactsArr.Length);
-					if (!string.Equals(MoveToResult, "OK")) {
-						if (!string.IsNullOrWhiteSpace(MoveToResult) && !string.Equals(MoveToResult, "Cancel"))
+					if (!string.Equals(MoveToResult, "Cancel")) {
+						if (!string.IsNullOrWhiteSpace(MoveToResult)/* && !string.Equals(MoveToResult, "Cancel")*/)
 						{
 							Debug.WriteLine("ABOUT TO LOOP");
 
@@ -291,7 +351,7 @@ namespace Capp2
 			this.ToolbarItems.Add (EditTBI);
 		}
 
-		void UpdateUI_DisableAutoCallingBeforeEditing(){
+		async Task UpdateUI_DisableAutoCallingBeforeEditing(){
 			cmdAutocall.IsEnabled = false;
 			cmdAutocall.BackgroundColor = Color.Gray;
 			App.IsEditing = true;
@@ -305,7 +365,7 @@ namespace Capp2
 			if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Insert (1, DeleteTBI);
 		}
 
-		void UpdateUI_EnableAutoCallingAfterEditing(){
+		async Task UpdateUI_EnableAutoCallingAfterEditing(){
 			cmdAutocall.IsEnabled = true;
 			cmdAutocall.BackgroundColor = Color.Green;
 			EditTBI.Text = "Edit";
@@ -434,51 +494,15 @@ namespace Capp2
 		public void ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList){
             try {
                 this.IsBusy = true;
-                stack.Children.RemoveAt(3);
-                listView = new ListView()
-                {
-					BackgroundColor = Color.Transparent,
-                    ItemsSource = groupedList,
-					SeparatorColor = Color.Transparent,//this.BackgroundColor,
-                    ItemTemplate = new DataTemplate(() =>
-                    {
-                        return new ContactViewCell(this);
-                    }),
-                    IsGroupingEnabled = true,
-                    GroupDisplayBinding = new Binding("Key"),
-                    HasUnevenRows = true,
-                    GroupShortNameBinding = new Binding("Key"),//doesnt work android, works iOS
-                    GroupHeaderTemplate = new DataTemplate(() =>
-                    {
-                        return new HeaderCell();
-                    })
-                };
-                listView.ItemSelected += (sender, e) => {
-                    // has been set to null, do not 'process' tapped event
-                    if (e.SelectedItem == null)
-                        return;
-
-                    personCalled = (ContactData)e.SelectedItem;
-
-                    if (!App.IsEditing)
-                    {
-
-                        Navigation.PushAsync(new EditContactPage(personCalled, this));
-                        // de-select the row
-                        ((ListView)sender).SelectedItem = null;
-                    }
-                    else {
-                        ((ListView)sender).SelectedItem = null;
-                    }
-                };
-                stack.Children.Add(listView);
+				(scroller.Content as StackLayout).Children.Remove((scroller.Content as StackLayout).Children.Last());//RemoveAt(5);//use last instead?
+				CreateListView();
+				(scroller.Content as StackLayout).Children.Add(listView);
                 this.IsBusy = false;
             }
             catch (Exception e) {
                 Debug.WriteLine("ReBuildGroupedSearchableListView() error: {0}", e.Message);
             }
 		}
-        
 
 		public void refresh (ListView list, string playlist)
 		{
@@ -507,7 +531,7 @@ namespace Capp2
             }
         }
 
-		async Task<string> HandleMutlipleNumbers(ContactData contact){
+		/*async Task<string> HandleMutlipleNumbers(ContactData contact){
 			List<string> list = new List<string> ();
 
 			if (!string.IsNullOrWhiteSpace (contact.Number2)) {
@@ -530,26 +554,37 @@ namespace Capp2
 			return contact.Number;
 		}
 
-		public async Task call(ContactData contact, bool autocall){
+		public async Task CallContact(ContactData contact, bool autocall){
 			//to time call cycle of user
-			if(!CallHelper.IsTimerRunning()){
-				CallHelper.StartTimer();
+			if (!CallHelper.IsTimerRunning ()) {
+				CallHelper.StartTimer ();
 				Debug.WriteLine ("Timer not running, calling start timer");
 			}
 
-			Debug.WriteLine ("Calling "+contact.Name+" autocall: "+autocall.ToString ());
+			Debug.WriteLine ("Calling " + contact.Name + " autocall: " + autocall.ToString ());
 			var dialer = DependencyService.Get<IDialer> ();
 			if (dialer != null) {
-				if (await dialer.Dial (await HandleMutlipleNumbers(contact))) {
+				if (await dialer.Dial (await HandleMutlipleNumbers (contact))) {
 					contact.Called = DateTime.Now;
 					App.Database.UpdateItem (contact);
 					Debug.WriteLine ("Delaying 4s");
 					await Task.Delay (Values.CALLTOTEXTDELAY);
 					Navigation.PushModalAsync (new DatePage (Values.APPOINTED, contact, autocall));
 				} 
-			}else
+			} else
 				throw new Exception ("dialer return null in CAPP.call()");
-		}
+		}*/
+
+		/*public async Task call(ContactData contact, bool autocall){
+			if (string.Equals (App.SettingsHelper.BOMLocationSettings, "<meetup here>")) {
+				App.SettingsHelper.BOMLocationSettings = await Util.GetUserInputSingleLinePromptDialogue ("You haven't entered a meetup place in your meetup templates (go to Settings)", 
+					"Enter a default meetup location, then try again", "<meetup here>");
+
+				CallContact (contact, autocall);
+			} else {
+				CallContact (contact, autocall);
+			}
+		}*/
 
 		public void autoCall(string playlist){
 			try{
@@ -573,7 +608,7 @@ namespace Capp2
 				Debug.WriteLine ("ITERATION "+AutoCallCounter+" IN AUTOCALL, "+AutoCallList.Count+" Numbers in list");
 				AutoCallContinue = false;
 				Debug.WriteLine ("CONTINUE SET TO FALSE, WAITING FOR DONEWITHCALL MESSAGE");
-				call (AutoCallList.ElementAt (AutoCallCounter), true);
+				CallHelper.call (AutoCallList.ElementAt (AutoCallCounter), true);
 				Debug.WriteLine ("AutoCallCounter after call is "+AutoCallCounter);
 				AutoCallCounter++;
 			}

@@ -11,9 +11,9 @@ namespace Capp2
 	{
 		Label MainLabel, EmptyLabel;
 		Image DoneImage;
-		Editor SMSEntry, LocEntry;
-		StackLayout SettingsList1, SettingsList2;
-		bool SMSEntryShown = false, LocEntrySHown = false;
+		Editor SMSEntry, LocEntry, DailyEmailEntry;
+		StackLayout SettingsList1, SettingsList2, DailyEmailTemplate;
+		bool SMSEntryShown = false, LocEntrySHown = false, EmailShown = false;
 
 		public TemplateSettingsPage ()
 		{
@@ -27,10 +27,7 @@ namespace Capp2
 			this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
 			BindingContext = new SettingsViewModel();
 
-			DoneImage = UIBuilder.CreateTappableImage ("clear-Small.png", LayoutOptions.Start, Aspect.AspectFit, new Command(() => {
-				UIAnimationHelper.ShrinkUnshrinkElement(DoneImage);
-				CheckIfUserChangedMeetingAndTimeStringTags(SMSEntry.Text, true);
-			}));
+			//DoneImage = ;
 
 			EmptyLabel = new Label{
 				Text = "     "
@@ -52,6 +49,24 @@ namespace Capp2
 			LocEntry = new Editor ();
 			LocEntry.SetBinding (Editor.TextProperty, new Xamarin.Forms.Binding(){Path="BOMLocationSettings"});
 
+			DailyEmailEntry = new Editor ();
+			DailyEmailEntry.SetBinding<SettingsViewModel> (Editor.TextProperty, vm => vm.DailyEmailTemplateSettings);
+
+			DailyEmailTemplate = new StackLayout{
+				Orientation = StackOrientation.Vertical,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				Children = {
+
+					UIBuilder.CreateSetting ("", "Daily Email Template", 
+						new TapGestureRecognizer {Command = new Command (() => 
+							{
+								UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailTemplate);
+								ShowOrHideEmailTemplate(DailyEmailEntry, DailyEmailTemplate, 1);
+							}
+						)}, true),
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+				}
+			};
 			SettingsList1 = new StackLayout{
 				Orientation = StackOrientation.Vertical,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -93,7 +108,11 @@ namespace Capp2
 						new StackLayout{
 							Orientation = StackOrientation.Horizontal,
 							Children = {
-								EmptyLabel, DoneImage, MainLabel, 
+								EmptyLabel, 
+								UIBuilder.CreateModalXPopper (new Command(() => {
+									CheckIfUserChangedMeetingAndTimeStringTags(SMSEntry.Text, true);
+								}), "Text Templates")
+								//, MainLabel, 
 							}
 						},
 						UIBuilder.CreateEmptyStackSpace(),
@@ -103,7 +122,12 @@ namespace Capp2
 							HorizontalOptions = LayoutOptions.Fill,
 							VerticalOptions = LayoutOptions.FillAndExpand, 
 							Children = {
-								SettingsList2, SettingsList1, 
+								SettingsList2, SettingsList1,// DailyEmailTemplate
+								UIBuilder.CreateTextTemplateSetting(
+									new Xamarin.Forms.Binding(){Path="DailyEmailTemplateSettings"}, 
+									BindingContext as SettingsViewModel,
+									"Daily Email Template", ""
+								),
 							}
 						}
 					}
@@ -147,6 +171,19 @@ namespace Capp2
 				parent.Children.Remove (entry);
 				LocEntrySHown = false;
 				Debug.WriteLine ((BindingContext as SettingsViewModel).BOMLocationSettings);
+			}
+		}
+		void ShowOrHideEmailTemplate(Editor entry, StackLayout parent, int indexToInsertAt){
+			if (!EmailShown) {
+				entry.Focus ();
+				parent.Children.Insert (indexToInsertAt, entry);
+				EmailShown = true;
+				entry.Text = (BindingContext as SettingsViewModel).DailyEmailTemplateSettings;
+				Debug.WriteLine (entry.Text);
+			}else{
+				parent.Children.Remove (entry);
+				EmailShown = false;
+				Debug.WriteLine ((BindingContext as SettingsViewModel).DailyEmailTemplateSettings);
 			}
 		}
 	}

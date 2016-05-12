@@ -65,7 +65,10 @@ namespace Capp2
 		public string AzureID{ get; set;}
 
 		[Column("PicStringBase64")]
-		public string PicStringBase64{ get; set;}
+		public string PicStringBase64{ get; set;} = "placeholder-contact-male.png";
+
+		[Column("LargePic")]
+		public string LargePic{ get; set;} = "placeholder-contact-male.png";
 	}
 }
 

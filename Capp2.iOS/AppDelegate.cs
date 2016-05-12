@@ -10,6 +10,9 @@ using XLabs.Platform.Services;
 using CoreAnimation;
 using CoreGraphics;
 using Syncfusion.SfChart.XForms.iOS.Renderers;
+using System.Threading.Tasks;
+using Capp2.iOS.Helpers;
+using System.Linq;
 
 namespace Capp2.iOS
 {
@@ -24,6 +27,7 @@ namespace Capp2.iOS
 
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
+			
             // check for a notification
             if (options != null)
             {
@@ -77,9 +81,20 @@ namespace Capp2.iOS
 
             global::Xamarin.Forms.Forms.Init();
 
+			//FABForms
+			new FAB.iOS.FloatingActionButtonRenderer();
+
 			SetUIStyles (app);
             
             LoadApplication(new App());
+			//DidEnterBackground (app);
+
+			new System.Threading.Thread(new System.Threading.ThreadStart(async () => {
+				PhoneContacts PhoneFunc = new PhoneContacts();
+				await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList());
+			})).Start();
+
+			//App.ImageImportingStartedInBackground = true;
             return base.FinishedLaunching(app, options);
         }
 
@@ -94,6 +109,24 @@ namespace Capp2.iOS
             UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
         }
 
+		public override void DidEnterBackground (UIApplication application)
+		{
+			base.DidEnterBackground (application);
+			Console.WriteLine ("In Background iOS");
+
+			nint taskID = UIApplication.SharedApplication.BeginBackgroundTask( () => {});
+			//if (!App.ImageImportingStartedInBackground) {
+			//	Console.WriteLine ("Image importing not yet started, starting");
+				/*new Task (async () => {
+					PhoneContacts PhoneFunc = new PhoneContacts();
+					await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList());
+
+					UIApplication.SharedApplication.EndBackgroundTask(taskID);
+				}).Start();*/
+			//}
+
+		}
+
 		void SetUIStyles(UIApplication iOSApp){
 			var win = new UIWindow(UIScreen.MainScreen.Bounds);
 
@@ -101,6 +134,7 @@ namespace Capp2.iOS
 			var EndColor = ColorFromHex(Values.GOOGLEBLUE);*/
 
 			//UINavigationBar.Appearance.BarTintColor = UIColor.FromRGB(43, 132, 211); //bar background 
+
 			UINavigationBar.Appearance.TintColor = ColorFromHex(Values.GOOGLEBLUE); //Tint color of button items  
 			/*UINavigationBar.Appearance.SetTitleTextAttributes(new UITextAttributes() { 
 				Font = UIFont.FromName("HelveticaNeue-Light", (nfloat)20f), TextColor = UIColor.White 

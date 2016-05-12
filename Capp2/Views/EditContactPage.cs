@@ -16,10 +16,22 @@ namespace Capp2
 		Entry numberEntry, number2Entry, number3Entry, number4Entry, number5Entry, firstNameEntry, lastNameEntry, affEntry;
 		Picker playlistPicker;
 		Button MarkAutoCall = new Button ();
+		Image ContactPic = new Image();
 
 		public EditContactPage (ContactData contact, CAPP page)  
 		{
 			NavigationPage.SetHasNavigationBar (this, true);
+
+			BindingContext = contact;
+
+			ContactPic = UIBuilder.CreateTappableCircleImage ("", LayoutOptions.CenterAndExpand, 
+				Aspect.AspectFit, new Command (() => {
+					//UIAnimationHelper.ShrinkUnshrinkElement(ContactPic);
+				}
+			));
+			ContactPic.HeightRequest = 222;
+			ContactPic.WidthRequest = 222;
+			ContactPic.SetBinding(Image.SourceProperty, new Xamarin.Forms.Binding{Path = "LargePic"});
 
 			firstNameLabel = new Label { Text = "First Name" };
 			firstNameEntry = new Entry ();
@@ -124,7 +136,7 @@ namespace Capp2
 								this.Navigation.PopAsync();
 							}
 			});
-			this.ToolbarItems.Add (addTB);
+			//this.ToolbarItems.Add (addTB);
 
 			var cancelButton = new Button { Text = "Cancel" };
 			cancelButton.Clicked += (sender, e) => {
@@ -139,11 +151,54 @@ namespace Capp2
 				
 			};
 
-			Content = CreateEditContactLayout (contact);
+			Content = UIBuilder.AddFloatingActionButtonToStackLayout(CreateEditContactLayout (contact), "CheckmarkWhite500.png", 
+				new Command(() => {
+					firstNameEntry.Text = firstNameEntry.Text.Trim();
+					lastNameEntry.Text = lastNameEntry.Text.Trim();
+					//numberEntry.Text = numberEntry.Text.Trim();
+					affEntry.Text = affEntry.Text.Trim();
+
+					//speech functions for fun?
+					if(string.IsNullOrWhiteSpace(firstNameEntry.Text) || string.IsNullOrEmpty(firstNameEntry.Text)){
+						DisplayAlert("Hey!!!", "I don't think ' ' counts as a First Name, do you? ", "Alright, sorry CappTap...");
+					}else
+						if(string.IsNullOrWhiteSpace(lastNameEntry.Text) || string.IsNullOrEmpty(lastNameEntry.Text)){
+							DisplayAlert("Hey!!!", "How would you like if you didn't have a family? I need a last name! ", "Alright, sorry CappTap...");
+						}else
+							if(string.IsNullOrWhiteSpace(numberEntry.Text) || string.IsNullOrEmpty(numberEntry.Text)){
+								DisplayAlert("Hey!!!", "We can't call your contact if he/she doesn't have a number, now can we...? ", "Alright, sorry CappTap...");
+							}else
+								if(PhoneUtil.ToNumber(numberEntry.Text) == null || numberEntry.Text.Contains(" ")){
+									DisplayAlert("Hey!!!", "Please only enter numbers like 09163334444", "Alright, sorry CappTap...");
+								}else{
+
+									contact.FirstName = firstNameEntry.Text;
+									contact.LastName = lastNameEntry.Text;
+									contact.Aff = affEntry.Text;
+									contact.Number = numberEntry.Text;
+									//contact.Playlist default value is assigned in Database.GetItems(playlist)
+
+									Debug.WriteLine("udpated ID is:"+contact.ID);
+									Debug.WriteLine("current db index is:"+App.lastIndex);
+
+									App.Database.UpdateItem(contact);
+
+									firstNameEntry.Text = "";
+									lastNameEntry.Text = "";
+									page.refresh ();
+									this.Navigation.PopAsync();
+								}
+				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE));
+
+			UIAnimationHelper.FlyDown (stack);
 		}
-		StackLayout CreateEditContactLayout(ContactData contact){
+
+		void SaveNewContactInfo(){
+		}
+
+		View CreateEditContactLayout(ContactData contact){
 			if(Number5Exists(contact)){
-				return new StackLayout {
+				stack = new StackLayout {
 					VerticalOptions = LayoutOptions.StartAndExpand,
 					Padding = new Thickness(20),
 					Children = {
@@ -162,7 +217,7 @@ namespace Capp2
 					}
 				};
 			}else if(!Number5Exists(contact) && Number4Exists(contact)){
-				return new StackLayout {
+				stack = new StackLayout {
 					VerticalOptions = LayoutOptions.StartAndExpand,
 					Padding = new Thickness(20),
 					Children = {
@@ -180,7 +235,7 @@ namespace Capp2
 					}
 				};
 			}else if(!Number5Exists(contact) && !Number4Exists(contact) && Number3Exists(contact)){
-				return new StackLayout {
+				stack = new StackLayout {
 					VerticalOptions = LayoutOptions.StartAndExpand,
 					Padding = new Thickness(20),
 					Children = {
@@ -197,7 +252,7 @@ namespace Capp2
 					}
 				};
 			}else if(!Number5Exists(contact) && !Number4Exists(contact) && !Number3Exists(contact) && Number2Exists(contact)){
-				return new StackLayout {
+				stack = new StackLayout {
 					VerticalOptions = LayoutOptions.StartAndExpand,
 					Padding = new Thickness(20),
 					Children = {
@@ -213,7 +268,7 @@ namespace Capp2
 					}
 				};
 			}else {
-				return new StackLayout {
+				stack = new StackLayout {
 					VerticalOptions = LayoutOptions.StartAndExpand,
 					Padding = new Thickness(20),
 					Children = {
@@ -228,7 +283,47 @@ namespace Capp2
 					}
 				};
 			}
+
+			//insert call, message icons
+			stack.Children.Insert(0, new StackLayout{
+				Orientation = StackOrientation.Horizontal,
+				//HorizontalOptions = LayoutOptions.FillAndExpand,
+				Padding = new Thickness(0, 20),
+				Children = {
+					new StackLayout{
+						HorizontalOptions = LayoutOptions.StartAndExpand,
+						Children = {
+							UIBuilder.CreateTappableImage("Phone", LayoutOptions.Fill, Aspect.AspectFit,
+								new Command(async () => {
+									await CallHelper.call(contact, false);
+								}), firstNameLabel.FontSize * 1.5)
+						}
+					},
+					new StackLayout{
+						HorizontalOptions = LayoutOptions.End,
+						Children = {
+							UIBuilder.CreateTappableImage("Message-green-100", LayoutOptions.Fill, Aspect.AspectFit,
+								new Command(async () => {
+									DependencyService.Get<IPhoneContacts>().SendSMS(await CallHelper.HandleMutlipleNumbers(contact));
+								}), firstNameLabel.FontSize * 1.5)
+						}
+					},
+				}
+			});
+
+			stack.Children.Insert (0, UIBuilder.CreateEmptyStackSpace ());
+			stack.Children.Insert (0, ContactPic);
+			stack.Children.Insert (0, UIBuilder.CreateEmptyStackSpace ());
+			stack.Children.Insert (0, UIBuilder.CreateEmptyStackSpace ());
+			stack.HorizontalOptions = LayoutOptions.CenterAndExpand;
+
+
+			return new ScrollView{
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Content = stack
+			};
 		}
+
 		bool Number2Exists(ContactData contact){
 			if (string.IsNullOrWhiteSpace (contact.Number2)) {
 				return false;

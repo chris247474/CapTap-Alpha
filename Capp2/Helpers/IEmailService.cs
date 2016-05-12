@@ -4,7 +4,8 @@ namespace Capp2
 {
 	public interface IEmailService
 	{
-		void SendEmail();
+		void SendEmail(string body = "");
+		void SendDailyEmail();
 	}
 }
 

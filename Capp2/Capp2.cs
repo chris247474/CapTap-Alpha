@@ -37,14 +37,19 @@ namespace Capp2
 		public static bool OnAppStart;
 		public static TimeSpan SingleCallTimeEllapsed;
 		public static string DefaultNamelist;
+		public static int DeviceImageCtr{ get; set;}
+		public static bool AppJustLaunched;
+		public static SettingsViewModel SettingsHelper = new SettingsViewModel ();
 
 		public App ()
 		{			
 			PrepareAppData ();
-			MainPage = new StartPage();
+			MainPage = new StartPage ();
+
 		}
 
-		public async void PrepareAppData(){
+		public async Task PrepareAppData(){
+			AppJustLaunched = true;
 			IsEditing = false;
             AutoCallStatus = false;
 			contactFuncs = new Util ();
@@ -53,15 +58,16 @@ namespace Capp2
 			SetupGradientBackground ();
 
 			await contactFuncs.loadDeviceContactsIntoDBSingleTransaction (false);
-			CheckForMeetingsTodayTomorrowThenSendSMSToConfirm (false);
+			//CheckForMeetingsTodayTomorrowThenSendSMSToConfirm ();
 		}
-		async Task CheckForMeetingsTodayTomorrowThenSendSMSToConfirm(bool showMessages){
+		public static async Task CheckForMeetingsTodayTomorrowThenSendSMSToConfirm(){
 			try {
 				//returns true, then device calendar has at least one calendar account
 				if (await App.contactFuncs.DeviceCalendarExistsAndInit())
 				{
-					CalendarService.CheckIfMeetingsTomorrowConfirmSentSendIfNot(showMessages);//notifications replace each other, instead of stacking in KitKat API 19
-					CalendarService.CheckIfMeetingsTodayConfirmSentSendIfNot(showMessages);
+					await Task.Delay(10000);
+					await CalendarService.CheckMeetingsTodayTomorrowConfirmSentSendIfNot();
+
 				}
 			} catch(Exception e){ Debug.WriteLine("Calendar error {0}", e.Message);}
 		}

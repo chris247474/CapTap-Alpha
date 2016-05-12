@@ -4,6 +4,9 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const string WARMCONTACTS = "warm";
+		public const string COLDCONTACTS = "cold";
+
 		public const string INFOTOAST = "INFO";
 		public const string SUCCESSTOAST = "SUCCESS";
 		public const string ERRORTOAST = "ERRROR";

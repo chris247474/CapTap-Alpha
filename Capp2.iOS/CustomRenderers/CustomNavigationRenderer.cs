@@ -15,6 +15,13 @@ namespace Capp2.iOS
 		public override void PushViewController(UIKit.UIViewController viewController, bool animated)
 		{
 			base.PushViewController(viewController, animated);
+			NavigationBar.Translucent = true;
+			//NavigationBar.SetBackgroundImage (new UIImage (), UIBarMetrics.Default);//completely see through navbar
+			NavigationBar.TintColor = null;
+			NavigationBar.BarTintColor = UIColor.White;
+			NavigationBar.ShadowImage = new UIImage ();
+			NavigationBar.BackgroundColor = UIColor.Clear;
+
 
 			var list = new List<UIBarButtonItem>();
 
@@ -79,6 +86,11 @@ namespace Capp2.iOS
 
 				TopViewController.NavigationItem.RightBarButtonItems = list.ToArray();
 			}
+		}
+
+		public override void ViewDidLayoutSubviews ()
+		{
+			//base.ViewDidLayoutSubviews ();
 		}
 	}
 

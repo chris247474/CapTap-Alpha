@@ -60,7 +60,7 @@ namespace Capp2
 
 		void CreateUIElements(){
 			AddTo = new Button { 
-				Text = "Add To '"+playlist+"'", 
+				Text = "Add To '"+playlistToAddTo+"'", 
 				BackgroundColor = Color.Green, 
 				TextColor = Color.Black, 
 				FontAttributes = FontAttributes.Bold 
@@ -76,7 +76,7 @@ namespace Capp2
 
 				await App.Database.DeselectAll(this.list, this);//uncheck checkmarks
 
-				await App.Database.DeselectAll(this.namelisttoaddto, App.CapPage);//uncheck checkmarks that get copied to namelist
+				//await App.Database.DeselectAll(this.namelisttoaddto, App.CapPage);//uncheck checkmarks that get copied to namelist
 
 				await AlertHelper.Alert(this, "Copied!",
 					string.Format("Moved {0} contacts from {1} to {2}", selectedItems.Length, playlist, playlistToAddTo)
@@ -93,6 +93,12 @@ namespace Capp2
 			listView = CappBuilder.CreateGroupedListView (this, groupedlist, new CappModalViewCell (playlist), new Command (() => {
 				//dont do anything
 			}));
+		}
+
+		protected override void OnDisappearing ()
+		{
+			base.OnDisappearing ();
+			App.Database.DeselectAll(App.Database.GetItems(Values.ALLPLAYLISTPARAM), App.CapPage);
 		}
 
 		void FilterCAPPContacts(string filter, string playlist, List<Grouping<string, ContactData>> groupedList, 
@@ -162,6 +168,7 @@ namespace Capp2
 		Label nameLabel;
 		CheckBox checkbox;
 		ContactData personCalled;
+		CircleImage ContactPic = null;
 
 		public CappModalViewCell(string playlist){
 			CreateUIElements ();
@@ -170,9 +177,11 @@ namespace Capp2
 
 		View CreateView(string playlist){
 			return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
+				
 				new StackLayout{
+					Orientation = StackOrientation.Horizontal,
 					HorizontalOptions = LayoutOptions.StartAndExpand,
-					Children = {nameLabel}
+					Children = {ContactPic, nameLabel}
 				},
 				new StackLayout{
 					HorizontalOptions = LayoutOptions.End,
@@ -182,6 +191,13 @@ namespace Capp2
 		}
 		void CreateUIElements(){
 			this.Height = 56;
+			ContactPic = UIBuilder.CreateTappableCircleImage ("", LayoutOptions.CenterAndExpand, 
+				Aspect.AspectFit, new Command (() => {
+					
+				}
+			));
+			ContactPic.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
+
 			nameLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				VerticalOptions = LayoutOptions.StartAndExpand,

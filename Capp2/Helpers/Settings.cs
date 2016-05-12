@@ -38,6 +38,25 @@ namespace Capp2.Helpers
 		}
 	}
 
+	
+
+	#region DailyEmail
+	private const string DailyEmailTemplate = "";
+		public static readonly string DailyEmailTemplateDefault = "Date:\nMy goal:\nBusiness Achievements:\n1.\n2.\n3.\n\nTomorrow's Goals:\n1.\n2.\n3.\n\nLessons Learned:\n1.\n2.\n3.";
+	#endregion
+
+	public static string DailyEmailTemplateSettings
+	{
+		get
+		{
+			return AppSettings.GetValueOrDefault<string>(DailyEmailTemplate, DailyEmailTemplateDefault);
+		}
+		set
+		{
+			AppSettings.AddOrUpdateValue<string>(DailyEmailTemplate, value);
+		}
+	}
+
 	#region Setting RemindedForToday
 		private const string RemindedForToday = "";
 		private static readonly string RemindedForTodayDefault = Values.MEETINGSNOTYETREMINDED;
@@ -56,7 +75,7 @@ namespace Capp2.Helpers
 	}
 	#region Setting MeetingTodayConfirmation
 	private const string MeetingTodayConfirm = "";
-		private static readonly string MeetingTodayConfirmDefault = ",see you later";
+		public static readonly string MeetingTodayConfirmDefault = "see you later <time here>";
 	#endregion
 
 	public static string MeetingTodayConfirmSettings
@@ -109,7 +128,7 @@ namespace Capp2.Helpers
 
 	#region Setting MeetingConfirmation
 		private const string MeetingConfirm = "";
-		private static readonly string MeetingConfirmDefault = ",see you tomorrow";
+		public static readonly string MeetingConfirmDefault = ",see you tomorrow <time here>";
 	#endregion
 
 	public static string MeetingConfirmSettings

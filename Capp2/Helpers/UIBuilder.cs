@@ -4,20 +4,24 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using FAB.Forms;
 using Acr.UserDialogs;
+using XLabs.Forms.Controls;
+using Capp2.Helpers;
 
 namespace Capp2
 {
 	public static class UIBuilder
 	{
 		public static string GetPlatformFABIcon(){
-			if(Device.OS == TargetPlatform.Android)  return "ic_add_white_24dp.png";
-			else if(Device.OS == TargetPlatform.iOS) return "Add";
+			if(Device.OS == TargetPlatform.Android)  return "ic_add_white_24dp";
+			else if(Device.OS == TargetPlatform.iOS) return "Plus-100";
 			return string.Empty;
 		}
-		public static StackLayout AddFloatingActionButtonToStackLayout(StackLayout stack, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
+		public static StackLayout AddFloatingActionButtonToStackLayout(View view, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
 			var layout = new RelativeLayout ();
+			layout.VerticalOptions = LayoutOptions.FillAndExpand;
+			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
 			layout.Children.Add(
-				stack,
+				view,
 				xConstraint: Constraint.Constant(0),
 				yConstraint: Constraint.Constant(0),
 				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
@@ -39,18 +43,29 @@ namespace Capp2
 
 			};
 
-            normalFab.Source = icon;
+			if (Device.OS == TargetPlatform.Android)
+				normalFab.Source = icon;
+			else if (Device.OS == TargetPlatform.iOS)
+				normalFab.Source = FileImageSource.FromFile (icon);
 			normalFab.Size = FabSize.Normal;
 			normalFab.HasShadow = true;
 			normalFab.NormalColor = NormalColor;
 			normalFab.Opacity = 0.9;
 			normalFab.PressedColor = PressedColor;
 
-			layout.Children.Add(
-				normalFab,
-				xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - normalFab.Width) - 45; }),
-				yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - normalFab.Height) - 45; })
-			);
+			if (Device.OS == TargetPlatform.iOS) {
+				layout.Children.Add(
+					normalFab,
+					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - normalFab.Width) - 30; }),
+					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - normalFab.Height) - 45; })
+				);
+			} else {
+				layout.Children.Add(
+					normalFab,
+					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - normalFab.Width) - 45; }),
+					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - normalFab.Height) - 45; })
+				);
+			}
 			normalFab.SizeChanged += (sender, args) => { layout.ForceLayout(); };
 			normalFab.SetBinding (FloatingActionButton.CommandProperty, new Binding(){Source = FabTapped});
 
@@ -145,12 +160,49 @@ namespace Capp2
 			};
 		}
 
-		public static StackLayout CreateModalXPopper(Command CloseCommand, string text = "", string icon = "clear-Small.png"){
+		public static StackLayout CreateTextTemplateSetting(Binding binding, SettingsViewModel settings, string title, string icon){
+			Editor TemplateEntry = new Editor ();
+			StackLayout TemplateStack = new StackLayout ();
+			//TemplateStack.BindingContext = settings;
+			//TemplateEntry.BindingContext = settings;
+			bool EntryShown = false;
+
+			TemplateEntry.SetBinding <SettingsViewModel>(Editor.TextProperty, pref => pref.DailyEmailTemplateSettings);
+			TemplateEntry.HorizontalOptions = LayoutOptions.Center;
+			//TemplateEntry.Text = settings.DailyEmailTemplateSettings;
+
+			TemplateStack = new StackLayout{
+				Orientation = StackOrientation.Vertical,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				Children = {
+					UIBuilder.CreateSetting ("", title, 
+						new TapGestureRecognizer {Command = new Command (() => 
+							{
+								UIAnimationHelper.ShrinkUnshrinkElement(TemplateStack);
+								if (!EntryShown) {
+									TemplateEntry.Focus ();
+									TemplateStack.Children.Insert (1, TemplateEntry);
+									EntryShown = true;
+									//TemplateEntry.Text = settings.DailyEmailTemplateSettings;
+									Debug.WriteLine (TemplateEntry.Text);
+								}else{
+									TemplateStack.Children.Remove (TemplateEntry);
+									EntryShown = false;
+									Debug.WriteLine (settings.DailyEmailTemplateSettings);
+								}
+							}
+						)}, true),
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+				}
+			};
+
+			return TemplateStack;
+		}
+
+
+		public static StackLayout CreateModalXPopper(Command CloseCommand, string text = "", string icon = "Close.png"){
 			Image DoneImage = new Image ();
-			DoneImage = UIBuilder.CreateTappableImage ("clear-Small.png", LayoutOptions.Start, Aspect.AspectFit, new Command(() => {
-				UIAnimationHelper.ShrinkUnshrinkElement(DoneImage);
-				CloseCommand.Execute(null);
-			}));
+
 			Label MainLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 				Text = text,
@@ -158,6 +210,11 @@ namespace Capp2
 				HorizontalTextAlignment = TextAlignment.Start,
 				VerticalTextAlignment = TextAlignment.Center
 			};
+
+			DoneImage = UIBuilder.CreateTappableImage (icon, LayoutOptions.Start, Aspect.AspectFit, new Command(() => {
+				UIAnimationHelper.ShrinkUnshrinkElement(DoneImage);
+				CloseCommand.Execute(null);
+			}), MainLabel.FontSize);
 
 			if(string.IsNullOrWhiteSpace(text)){
 				return new StackLayout{ 
@@ -179,16 +236,53 @@ namespace Capp2
 			}
 		}
 
-		public static Image CreateTappableImage(string icon, LayoutOptions layout, Aspect aspect, Command handlerCommand){
-			TapGestureRecognizer handler = new TapGestureRecognizer{Command = handlerCommand};
-			var img = new Image{
+		public static Image CreateTappableImage(string icon, LayoutOptions layout, Aspect aspect, Command handlerCommand, double fontsize = 0){
+			Image img = new Image ();
+
+			TapGestureRecognizer handler = new TapGestureRecognizer{Command = new Command(() => {
+				UIAnimationHelper.ShrinkUnshrinkElement(img);
+				handlerCommand.Execute(null);
+			})};
+
+			if (fontsize > 0) {
+				img = new Image{
+					Source = icon,
+					HorizontalOptions = layout,
+					Aspect = aspect,
+					HeightRequest = fontsize *1.5,
+					WidthRequest = fontsize *1.5,
+				};
+			} else {
+				img = new Image{
+					Source = icon,
+					HorizontalOptions = layout,
+					Aspect = aspect,
+				};
+			}
+			img.GestureRecognizers.Add (handler);
+			return img;
+		}
+
+		public static CircleImage CreateTappableCircleImage(string icon, LayoutOptions layout, Aspect aspect, Command handlerCommand){
+			var img = new CircleImage{
 				Source = icon,
 				HorizontalOptions = layout,
 				Aspect = aspect,
 			};
+
+			TapGestureRecognizer handler = new TapGestureRecognizer{
+				Command = new Command(() => {
+					UIAnimationHelper.ShrinkUnshrinkElement(img);
+					handlerCommand.Execute(null);
+				})
+			};
+
 			img.GestureRecognizers.Add (handler);
 			return img;
 		}
+
+
+
 		public static StackLayout CreateEmptyStackSpace(){
 			var EmptyLabel = new Label{ 
 				Text = "  "
@@ -204,7 +298,8 @@ namespace Capp2
 				Text = header,
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				HorizontalTextAlignment = TextAlignment.Start,
-				VerticalTextAlignment = TextAlignment.Center
+				VerticalTextAlignment = TextAlignment.Center,
+				TextColor = Color.FromHex ("#AAAAAA"),
 			};
 			return new StackLayout {
 				Orientation = StackOrientation.Vertical,
@@ -221,6 +316,14 @@ namespace Capp2
 		}
 		public static StackLayout CreateSetting(string icon, string name, TapGestureRecognizer handler, bool center = false){
 			LayoutOptions layout;
+			Label lbl = new Label {
+				Text = name,
+				LineBreakMode = LineBreakMode.WordWrap,
+				HorizontalTextAlignment = TextAlignment.Center,
+				VerticalTextAlignment = TextAlignment.Center,
+				TextColor = Color.FromHex ("#AAAAAA"),
+			};
+
 			if (center) {
 				layout = LayoutOptions.CenterAndExpand;
 			}else{
@@ -230,18 +333,15 @@ namespace Capp2
 			StackLayout Setting = new StackLayout { 
 				Orientation = StackOrientation.Horizontal,
 				HorizontalOptions = layout,
-				Padding = new Thickness(20),
+				Padding = new Thickness(5),
 				Children = {
 					new Image{
-						Source = icon,
-						HorizontalOptions = LayoutOptions.Start
+						Source = FileImageSource.FromFile(icon),
+						HorizontalOptions = LayoutOptions.Start,
+						HeightRequest = lbl.FontSize*1.5,
+						WidthRequest = lbl.FontSize*1.5,
 					},
-					new Label{
-						Text = name,
-						LineBreakMode = LineBreakMode.WordWrap,
-						HorizontalTextAlignment = TextAlignment.Center
-					},
-
+					lbl,
 				}
 			};
 			Setting.GestureRecognizers.Add (handler);

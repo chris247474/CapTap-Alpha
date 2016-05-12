@@ -92,7 +92,7 @@ namespace Capp2
 			}
 		}
 		public static void MeasureLoadDatabaseTime(){
-			var watch = Stopwatch.StartNew (); 
+			/*var watch = Stopwatch.StartNew (); 
 			var list = App.Database.GetItemsAsync(Values.ALLPLAYLISTPARAM).Result;
 			watch.Stop ();
 
@@ -120,7 +120,8 @@ namespace Capp2
 			second = watch.ElapsedMilliseconds;
 
 			Debug.WriteLine ("[CAPP Loading Time Test] GetGroupedItemsFaster Time:" + first+", GetGroupedItems Time:" + second);
-		}
+*/
+			}
 		public static void testCalendarForTomorrow(){
 			//check events tomorrow
 			IList<CalendarEvent> meetingsTomorrow = CalendarService.GetAppointmentsTomorrow ();

@@ -133,6 +133,30 @@
     <Compile Include="Helpers\EmailService.cs" />
     <BundleResource Include="Resources\trending-Small.png" />
     <BundleResource Include="Resources\clear-Small.png" />
+    <BundleResource Include="Resources\placeholder-contact-male.png" />
+    <BundleResource Include="Resources\fontawesome-webfont.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </BundleResource>
+    <BundleResource Include="Resources\Plus-100.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </BundleResource>
+    <BundleResource Include="Resources\trending-Medium.png" />
+    <BundleResource Include="Resources\Message-100-yellow.png" />
+    <BundleResource Include="Resources\Message-green-100.png" />
+    <BundleResource Include="Resources\SpeechBubble.png" />
+    <BundleResource Include="Resources\Feedback.png" />
+    <BundleResource Include="Resources\FinishFlag.png" />
+    <BundleResource Include="Resources\PhoneOld.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </BundleResource>
+    <BundleResource Include="Resources\Phone.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </BundleResource>
+    <BundleResource Include="CheckmarkWhite500.png" />
+    <BundleResource Include="Resources\Close.png" />
+    <BundleResource Include="Leaderboard.png" />
+    <Compile Include="CustomRenderers\NativeCellRenderer.cs" />
+    <Compile Include="CustomRenderers\NativeiOSCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -168,12 +192,6 @@
     </Reference>
     <Reference Include="Plugin.Calendars.Abstractions, Version=0.3.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\CClarke.Plugin.Calendars.0.3.0-alpha\lib\Xamarin.iOS10\Plugin.Calendars.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Plugin.Contacts, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xam.Plugin.Contacts.2.0.0-beta1\lib\Xamarin.iOS10\Plugin.Contacts.dll</HintPath>
-    </Reference>
-    <Reference Include="Plugin.Contacts.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xam.Plugin.Contacts.2.0.0-beta1\lib\Xamarin.iOS10\Plugin.Contacts.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Plugin.LocalNotifications, Version=2.0.2.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Xam.Plugins.Notifier.2.0.2\lib\Xamarin.iOS10\Plugin.LocalNotifications.dll</HintPath>
@@ -250,12 +268,27 @@
     <Reference Include="Syncfusion.SfChart.XForms.iOS">
       <HintPath>Syncfusion.SfChart.XForms.iOS.dll</HintPath>
     </Reference>
+    <Reference Include="Plugin.Contacts">
+      <HintPath>..\packages\Xam.Plugin.Contacts.2.0.2-beta1\lib\Xamarin.iOS10\Plugin.Contacts.dll</HintPath>
+    </Reference>
+    <Reference Include="Plugin.Contacts.Abstractions">
+      <HintPath>..\packages\Xam.Plugin.Contacts.2.0.2-beta1\lib\Xamarin.iOS10\Plugin.Contacts.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="NGraphics">
+      <HintPath>..\packages\NGraphics.0.4.0\lib\Xamarin.iOS10\NGraphics.dll</HintPath>
+    </Reference>
+    <Reference Include="NGraphics.iOS">
+      <HintPath>..\packages\NGraphics.0.4.0\lib\Xamarin.iOS10\NGraphics.iOS.dll</HintPath>
+    </Reference>
+    <Reference Include="NControl.iOS">
+      <HintPath>..\packages\NControl.0.8.6\lib\Xamarin.iOS10\NControl.iOS.dll</HintPath>
+    </Reference>
+    <Reference Include="NControl">
+      <HintPath>..\packages\NControl.0.8.6\lib\Xamarin.iOS10\NControl.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Entitlements.plist" />
-    <BundleResource Include="Resources\Phone.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </BundleResource>
     <BundleResource Include="Resources\ic_add_white_24dp.png" />
     <BundleResource Include="Resources\Images\Calendar\datecell.png" />
     <BundleResource Include="Resources\Images\Calendar\datecellmarked.png" />

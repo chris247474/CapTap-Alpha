@@ -15,10 +15,14 @@ namespace Capp2.Droid
 	{
 		public PhoneContacts(){
 		}
-
-		public async Task<ContactData> GetProfilePic(ContactData contact){
-			return contact;
+		public async Task Share (string message){
+			
 		}
+
+		public async Task SendSMS(string number){
+			
+		}
+
 		public async Task<List<ContactData>> GetProfilePicPerPerson(List<ContactData> contactList){
 			return contactList;
 		}

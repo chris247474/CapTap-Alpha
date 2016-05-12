@@ -53,6 +53,44 @@ namespace Capp2
 				person.Appointed.ToString("M", CultureInfo.CurrentCulture), 
 				person.Appointed.ToString("t", CultureInfo.CurrentCulture)));
 		}
+
+		public static string PlaceLocationAndDatesIntoConfirmText(string template, ContactData person){
+			return template.Replace ("<time here>", string.Format("{0}", 
+				person.Appointed.ToString("t", CultureInfo.CurrentCulture)));
+		}
+
+		public static async Task PrepareConfirmTomorrowsMeetingsTemplateThenSendText(ContactData person){
+			var DefaultTemplateText = Settings.MeetingConfirmDefault;
+
+			string messageToSend = Settings.MeetingConfirmDefault;
+
+			messageToSend = string.Format ("Hi {0}, {1}", person.FirstName,  
+				messageToSend);
+
+			messageToSend = 
+				PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
+
+			await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
+				messageToSend, person.Name, Values.CONFIRM, Values.TOMORROW);
+
+			Settings.MeetingConfirmSettings = DefaultTemplateText;
+		}
+
+		public static async Task PrepareConfirmTodaysMeetingsTemplateThenSendText(ContactData person){
+			var DefaultTemplateText = Settings.MeetingTodayConfirmDefault;
+			var messageToSend = Settings.MeetingTodayConfirmDefault;
+
+			messageToSend = string.Format ("Hi {0}, {1}", person.FirstName,  
+				messageToSend);
+
+			messageToSend = 
+				PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
+
+			await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
+				messageToSend, person.Name, Values.CONFIRM, Values.TODAY);
+
+			Settings.MeetingTodayConfirmSettings = DefaultTemplateText;
+		}
 	}
 }
 

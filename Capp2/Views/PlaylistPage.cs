@@ -35,7 +35,7 @@ namespace Capp2
                 FilterPlaylists(searchBar.Text);
             };
 
-            if (Device.OS == TargetPlatform.iOS)
+           /* if (Device.OS == TargetPlatform.iOS)
             {
                 Debug.WriteLine("Adding add tbi temporarily");
                 this.ToolbarItems.Add(new ToolbarItem("Add", "", async () =>
@@ -49,7 +49,7 @@ namespace Capp2
                         refresh();
                     }
                 }));
-            }
+            }*/
 
             listView = new ListView {
 				BackgroundColor = Color.Transparent,
@@ -59,6 +59,7 @@ namespace Capp2
                     {
                         return new PlaylistViewCell(this);
                     }),
+				VerticalOptions = LayoutOptions.CenterAndExpand,
             };
             listView.ItemSelected += (sender, e) => {
                 
@@ -77,6 +78,8 @@ namespace Capp2
 
                 // de-select the row
                 ((ListView)sender).SelectedItem = null;
+
+				listView.Opacity = 0;
             };
 
             if (Device.OS == TargetPlatform.iOS) {
@@ -84,9 +87,17 @@ namespace Capp2
                 {
 					BackgroundColor = Color.Transparent,
                     Children = {
-                        searchBar,
+						UIBuilder.CreateEmptyStackSpace(),
+						UIBuilder.CreateEmptyStackSpace(),
+						new StackLayout{
+							Padding = new Thickness(0, 10, 0, 0),
+							Children = {searchBar}
+						},
+						UIBuilder.CreateEmptyStackSpace(),
+						UIBuilder.CreateEmptyStackSpace(),
                         new StackLayout{
                             Padding = new Thickness(7,0,0,0),
+							VerticalOptions = LayoutOptions.CenterAndExpand,
                             Children = {listView}
                     }
                 }
@@ -96,7 +107,9 @@ namespace Capp2
                 {
                     Padding = new Thickness(10),
                     Children = {
-                        searchBar,
+						UIBuilder.CreateEmptyStackSpace(),
+						UIBuilder.CreateEmptyStackSpace(),
+						searchBar,
                         new StackLayout{
                             Padding = new Thickness(7,0,0,0),
                             Children = {listView}
@@ -105,17 +118,28 @@ namespace Capp2
                 };
             }
 				
-			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, UIBuilder.GetPlatformFABIcon(), new Command (async () =>
+			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "Plus-100", new Command (async () =>
 				{
-					var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
-					if(string.IsNullOrWhiteSpace(result.Text) || string.IsNullOrEmpty(result.Text)){
+					var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", 
+						"New namelist", "OK", "Cancel");
+					if(string.IsNullOrWhiteSpace(result.Text) || string.Equals("Cancel", result.Text)){
 					}else {
 						App.Database.SavePlaylistItem(new Playlist{PlaylistName = result.Text});
 						refresh();
 					}
-				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
-		}
 
+					UIAnimationHelper.FlyDown(listView, 1000);
+				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
+
+			listView.Opacity = 0;
+		}
+		protected override void OnAppearing ()
+		{
+			base.OnAppearing ();
+
+			listView.FadeTo (1, 125, Easing.CubicIn);
+			UIAnimationHelper.FlyFromLeft (listView, 400);
+		}
 		public void refresh ()
 		{
 			listView.ItemsSource = App.Database.GetPlaylistItems();
@@ -141,10 +165,12 @@ namespace Capp2
 	{
 		public PlaylistViewCell (PlaylistPage page)
 		{
+
 			Label playlistLabel = new Label();
 			playlistLabel.SetBinding(Label.TextProperty, "PlaylistName");//"Name" binds directly to the ContactData.Name property
 			playlistLabel.HorizontalTextAlignment = TextAlignment.Center;
 			playlistLabel.HorizontalOptions = LayoutOptions.CenterAndExpand;
+			playlistLabel.HeightRequest = playlistLabel.Height * 2;
 
 			var EditAction = new MenuItem { Text = "Edit" };
 			EditAction.SetBinding (MenuItem.CommandParameterProperty, new Binding ("."));
