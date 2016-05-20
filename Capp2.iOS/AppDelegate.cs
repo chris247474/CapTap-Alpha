@@ -27,7 +27,6 @@ namespace Capp2.iOS
 
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-			
             // check for a notification
             if (options != null)
             {

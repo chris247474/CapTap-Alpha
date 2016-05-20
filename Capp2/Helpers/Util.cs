@@ -87,7 +87,7 @@ namespace Capp2
             }
             return ocList;
         }
-        public static IEnumerable<ContactData> FilterNameNumberOrg(IEnumerable<ContactData> list, string filter)
+		public static IList<ContactData> FilterNameNumberOrg(IEnumerable<ContactData> list, string filter)
         {
             if (list == null)
             {
@@ -109,13 +109,13 @@ namespace Capp2
                             filteredList.Add(arr[c]);
                         }
                     }
-                    return filteredList.AsEnumerable();
+                    return filteredList;
                 }
                 else if (Device.OS == TargetPlatform.Android)//slower approach but avoids android layout differences
                 {
                     return list
                     .Where(x => x.Name.ToLower().Contains(filter.ToLower())
-                    || x.Number.ToLower().Contains(filter.ToLower())/* || x.Aff.ToLower().Contains(filter.ToLower())*/);//including aff field causes crashes in android layout
+							|| x.Number.ToLower().Contains(filter.ToLower())/* || x.Aff.ToLower().Contains(filter.ToLower())*/).ToList();//including aff field causes crashes in android layout
                 }
 
 

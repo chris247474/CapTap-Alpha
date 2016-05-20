@@ -12,15 +12,15 @@ namespace Capp2
 	public class CappModal:CAPPBase
 	{
 		SearchBar searchBar = null;
-		//ListView listView = null;
 		List<Grouping<string, ContactData>> groupedlist = new List<Grouping<string, ContactData>> ();
 		List<ContactData> list, namelisttoaddto;
 		//string playlist, 
 		string playlistToAddTo;
-		StackLayout stack = new StackLayout();
+		StackLayout stack = new StackLayout(), contentstack = new StackLayout();
 		Button AddTo = new Button ();
 
-		public CappModal (string playlist, string playlistToAddTo, List<Grouping<string, ContactData>> groupedlist, List<ContactData> list, List<ContactData> NamelistToAddTo)
+		public CappModal (string playlist, string playlistToAddTo, List<Grouping<string, ContactData>> groupedlist, 
+			List<ContactData> list, List<ContactData> NamelistToAddTo, bool isToolTipHolder = false)
 		{
 			Debug.WriteLine ("Entered CappModal");
 			this.playlist = playlist;
@@ -31,31 +31,46 @@ namespace Capp2
 			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(groupedlist);
 
 			CreateUIElements ();
+			CreateLayouts (isToolTipHolder);
 
+			//for some reason, all the contacts are initially shown w the same name. this will 'refresh' the list
+			ReBuildGroupedSearchableListView(playlist, groupedlist, stack);
+		}
+
+		void CreateLayouts(bool isToolTipHolder){
 			stack = CappBuilder.CreateCAPPContactList (this, 
 				searchBar, 
 				listView
 			);
 
-			Debug.WriteLine ("Created SearchBar and ListView");
-
-			Content = new StackLayout{
-				Orientation = StackOrientation.Vertical,
-				Padding = new Thickness(5),
-				Children = {
-					UIBuilder.CreateEmptyStackSpace(),
-					UIBuilder.CreateModalXPopper(new Command(() => {
-						App.Database.DeselectAll(this.list, this);
-						Navigation.PopModalAsync();
-					})),
-					AddTo,
-					stack
-				}
-			};
-
-			//for some reason, all the contacts are initially shown w the same name. this will 'refresh' the list
-			ReBuildGroupedSearchableListView(playlist, groupedlist, stack);
-			Debug.WriteLine ("Finished constructing CappModal");
+			if (isToolTipHolder) {
+				contentstack = new StackLayout{
+					Orientation = StackOrientation.Vertical,
+					Padding = new Thickness(5),
+					Children = {
+						UIBuilder.CreateEmptyStackSpace(),
+						stack
+					}
+				};
+				Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(contentstack, 
+					"", new Command (async () => {}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
+			} else {
+				contentstack = new StackLayout{
+					Orientation = StackOrientation.Vertical,
+					Padding = new Thickness(5),
+					Children = {
+						UIBuilder.CreateEmptyStackSpace(),
+						UIBuilder.CreateModalXPopper(new Command(() => {
+							App.Database.DeselectAll(this.list, this);
+							Navigation.PopModalAsync();
+						})),
+						AddTo,
+						stack
+					}
+				};
+				Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(contentstack, 
+					"", new Command (async () => {}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
+			}
 		}
 
 		void CreateUIElements(){

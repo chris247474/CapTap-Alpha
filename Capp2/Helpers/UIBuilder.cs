@@ -11,12 +11,112 @@ namespace Capp2
 {
 	public static class UIBuilder
 	{
+		
+
+
+
+		public static Label CreateTutorialLabel(string text, NamedSize fontSize = NamedSize.Medium, FontAttributes fontattributes = FontAttributes.Bold, 
+			LineBreakMode linebreakmode = LineBreakMode.WordWrap, Command tapCommand = null)
+		{
+			Label lbl = new Label{
+				Text = text,
+				TextColor = Color.White, 
+				FontSize = Device.GetNamedSize (fontSize, typeof(Label)),
+				FontAttributes = fontattributes, 
+				LineBreakMode = linebreakmode, 
+			};
+			lbl.GestureRecognizers.Add (new TapGestureRecognizer{Command = tapCommand});
+			return lbl;
+		}
+
+		public static Label CreateLabel(NamedSize fontSize){
+			return new Label{ 
+				FontSize = Device.GetNamedSize (fontSize, typeof(Label)),
+			};
+		}
+
 		public static string GetPlatformFABIcon(){
 			if(Device.OS == TargetPlatform.Android)  return "ic_add_white_24dp";
 			else if(Device.OS == TargetPlatform.iOS) return "Plus-100";
 			return string.Empty;
 		}
-		public static StackLayout AddFloatingActionButtonToStackLayout(View view, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
+
+		public static FloatingActionButton CreateFAB(string icon, FabSize size, Color NormalColor, Color PressedColor)
+		{
+			FloatingActionButton normalFab = new FloatingActionButton();
+			normalFab.Clicked += (sender, e) => {
+				UIAnimationHelper.ZoomUnZoomElement (normalFab);
+			};
+			normalFab.Size = size;
+			normalFab.Source = icon; 
+			normalFab.HasShadow = true;
+			normalFab.NormalColor = NormalColor;
+			normalFab.Opacity = 0.9;
+			normalFab.PressedColor = PressedColor;
+
+			return normalFab;
+		}
+
+		public static void AddElementRelativeToViewonRelativeLayoutParent(RelativeLayout parentlayout, 
+			View child, 
+			Constraint xConst,
+			Constraint yConst)
+		{
+			/*parentlayout.Children.Add (
+				child, Constraint.RelativeToView (referenceChildView, (Parent, sibling) => {
+					return sibling.X + 20;
+				}), Constraint.RelativeToView (child, (parent, sibling) => {
+					return sibling.Y + 10;
+				}), Constraint.RelativeToParent((parent) => {
+					return parent.Width * .5;
+				}), Constraint.RelativeToParent((parent) => {
+					return parent.Height * .5;
+			}));*/
+
+			parentlayout.Children.Add(  
+				child,
+				xConstraint: xConst, 
+				yConstraint: yConst 
+			);
+		} 
+
+		public static RelativeLayout AddFABToViewWrapRelativeLayout(View viewparent, FloatingActionButton child,
+			Command FabTapped = null)
+		{
+			RelativeLayout parentlayout = new RelativeLayout();
+
+			parentlayout.VerticalOptions = LayoutOptions.FillAndExpand;
+			parentlayout.HorizontalOptions = LayoutOptions.FillAndExpand;
+			parentlayout.Children.Add(
+				viewparent,
+				xConstraint: Constraint.Constant(0),
+				yConstraint: Constraint.Constant(0),
+				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
+				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
+			);
+
+			if (Device.OS == TargetPlatform.iOS) {
+				parentlayout.Children.Add(  
+					child,
+					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - child.Width) - 30; }), 
+					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - child.Height) - 45; }) 
+				);
+			} else {
+				parentlayout.Children.Add(  
+					child,
+					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - child.Width) - 45; }), 
+					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - child.Height) - 45; }) 
+				);
+			}
+			child.SizeChanged += (sender, args) => { parentlayout.ForceLayout(); }; 
+			child.SetBinding (FloatingActionButton.CommandProperty, new Binding (){ Source = FabTapped });
+			
+			return parentlayout;
+		}
+
+		public static StackLayout AddFloatingActionButtonToStackLayout(View view, string icon, Command FabTapped, 
+			Color NormalColor, Color PressedColor)
+		{
 			var layout = new RelativeLayout ();
 			layout.VerticalOptions = LayoutOptions.FillAndExpand;
 			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
@@ -35,8 +135,24 @@ namespace Capp2
 				}
 			};
 		}
+		public static RelativeLayout AddFloatingActionButtonToViewWrapWithRelativeLayout(View view, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
+			var layout = new RelativeLayout ();
+			layout.VerticalOptions = LayoutOptions.FillAndExpand;
+			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
+			layout.Children.Add(
+				view,
+				xConstraint: Constraint.Constant(0),
+				yConstraint: Constraint.Constant(0),
+				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
+				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
+			);
 
-		public static RelativeLayout AddFloatingActionButtonToRelativeLayout(RelativeLayout layout, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
+			return AddFloatingActionButtonToRelativeLayout(layout, icon, FabTapped, NormalColor, PressedColor);
+		}
+
+		public static RelativeLayout AddFloatingActionButtonToRelativeLayout(RelativeLayout layout, string icon, 
+			Command FabTapped, Color NormalColor, Color PressedColor)
+		{
             var normalFab = new FAB.Forms.FloatingActionButton();
 			normalFab.Clicked += (sender, e) => {
 				UIAnimationHelper.ZoomUnZoomElement (normalFab);
@@ -236,7 +352,7 @@ namespace Capp2
 			}
 		}
 
-		public static Image CreateTappableImage(string icon, LayoutOptions layout, Aspect aspect, Command handlerCommand, double fontsize = 0){
+		public static Image CreateTappableImage(string icon, LayoutOptions layout, Aspect aspect, Command handlerCommand = null, double fontsize = 0){
 			Image img = new Image ();
 
 			TapGestureRecognizer handler = new TapGestureRecognizer{Command = new Command(() => {

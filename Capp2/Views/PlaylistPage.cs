@@ -17,7 +17,6 @@ namespace Capp2
 
         public PlaylistPage()
         {
-			//this.Opacity = 0.3;
             this.Title = "Namelists";
 			this.BackgroundColor = Color.Transparent;
 
@@ -34,22 +33,6 @@ namespace Capp2
             searchBar.TextChanged += (sender, e) => {
                 FilterPlaylists(searchBar.Text);
             };
-
-           /* if (Device.OS == TargetPlatform.iOS)
-            {
-                Debug.WriteLine("Adding add tbi temporarily");
-                this.ToolbarItems.Add(new ToolbarItem("Add", "", async () =>
-                {
-                    var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", "New namelist", "OK", "Cancel");
-                    if (string.IsNullOrWhiteSpace(result.Text) || string.IsNullOrEmpty(result.Text))
-                    {
-                    }
-                    else {
-                        App.Database.SavePlaylistItem(new Playlist { PlaylistName = result.Text });
-                        refresh();
-                    }
-                }));
-            }*/
 
             listView = new ListView {
 				BackgroundColor = Color.Transparent,
@@ -120,25 +103,42 @@ namespace Capp2
 				
 			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "Plus-100", new Command (async () =>
 				{
-					var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", 
-						"New namelist", "OK", "Cancel");
-					if(string.IsNullOrWhiteSpace(result.Text) || string.Equals("Cancel", result.Text)){
-					}else {
-						App.Database.SavePlaylistItem(new Playlist{PlaylistName = result.Text});
-						refresh();
-					}
-
-					UIAnimationHelper.FlyDown(listView, 1000);
+					AddNamelist();
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 
 			listView.Opacity = 0;
+
+			if (App.InTutorialMode) {
+				TutorialHelper.HowToMakeANamelist(this, "Let's setup your first namelist.\nPlease tap the '+' button down there",
+					Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
+			}
 		}
+
+		async Task AddNamelist(){
+			var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", 
+				"New namelist", "OK", "Cancel");
+			if(string.IsNullOrWhiteSpace(result.Text) || string.Equals("Cancel", result.Text)){
+			}else {
+				App.Database.SavePlaylistItem(new Playlist{PlaylistName = result.Text});
+				refresh();
+			}
+
+			UIAnimationHelper.FlyDown(listView, 1000);
+
+			if (App.InTutorialMode) {
+				TutorialHelper.OpenNamelist(this, "You made a namelist! Now tap it to select it", 
+					Color.FromHex (Values.CAPPTUTORIALCOLOR_Green));
+			}
+		}
+
 		protected override void OnAppearing ()
 		{
 			base.OnAppearing ();
 
 			listView.FadeTo (1, 125, Easing.CubicIn);
 			UIAnimationHelper.FlyFromLeft (listView, 400);
+
+
 		}
 		public void refresh ()
 		{

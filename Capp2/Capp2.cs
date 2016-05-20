@@ -34,7 +34,7 @@ namespace Capp2
 		public static Color EndColor;
 		public static string Width;
 		public static string Height;
-		public static bool OnAppStart;
+		public static bool OnAppStart, InTutorialMode = false;
 		public static TimeSpan SingleCallTimeEllapsed;
 		public static string DefaultNamelist;
 		public static int DeviceImageCtr{ get; set;}

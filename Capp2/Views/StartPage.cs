@@ -10,7 +10,7 @@ namespace Capp2
 	{
 		StackLayout StatsSettings = new StackLayout(), TemplateSettings = new StackLayout(), 
 		FeedbackSettings = new StackLayout(), DefaultNamelistSettings = new StackLayout(), 
-		DailyEmailSettings = new StackLayout(), SendYesCallSettings = new StackLayout();
+		DailyEmailSettings = new StackLayout(), SendYesCallSettings = new StackLayout(), HowToSettings = new StackLayout();
 
 		public StartPage ()
 		{
@@ -62,11 +62,18 @@ namespace Capp2
 
 						SendYesCallSettings,
 						UIBuilder.CreateSeparator(Color.Gray, 0.3),
+
+						HowToSettings,
+						UIBuilder.CreateSeparator(Color.Gray, 0.3),
 					}
 				}
 			};
 		}
 		void CreateSettings(){
+			HowToSettings = UIBuilder.CreateSetting ("", "How To Do Stuff", 
+				new TapGestureRecognizer{ Command = new Command(() => {
+					
+			})});
 			StatsSettings = UIBuilder.CreateSetting ("trending-Medium.png", "\tMy CAPP Stats", 
 				new TapGestureRecognizer{Command = new Command(() =>
 					{

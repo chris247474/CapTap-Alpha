@@ -118,9 +118,6 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.3.2.0\lib\portable-net45+win8+wp8+wpa81+Xamarin.Mac+MonoAndroid10+MonoTouch10+Xamarin.iOS10\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System.Net.Http.Extensions">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.29\lib\monoandroid\System.Net.Http.Extensions.dll</HintPath>
     </Reference>
@@ -239,6 +236,7 @@
     <Compile Include="Helpers\SQLite_Android.cs" />
     <Compile Include="SMSActivity.cs" />
     <Compile Include="SplashScreen.cs" />
+    <Compile Include="Helpers\VideoHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

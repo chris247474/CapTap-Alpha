@@ -22,6 +22,7 @@ namespace Capp2
 		{
 			this.Height = 56;
 			this.Height *= 1.3;
+
 			nameLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				VerticalOptions = LayoutOptions.StartAndExpand,
@@ -31,7 +32,7 @@ namespace Capp2
 
 			circleImage = new CircleImage{
 				HorizontalOptions = LayoutOptions.Fill,
-				Aspect = Aspect.AspectFit,
+				Aspect = Aspect.AspectFill,
 			};
 			circleImage.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
@@ -124,6 +125,8 @@ namespace Capp2
 			ContextActions.Add (appointedAction);
 			ContextActions.Add (presentedAction);
 			ContextActions.Add (purchasedAction);
+
+
 		}
 
 		public View createView (string playlist)

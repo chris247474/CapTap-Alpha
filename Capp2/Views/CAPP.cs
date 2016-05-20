@@ -31,29 +31,52 @@ namespace Capp2
         List<Grouping<string, ContactData>> PreLoadedGroupedList;
 		SearchBar searchBar;
 		List<ContactData> AutoCallList;
+		IEnumerable<ContactData> PreloadedList;
 		ScrollView scroller = new ScrollView();
 
-		public CAPP (string playlistChosen)
+		public CAPP (string playlistChosen, bool showtip = true)
 		{
-            App.CapPage = this;
-            PreLoadedGroupedList = App.Database.GetGroupedItems(playlistChosen);
-            UserDialogs.Instance.HideLoading();
-            title = playlistChosen + " Contacts";
-			this.playlist = playlistChosen;
-			this.Title = title;
-			cameraOps = new CameraViewModel();
+			Init (playlistChosen);
 
-			SubscribeForAutoCallListeners ();
+			SubscribeToMessagingCenterListeners ();
 			SubscribeForEditingListener ();
 
 			CreateUIElements ();
 
 			CreateLayouts ();
 
-			UIAnimationHelper.FlyIn(searchBar, 600, App.AppJustLaunched);
-			UIAnimationHelper.FlyIn(listView, 600, App.AppJustLaunched);
+			PlayCappLoadAnimation ();
+
+			ShowTipsIfFirstRun (showtip);
         }
 
+		void Init(string playlistChosen){
+			App.CapPage = this;
+			PreLoadedGroupedList = App.Database.GetGroupedItems(playlistChosen);
+			PreloadedList = App.Database.GetItems (playlistChosen);
+			UserDialogs.Instance.HideLoading();
+			title = playlistChosen + " Contacts";
+			this.playlist = playlistChosen;
+			this.Title = title;
+			cameraOps = new CameraViewModel();
+		}
+
+		async Task ShowTipsIfFirstRun(bool showtip){
+			App.InTutorialMode = true;
+
+			if (showtip) {
+				Debug.WriteLine ("created new Capp as modal");
+
+				CappModal cappmodal = new CappModal (Values.ALLPLAYLISTPARAM, "", PreLoadedGroupedList, PreloadedList.ToList(), 
+					new List<ContactData>(), true);
+				await TutorialHelper.ShowTip_Welcome (cappmodal, "Welcome to CapTap!!!", Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange));
+			}
+		}
+
+		void PlayCappLoadAnimation(){
+			UIAnimationHelper.FlyIn(searchBar, 600, App.AppJustLaunched);
+			UIAnimationHelper.FlyIn(listView, 600, App.AppJustLaunched);
+		}
 		void CreateLayouts(){
 			scroller = new ScrollView {
 				VerticalOptions = LayoutOptions.FillAndExpand,
@@ -67,12 +90,7 @@ namespace Capp2
 						new StackLayout{
 							Padding = new Thickness(0, 10, 0, 0),
 							Children = { searchBar }
-						}, 
-						/*new StackLayout {
-							Padding = new Thickness (7, 0, 7, 0),
-							Children = { cmdAutocall }
-						}, */
-						/*lblContactsCount,*/ listView
+						}, listView
 					}
 				},
 			};
@@ -83,17 +101,9 @@ namespace Capp2
 					BackgroundColor = Color.Transparent,//White,
 					VerticalOptions = LayoutOptions.FillAndExpand,
 					Orientation = StackOrientation.Vertical,
-					//Padding = new Thickness(0, 0, 10, 0),
 					Children =
 						{
 							scroller
-							/*UIBuilder.CreateEmptyStackSpace (),
-							UIBuilder.CreateEmptyStackSpace (),
-							searchBar, new StackLayout {
-								Padding = new Thickness (7, 0, 7, 0),
-								Children = { cmdAutocall }
-							}, 
-							lblContactsCount, listView*/
 						}
 					};
 			} else if (Device.OS == TargetPlatform.Android) {
@@ -106,20 +116,12 @@ namespace Capp2
 					Children =
 					{
 						scroller
-						/*searchBar, new StackLayout
-						{
-							Padding = new Thickness(7,0,7,0),
-							Children = {cmdAutocall}
-						}, 
-						lblContactsCount,listView*/
 					}
 					};
 			}
 
-			Content = //stack;
-			UIBuilder.AddFloatingActionButtonToStackLayout(stack, "", new Command (async () =>
+			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "", new Command (async () =>
 				{
-					//AddContacts();
 					AutoCall();
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 		}
@@ -163,12 +165,12 @@ namespace Capp2
 			
 			searchBar = new SearchBar {
 				BackgroundColor = Color.Transparent,
-				Placeholder = "Search",
+				Placeholder = "Search for a name or number",
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand
 			};
 			searchBar.TextChanged += (sender, e) => {
-				FilterCAPPContacts(searchBar.Text, playlist, PreLoadedGroupedList);
+				FilterCAPPContacts(searchBar.Text, playlist, PreLoadedGroupedList, PreloadedList);
 			};
 			lblContactsCount = new Label{
 				Text = App.Database.GetItems (playlist).Count().ToString()+" Contacts",
@@ -222,13 +224,20 @@ namespace Capp2
 			scroller.VerticalOptions = LayoutOptions.FillAndExpand;
 			stack.VerticalOptions = LayoutOptions.FillAndExpand;
 			listView.VerticalOptions = LayoutOptions.FillAndExpand;
+
+			if (App.InTutorialMode) {
+				TutorialHelper.HowToAddNumbers (this, "Now let's add some contacts so we can try out AutoCall\n" +
+					"Just tap '+' up there", 
+					Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange));
+			}
 		}
 
 		void CreateListView(){
 			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(App.Database.GetGroupedItems (playlist));
 
-			listView = new ListView ()
+			listView = new ListView (/*ListViewCachingStrategy.RecycleElement*/)
 			{
+				RowHeight = 60,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = Color.Transparent,
 				ItemsSource = PreLoadedGroupedList,
@@ -424,7 +433,7 @@ namespace Capp2
             cmdAutocall.BackgroundColor = Color.Red;
 		}
 
-		public void SubscribeForAutoCallListeners(){
+		public void SubscribeToMessagingCenterListeners(){
 			MessagingCenter.Subscribe<string>(this, Values.DONEWITHCALL, (args) =>{ 
 				try{
 					NavigationHelper.ClearModals(this);
@@ -474,9 +483,6 @@ namespace Capp2
 					Debug.WriteLine("DONEWITHNOCALL error: {0}",e.Message);
 				}
 			});
-		}
-
-		public void SubscribeForEditingListener(){
 			MessagingCenter.Subscribe<CAPP> (this, Values.ISEDITING, (args) => { 
 				Debug.WriteLine ("ISEDITING MESSAGE RECEIVED");
 				listView.ItemTemplate = new DataTemplate(() => {
@@ -489,6 +495,21 @@ namespace Capp2
 					return new ContactViewCell (this);
 				});
 			});
+
+			MessagingCenter.Subscribe<string>(this, Values.DONEWAUTOCALLTIP, (args) =>{ 
+				TutorialHelper.ShowTip_HowToGoBackToPlaylistPage(this, "Let's start by making a new namelist", 
+					Color.FromHex(Values.CAPPTUTORIALCOLOR_Blue));
+			});
+		}
+
+		protected override void OnDisappearing ()
+		{
+			base.OnDisappearing ();
+			//remove tutorial view
+		}
+
+		public void SubscribeForEditingListener(){
+			
 		}
 
 		public void ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList){
@@ -511,12 +532,14 @@ namespace Capp2
 			lblContactsCount.Text = contactsCount.ToString()+" Contacts";
 		}
 
-		public void FilterCAPPContacts(string filter, string playlist, List<Grouping<string, ContactData>> groupedList)
+		public void FilterCAPPContacts(string filter, string playlist, 
+			List<Grouping<string, ContactData>> groupedList, IEnumerable<ContactData> PreloadedList)
         {
             Debug.WriteLine("Filter called!");
             if (string.IsNullOrWhiteSpace(filter))
             {
                 ReBuildGroupedSearchableListView(playlist, groupedList);
+				//UIAnimationHelper.FlyDown (listView, 1000);
             }
             else {
                 listView.BeginRefresh();
@@ -525,7 +548,7 @@ namespace Capp2
                 listView.GroupDisplayBinding = new Binding(".");
                 listView.GroupShortNameBinding = new Binding(".");
                 listView.GroupHeaderTemplate = null;
-                listView.ItemsSource = Util.FilterNameNumberOrg(App.Database.GetItems(this.playlist), filter);
+				listView.ItemsSource = Util.FilterNameNumberOrg(PreloadedList, filter);
                 
                 listView.EndRefresh();
             }
