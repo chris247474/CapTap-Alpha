@@ -179,6 +179,7 @@
     <BundleResource Include="Resources\HowToUseStatsScreenshot.png" />
     <BundleResource Include="Resources\HowToUseTextTemplates.mov" />
     <BundleResource Include="Resources\HowToUseTextTemplatesScreenshot.png" />
+    <Compile Include="CustomRenderers\CarouselLayoutRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

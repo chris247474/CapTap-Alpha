@@ -76,6 +76,8 @@ namespace Capp2
 				new TapGestureRecognizer{ Command = new Command(() => {
 					UIAnimationHelper.ZoomUnZoomElement(HowToSettings);
 					App.NavPage.Navigation.PushModalAsync(new TutorialSettingsPage());
+					/*App.NavPage.Navigation.PushModalAsync(new CarouselHelper(IndicatorStyleEnum.Dots, 
+						Color.FromHex(Values.CAPPTUTORIALCOLOR_Orange)));*/
 			})});
 			StatsSettings = UIBuilder.CreateSetting ("trending-Medium.png", "\tMy CAPP Stats", 
 				new TapGestureRecognizer{Command = new Command(() =>

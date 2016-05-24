@@ -55,6 +55,7 @@ namespace Capp2
 						Children = {
 							//UIBuilder.CreateEmptyStackSpace(),
 							InfoLabel,
+							UIBuilder.CreateEmptyStackSpace(),
 							UIBuilder.CreateTutorialVideoPickerView(new VideoChooserItem[]{
 								new VideoChooserItem{
 									ImagePath = "HowToCappScreenshot.png",
@@ -123,17 +124,31 @@ namespace Capp2
 
 			Debug.WriteLine ("content added to layout");
 
-			ResetContinueLabel (layout, new Command (async () => {
-				App.InTutorialMode = false;
-				layout.Children.Remove(content.Content);
-				await AlertHelper.Alert("That's pretty much it!", 
-					"If you forget, you can replay this tutorial in the Settings page at anytime. We'll return you to the main namelist now :)");
-				UserDialogs.Instance.ShowLoading();
-				App.NavPage = new NavigationPage(new PlaylistPage());
-				App.MasterDetailPage.Detail = App.NavPage;
-				App.NavPage.Navigation.PushAsync(new CAPP(Values.ALLPLAYLISTPARAM));
-				UserDialogs.Instance.HideLoading();
-			}));
+			if (tipshowintutorial) {
+				ResetContinueLabel (layout, new Command (async () => {
+					App.InTutorialMode = false;
+					layout.Children.Remove (content.Content);
+					await AlertHelper.Alert ("That's pretty much it!", 
+						"If you forget, you can replay this tutorial in the Settings page at anytime. We'll return you to the main namelist now :)");
+					UserDialogs.Instance.ShowLoading ();
+					App.NavPage = new NavigationPage (new PlaylistPage ());
+					App.MasterDetailPage.Detail = App.NavPage;
+					App.NavPage.Navigation.PushAsync (new CAPP (Values.ALLPLAYLISTPARAM));
+					UserDialogs.Instance.HideLoading ();
+				}));
+			} else {
+				Debug.WriteLine ("not shown in tutorial mode");
+
+				DoneLabel = UIBuilder.CreateTutorialLabel ("Got it", NamedSize.Large, FontAttributes.Bold, 
+					LineBreakMode.WordWrap, new Command(()=>{
+						App.NavPage.Navigation.PopModalAsync();
+					}));
+				UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, DoneLabel,
+					Constraint.RelativeToParent((parent) =>  { return parent.Width *0.7; }),
+					Constraint.RelativeToParent((parent) =>  { return parent.Height * 0.92 ; })
+				);
+				UIAnimationHelper.StartPressMeEffectOnView (DoneLabel);
+			}
 
 			Debug.WriteLine ("donelabel reset");
 

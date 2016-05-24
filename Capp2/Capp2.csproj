@@ -85,6 +85,11 @@
     <Compile Include="Model\VideoChooserItem.cs" />
     <Compile Include="Views\CarouselLayout.cs" />
     <Compile Include="Model\IndicatorStyleEnum.cs" />
+    <Compile Include="ViewModel\SwitcherPageViewModel.cs" />
+    <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="Views\PageIndicatorDots.cs" />
+    <Compile Include="Views\HomeView.cs" />
+    <Compile Include="Views\CarouselHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

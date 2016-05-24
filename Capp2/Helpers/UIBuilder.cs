@@ -11,13 +11,14 @@ namespace Capp2
 {
 	public static class UIBuilder
 	{
+
 		public static ScrollView CreateTutorialVideoPickerView(VideoChooserItem[] videos){
 			if (videos == null || videos.Length < 1) {
 				throw new ArgumentNullException ("param must not be null and array must not be empty");
 			}
 
 			var stack = new StackLayout { 
-				Orientation = StackOrientation.Horizontal,
+				Orientation = StackOrientation.Vertical,
 				Padding = new Thickness(10, 0),
 				HorizontalOptions = LayoutOptions.Start,
 				VerticalOptions = LayoutOptions.FillAndExpand,
@@ -29,7 +30,7 @@ namespace Capp2
 			}
 					
 			return new ScrollView{
-				Orientation = ScrollOrientation.Horizontal,
+				Orientation = ScrollOrientation.Vertical,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Content = stack
@@ -56,6 +57,7 @@ namespace Capp2
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
 				HorizontalOptions = LayoutOptions.Center,
 				TextColor = Color.White,
+				FontAttributes = FontAttributes.Bold,
 			};
 			Image img = CreateTappableImage (imagePath, LayoutOptions.Center, Aspect.AspectFit, new Command(()=>{
 				DependencyService.Get<IVideoHelper>().PlayVideo(videotoplay);
@@ -63,9 +65,10 @@ namespace Capp2
 
 			var stack = new StackLayout{
 				Orientation = StackOrientation.Vertical,
-				//Padding = new Thickness(10),
+				Padding = new Thickness(10),
 				Children = {
-					img, lbl
+					img,
+					lbl,
 				}
 			};
 			return stack;

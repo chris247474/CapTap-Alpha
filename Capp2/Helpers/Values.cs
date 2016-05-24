@@ -14,6 +14,7 @@ namespace Capp2
 		public const string CAPPTUTORIALCOLOR_Orange = "#DE6C00";//"#388E3C";
 		public const string CAPPTUTORIALCOLOR_Blue = "##2196F3";//"#388E3C";
 		public const string CAPPTUTORIALCOLOR_Purple = "##9C27B0";//"#388E3C";
+		public const string CAPPTUTORIALCOLOR_LIGHTORANGE = "#FFB24A";
 
 		public const string WARMCONTACTS = "warm";
 		public const string COLDCONTACTS = "cold";

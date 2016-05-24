@@ -10,7 +10,7 @@ namespace Capp2
 	public class CarouselLayout : ScrollView
 	{
 		readonly StackLayout _stack;
-		Timer _selectedItemTimer;
+		//Timer _selectedItemTimer;
 
 		int _selectedIndex;
 
@@ -30,15 +30,7 @@ namespace Capp2
 				Interval = 300
 			};*/
 
-			Device.StartTimer (300, async () => {
-				Task.Factory.StartNew(async () =>
-					{
-						SelectedItemTimerElapsed;
-					});
 
-				// Don't repeat the timer (we will start a new timer when the request is finished)
-				return false;
-			});
 
 			//_selectedItemTimer.Elapsed += SelectedItemTimerElapsed;
 		}
@@ -83,8 +75,14 @@ namespace Capp2
 
 		void UpdateSelectedItem ()
 		{
-			_selectedItemTimer.Stop ();
-			_selectedItemTimer.Start ();
+			//_selectedItemTimer.Stop ();
+			//_selectedItemTimer.Start ();
+			Device.StartTimer (new TimeSpan(0,0,0,0,300), () => {
+				SelectedItemTimerElapsed();
+
+				// Don't repeat the timer (we will start a new timer when the request is finished)
+				return false;
+			});
 		}
 
 		void SelectedItemTimerElapsed (/*object sender, ElapsedEventArgs e*/) {
