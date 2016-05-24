@@ -19,7 +19,7 @@ namespace Capp2
 
 			var stack = new StackLayout { 
 				Orientation = StackOrientation.Vertical,
-				Padding = new Thickness(10, 0),
+				//Padding = new Thickness(10, 0),
 				HorizontalOptions = LayoutOptions.Start,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 			};
@@ -62,12 +62,20 @@ namespace Capp2
 			Image img = CreateTappableImage (imagePath, LayoutOptions.Center, Aspect.AspectFit, new Command(()=>{
 				DependencyService.Get<IVideoHelper>().PlayVideo(videotoplay);
 			}), lbl.FontSize, 60, 30);
+			Image PlayIcon = CreateTappableImage ("Play-LightGray.png", LayoutOptions.Center, Aspect.AspectFit, 
+				new Command(()=>{
+					DependencyService.Get<IVideoHelper>().PlayVideo(videotoplay);
+				}), lbl.FontSize, 3, 3);
 
 			var stack = new StackLayout{
 				Orientation = StackOrientation.Vertical,
 				Padding = new Thickness(10),
 				Children = {
 					img,
+					/*AddElementToObjectWithXYConstraint (img, PlayIcon, 
+						Constraint.RelativeToParent((parent) =>  { return parent.Width/2; }), 
+						Constraint.RelativeToParent((parent) =>  { return parent.Height/2; })
+					),*/
 					lbl,
 				}
 			};
@@ -277,9 +285,11 @@ namespace Capp2
 		}
 
 		public static RelativeLayout AddElementToObjectWithXYConstraint(
-			View parentElement, View ElementToAdd, double xOnParent, double yOnParent)
+			View parentElement, View ElementToAdd, Constraint xOnParent, Constraint yOnParent)
 		{ 
 			RelativeLayout layout = new RelativeLayout ();
+			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
+			layout.VerticalOptions = LayoutOptions.FillAndExpand;
 			layout.Children.Add(
 				parentElement,
 				xConstraint: Constraint.Constant(0),
@@ -289,8 +299,8 @@ namespace Capp2
 			);
 			layout.Children.Add (
 				ElementToAdd,
-				xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - ElementToAdd.Width) - xOnParent; }),
-				yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - ElementToAdd.Height) - yOnParent; })
+				xConstraint: xOnParent/*Constraint.RelativeToParent((parent) =>  { return (parent.Width - ElementToAdd.Width) - xOnParent; })*/,
+				yConstraint: yOnParent/*Constraint.RelativeToParent((parent) =>  { return (parent.Height - ElementToAdd.Height) - yOnParent; })*/
 			);
 			Debug.WriteLine ("Parent row width: {0}, Parent row height: {1}, child row width {2}, child row height {3}", 
 				parentElement.Width, parentElement.Height, ElementToAdd.Width, ElementToAdd.Height);

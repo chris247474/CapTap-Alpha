@@ -180,6 +180,7 @@
     <BundleResource Include="Resources\HowToUseTextTemplates.mov" />
     <BundleResource Include="Resources\HowToUseTextTemplatesScreenshot.png" />
     <Compile Include="CustomRenderers\CarouselLayoutRenderer.cs" />
+    <BundleResource Include="Resources\Play-LightGray.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
