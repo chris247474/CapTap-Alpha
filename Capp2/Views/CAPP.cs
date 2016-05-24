@@ -11,14 +11,13 @@ using Acr.UserDialogs;
 using XLabs.Forms.Controls;
 using System.ComponentModel;
 using FAB.Forms;
+using Capp2.Helpers;
 
 namespace Capp2
 {
 	public class CAPP:CAPPBase
 	{
 		ContactData personCalled;
-		//public ListView listView{ get; set;}
-		//public string playlist;
 		string[] import;
 		bool calling, AutoCallContinue;
 		CameraViewModel cameraOps = null;
@@ -51,10 +50,10 @@ namespace Capp2
         }
 
 		void Init(string playlistChosen){
+			
 			App.CapPage = this;
 			PreLoadedGroupedList = App.Database.GetGroupedItems(playlistChosen);
 			PreloadedList = App.Database.GetItems (playlistChosen);
-			UserDialogs.Instance.HideLoading();
 			title = playlistChosen + " Contacts";
 			this.playlist = playlistChosen;
 			this.Title = title;
@@ -62,14 +61,26 @@ namespace Capp2
 		}
 
 		async Task ShowTipsIfFirstRun(bool showtip){
-			App.InTutorialMode = true;
+			if (App.InTutorialMode && /*TutorialHelper.PrevPageIsPlaylistPage() &&*/ TutorialHelper.WelcomeTipDone) {
+				//do not proceed, tutorial is already running
+			}else if(!TutorialHelper.WelcomeTipDone){
+				//start tutorial if not shown before
+				if (!Settings.TutorialShownSettings) {
+					Debug.WriteLine ("Tutorial shown: {0}", Settings.TutorialShownSettings);
+					App.InTutorialMode = true;
+					Settings.TutorialShownSettings = true;
+					Debug.WriteLine ("Tutorial shown: {0}", Settings.TutorialShownSettings);
 
-			if (showtip) {
-				Debug.WriteLine ("created new Capp as modal");
+					if (showtip) {
+						Debug.WriteLine ("created new Capp as modal");
 
-				CappModal cappmodal = new CappModal (Values.ALLPLAYLISTPARAM, "", PreLoadedGroupedList, PreloadedList.ToList(), 
-					new List<ContactData>(), true);
-				await TutorialHelper.ShowTip_Welcome (cappmodal, "Welcome to CapTap!!!", Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange));
+						CappModal cappmodal = new CappModal (Values.ALLPLAYLISTPARAM, "", PreLoadedGroupedList, PreloadedList.ToList (), 
+							                      new List<ContactData> (), true);
+						await TutorialHelper.ShowTip_Welcome (cappmodal, "Welcome to CapTap!!!", Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange));
+					}
+				} else {
+					Debug.WriteLine ("Tutorial already shown");
+				}
 			}
 		}
 
@@ -126,9 +137,9 @@ namespace Capp2
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 		}
 
-		async void AddContacts(){
+		async Task AddContacts(){
 			import = Util.ImportChoices(playlist);
-			var importResult = await this.DisplayActionSheet("Choose a source to get contacts from", "Cancel", null, import);
+			var importResult = await this.DisplayActionSheet("Where do you want to add contacts from?", "Cancel", null, import);
 			try{
 				if (importResult == Values.IMPORTCHOICEMANUAL)
 				{
@@ -148,13 +159,9 @@ namespace Capp2
 					}else{
 						await Navigation.PushModalAsync(new CappModal(importResult, this.playlist, App.Database.GetGroupedItems(importResult), 
 							list, App.Database.GetItems(this.playlist).ToList()));
-						
 					}
 				}
-
 			}catch(Exception){}
-
-
 		}
 
 		void CreateUIElements(){
@@ -193,7 +200,7 @@ namespace Capp2
 			CreateListView ();
 		}
 
-		async Task AutoCall(){
+		public async Task AutoCall(){
 			if (App.Database.GetItems (playlist).Count () == 0) {
 				AlertHelper.Alert (string.Format ("{0} has no contacts to call", playlist), "");
 			} else {
@@ -225,10 +232,12 @@ namespace Capp2
 			stack.VerticalOptions = LayoutOptions.FillAndExpand;
 			listView.VerticalOptions = LayoutOptions.FillAndExpand;
 
-			if (App.InTutorialMode) {
-				TutorialHelper.HowToAddNumbers (this, "Now let's add some contacts so we can try out AutoCall\n" +
-					"Just tap '+' up there", 
-					Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange));
+			TutorialHelper.ContinueCAPPTutorialIfNotDone (this);
+
+			if (App.InTutorialMode && TutorialHelper.ReadyForExtraTips && TutorialHelper.HowToAddContactsDone) {
+				Debug.WriteLine ("finishing tutorial mode. about to show extra tips");
+				App.InTutorialMode = false;
+				TutorialHelper.ShowExtraTips (this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
 			}
 		}
 
@@ -273,7 +282,6 @@ namespace Capp2
 				personCalled = (ContactData)e.SelectedItem;
 
 				if(!App.IsEditing){
-
 					Navigation.PushAsync(new EditContactPage(personCalled, this));
 					// de-select the row
 					((ListView)sender).SelectedItem = null; 
@@ -284,14 +292,15 @@ namespace Capp2
 		}
 
 		void CreateTBIs(){
-			
-			import = Util.ImportChoices(playlist);
+			//import = Util.ImportChoices(playlist);
 			AddTBI = new ToolbarItem("Add", "", async () =>
 				{
-					AddContacts();
+					TutorialHelper.RemoveHowToAddContactsTipIfNeeded(this);
+					await AddContacts();
+
+
 				});
 			if (Device.OS == TargetPlatform.iOS) {
-				Debug.WriteLine("Adding add tbi temporarily");
 				this.ToolbarItems.Add(AddTBI);
 			}
 
@@ -434,6 +443,24 @@ namespace Capp2
 		}
 
 		public void SubscribeToMessagingCenterListeners(){
+
+			MessagingCenter.Subscribe<string>(this, Values.READYFOREXTRATIPS, async (args) =>{ 
+				TutorialHelper.ReadyForExtraTips = true;
+
+			});
+
+			MessagingCenter.Subscribe<string>(this, Values.DONEADDINGCONTACT, async (args) =>{ 
+				if(App.InTutorialMode && TutorialHelper.HowToAddContactsDone && !TutorialHelper.ReadyForAutoCallTipDone){
+					if(App.Database.GetItems(playlist).Count() > 0){
+						TutorialHelper.ReadyForAutoCallTip(this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
+					}else{
+						await Task.Delay(2000);
+						await AlertHelper.Alert("You didn't add any contacts. Let's try again", null);
+						await AddContacts(); 
+					}
+				}
+			});
+
 			MessagingCenter.Subscribe<string>(this, Values.DONEWITHCALL, (args) =>{ 
 				try{
 					NavigationHelper.ClearModals(this);
@@ -499,6 +526,7 @@ namespace Capp2
 			MessagingCenter.Subscribe<string>(this, Values.DONEWAUTOCALLTIP, (args) =>{ 
 				TutorialHelper.ShowTip_HowToGoBackToPlaylistPage(this, "Let's start by making a new namelist", 
 					Color.FromHex(Values.CAPPTUTORIALCOLOR_Blue));
+				
 			});
 		}
 
@@ -626,6 +654,10 @@ namespace Capp2
 		void StartContinueAutoCall(){
 			if(AutoCallCounter >= AutoCallList.Count){
 				SetupNotAutoCalling ();
+				
+				Debug.WriteLine ("Autocalling done");
+				
+				MessagingCenter.Send ("", Values.READYFOREXTRATIPS);
 			}
 			if(AutoCallContinue && (AutoCallCounter < AutoCallList.Count)){
 				Debug.WriteLine ("ITERATION "+AutoCallCounter+" IN AUTOCALL, "+AutoCallList.Count+" Numbers in list");
@@ -637,8 +669,6 @@ namespace Capp2
 			}
 			Debug.WriteLine ("EXITING WHILE CONTINUE");
 		}
-
-
 	}
 	public class Grouping<S, T> : ObservableCollection<T>
 	{

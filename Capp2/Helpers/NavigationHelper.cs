@@ -13,6 +13,14 @@ namespace Capp2
 				nav.Navigation.PopModalAsync();
 			}
 		}
+
+		public static void ClearNavigationStack(Page page){
+			var NavStackCount = page.Navigation.NavigationStack.Count;
+			for(int c = 0;c < NavStackCount;c++){
+				Debug.WriteLine("Poppping modal {0}", c);
+				page.Navigation.PopModalAsync();
+			}
+		}
 	}
 }
 

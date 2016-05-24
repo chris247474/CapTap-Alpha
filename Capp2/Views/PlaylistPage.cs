@@ -14,6 +14,7 @@ namespace Capp2
 		public ListView listView{ get; set;}
 		public Playlist playlistSelected;
         StackLayout stack = new StackLayout();
+		SearchBar searchBar;
 
         public PlaylistPage()
         {
@@ -24,7 +25,7 @@ namespace Capp2
                 Debug.WriteLine("playlist: {0}", p.PlaylistName);
             }
 
-            var searchBar = new SearchBar {
+            searchBar = new SearchBar {
 				BackgroundColor = Color.Transparent,
                 Placeholder = "Search",
                 VerticalOptions = LayoutOptions.FillAndExpand,
@@ -34,36 +35,7 @@ namespace Capp2
                 FilterPlaylists(searchBar.Text);
             };
 
-            listView = new ListView {
-				BackgroundColor = Color.Transparent,
-                ItemsSource = App.Database.GetPlaylistItems(),
-				SeparatorColor = Color.Transparent,//this.BackgroundColor,
-                ItemTemplate = new DataTemplate(() =>
-                    {
-                        return new PlaylistViewCell(this);
-                    }),
-				VerticalOptions = LayoutOptions.CenterAndExpand,
-            };
-            listView.ItemSelected += (sender, e) => {
-                
-                this.playlistSelected = (Playlist)e.SelectedItem;
-
-                // has been set to null, do not 'process' tapped event
-                if (e.SelectedItem == null)
-                    return;
-
-                //load contacts based on type of playlist (warm, cold, semi warm whatever playlist is tapped)
-                UserDialogs.Instance.ShowLoading();
-
-				//App.StartColor = Color.FromHex(Values.STACKVIEWSCYANBLUE);
-				//App.EndColor = Color.FromHex(Values.STACKVIEWSCYAN);
-				Navigation.PushAsync(new CAPP(playlistSelected.PlaylistName));
-
-                // de-select the row
-                ((ListView)sender).SelectedItem = null;
-
-				listView.Opacity = 0;
-            };
+			CreateListView ();
 
             if (Device.OS == TargetPlatform.iOS) {
                 stack = new StackLayout
@@ -100,35 +72,44 @@ namespace Capp2
                 }
                 };
             }
-				
-			Content = UIBuilder.AddFloatingActionButtonToStackLayout(stack, "Plus-100", new Command (async () =>
+
+			/*AddFloatingActionButtonToStackLayout*/
+			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "", new Command (async () =>
 				{
-					AddNamelist();
+					Util.AddNamelist(this);
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 
 			listView.Opacity = 0;
-
-			if (App.InTutorialMode) {
-				TutorialHelper.HowToMakeANamelist(this, "Let's setup your first namelist.\nPlease tap the '+' button down there",
-					Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
-			}
 		}
+			
+		public void CreateListView(){
+			listView = new ListView {
+				BackgroundColor = Color.Transparent,
+				ItemsSource = App.Database.GetPlaylistItems(),
+				SeparatorColor = Color.Transparent,//this.BackgroundColor,
+				ItemTemplate = new DataTemplate(() =>
+					{
+						return new PlaylistViewCell(this);
+					}),
+				VerticalOptions = LayoutOptions.CenterAndExpand,
+			};
+			listView.ItemSelected += (sender, e) => {
+				//UserDialogs.Instance.ShowLoading("So many contacts...");
 
-		async Task AddNamelist(){
-			var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", 
-				"New namelist", "OK", "Cancel");
-			if(string.IsNullOrWhiteSpace(result.Text) || string.Equals("Cancel", result.Text)){
-			}else {
-				App.Database.SavePlaylistItem(new Playlist{PlaylistName = result.Text});
-				refresh();
-			}
+				// has been set to null, do not 'process' tapped event
+				if (e.SelectedItem == null)
+					return;
+				
+				this.playlistSelected = (Playlist)e.SelectedItem;
 
-			UIAnimationHelper.FlyDown(listView, 1000);
+				Navigation.PushAsync(new CAPP(playlistSelected.PlaylistName));
+				//UserDialogs.Instance.HideLoading();
 
-			if (App.InTutorialMode) {
-				TutorialHelper.OpenNamelist(this, "You made a namelist! Now tap it to select it", 
-					Color.FromHex (Values.CAPPTUTORIALCOLOR_Green));
-			}
+				// de-select the row
+				((ListView)sender).SelectedItem = null;
+
+				listView.Opacity = 0;
+			};
 		}
 
 		protected override void OnAppearing ()
@@ -138,7 +119,12 @@ namespace Capp2
 			listView.FadeTo (1, 125, Easing.CubicIn);
 			UIAnimationHelper.FlyFromLeft (listView, 400);
 
+			if (App.InTutorialMode && !TutorialHelper.HowToMakeNamelistDone) {
+				Debug.WriteLine ("About to launch HowTomakeANamelistTIp");
 
+				TutorialHelper.HowToMakeANamelist(this, "Let's setup your first namelist.\nPlease tap the '+' button down there",
+					Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
+			}
 		}
 		public void refresh ()
 		{

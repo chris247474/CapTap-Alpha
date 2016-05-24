@@ -24,6 +24,28 @@ namespace Capp2
 		public Util ()
 		{
 		}
+		public static async Task AddNamelist(PlaylistPage page){
+			var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", 
+				"New namelist", "OK");
+			if(string.IsNullOrWhiteSpace(result.Text) || string.Equals("Cancel", result.Text)){
+			}else {
+				if (App.Database.PlaylistNameAlreadyExists (result.Text)) {
+					await AlertHelper.Alert ("That namelist already exists", "Let's try again");
+					AddNamelist (page);
+				} else {
+					App.Database.SavePlaylistItem(new Playlist{PlaylistName = result.Text});
+					page.refresh();
+				}
+			}
+
+			UIAnimationHelper.FlyDown(page.listView, 1000);
+
+			if (App.InTutorialMode) {
+				TutorialHelper.OpenNamelist(page, "You made a namelist! Now tap it to select it", 
+					Color.FromHex (Values.CAPPTUTORIALCOLOR_Green));
+			}
+		}
+
 		public static string[] ImportChoices(string playlist){
 			var arr = (App.Database.GetPlaylistItems ()).ToArray();
 			string[] importchoices = new string[arr.Length+2];

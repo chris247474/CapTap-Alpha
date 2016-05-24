@@ -28,6 +28,7 @@ namespace Capp2
 		public static int lastIndex{ get; set;}
 		public static bool IsEditing{ get; set;}
 		public static NavigationPage NavPage;
+		public static StartPage MasterDetailPage;
         public static bool AutoCallStatus { get; set; }
         public static CAPP CapPage { get; set; }
 		public static Color StartColor;
@@ -40,12 +41,13 @@ namespace Capp2
 		public static int DeviceImageCtr{ get; set;}
 		public static bool AppJustLaunched;
 		public static SettingsViewModel SettingsHelper = new SettingsViewModel ();
+		public static bool ImageImportingStartedInBackground = false;
+		public static bool MadeForNuskin = false;
 
 		public App ()
 		{			
 			PrepareAppData ();
 			MainPage = new StartPage ();
-
 		}
 
 		public async Task PrepareAppData(){
@@ -58,7 +60,7 @@ namespace Capp2
 			SetupGradientBackground ();
 
 			await contactFuncs.loadDeviceContactsIntoDBSingleTransaction (false);
-			//CheckForMeetingsTodayTomorrowThenSendSMSToConfirm ();
+			CheckForMeetingsTodayTomorrowThenSendSMSToConfirm ();
 		}
 		public static async Task CheckForMeetingsTodayTomorrowThenSendSMSToConfirm(){
 			try {

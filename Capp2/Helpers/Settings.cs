@@ -21,6 +21,23 @@ namespace Capp2.Helpers
       }
     }
 	
+	#region TutorialSettings
+	private const string TutorialKey = "tutorialshown";
+	private static bool DefaultTutorialShown = false;
+	#endregion
+
+	public static bool TutorialShownSettings
+	{
+		get
+		{
+			return AppSettings.GetValueOrDefault<bool>(TutorialKey, DefaultTutorialShown);
+		}
+		set
+		{
+			AppSettings.AddOrUpdateValue<bool>(TutorialKey, value);
+		}
+	}
+
 	#region DefaultNamelist
 	private const string DefaultNamelist = Values.ALLPLAYLISTPARAM;
 	private static readonly string DefaultNamelistDefault = Values.ALLPLAYLISTPARAM;

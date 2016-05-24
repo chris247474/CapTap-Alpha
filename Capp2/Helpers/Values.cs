@@ -4,6 +4,10 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const string UNFOCUSPLAYLISTPAGESEARCHBAR = "unfocussearchbar";
+
+		public const string READYFOREXTRATIPS = "readyforextratips";
+		public const string DONEADDINGCONTACT = "doneaddingcontact";
 		public const string DONEWAUTOCALLTIP = "donewautocalltip";
 
 		public const string CAPPTUTORIALCOLOR_Green = "#004D26";//"#388E3C";

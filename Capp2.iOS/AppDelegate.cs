@@ -88,12 +88,12 @@ namespace Capp2.iOS
             LoadApplication(new App());
 			//DidEnterBackground (app);
 
-			new System.Threading.Thread(new System.Threading.ThreadStart(async () => {
+			/*new System.Threading.Thread(new System.Threading.ThreadStart(async () => {
 				PhoneContacts PhoneFunc = new PhoneContacts();
 				await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList());
-			})).Start();
+			})).Start();*/
 
-			//App.ImageImportingStartedInBackground = true;
+			App.ImageImportingStartedInBackground = true;
             return base.FinishedLaunching(app, options);
         }
 
@@ -114,15 +114,15 @@ namespace Capp2.iOS
 			Console.WriteLine ("In Background iOS");
 
 			nint taskID = UIApplication.SharedApplication.BeginBackgroundTask( () => {});
-			//if (!App.ImageImportingStartedInBackground) {
-			//	Console.WriteLine ("Image importing not yet started, starting");
-				/*new Task (async () => {
+			if (!App.ImageImportingStartedInBackground) {
+				Console.WriteLine ("Image importing not yet started, starting");
+				new Task (async () => {
 					PhoneContacts PhoneFunc = new PhoneContacts();
 					await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList());
 
 					UIApplication.SharedApplication.EndBackgroundTask(taskID);
-				}).Start();*/
-			//}
+				}).Start();
+			}
 
 		}
 

@@ -6,6 +6,13 @@ namespace Capp2
 {
 	public static class UIAnimationHelper
 	{
+		public static async Task StartPressMeEffectOnView(View view, double scale = 1.3, uint duration = 1000){
+			while (true) {
+				await UIAnimationHelper.ZoomUnZoomElement (view, scale, duration, true);
+				await Task.Delay (1000);
+			}
+		}
+
 		public static async Task SwitchLabelText(Label lbl, string newtext, uint duration = 250){
 			await lbl.FadeTo (0, duration/2, Easing.CubicInOut);
 			lbl.Text = newtext;

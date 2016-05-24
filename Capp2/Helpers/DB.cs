@@ -374,6 +374,17 @@ namespace Capp2
                 return database.Delete<Playlist>(id);
             }
         }
+
+		public bool PlaylistNameAlreadyExists(string name){
+			var playlistarr = GetPlaylistItems ().ToArray();
+			for(int x = 0;x < playlistarr.Length;x++){
+				if(string.Equals(playlistarr[x].PlaylistName, name)){
+					return true;
+				}
+			}
+			return false;
+		}
+
         public int SavePlaylistItem(Playlist item)
         {
             Debug.WriteLine("playlist entered SaveItem()-----------------------------------------------------------------------------");

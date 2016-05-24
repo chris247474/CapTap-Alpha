@@ -14,6 +14,7 @@ namespace Capp2
 
 		public StartPage ()
 		{
+			App.MasterDetailPage = this;
 			this.Title = "Namelists";
 
 			Device.OnPlatform(
@@ -27,12 +28,13 @@ namespace Capp2
 			App.NavPage.Navigation.PushAsync (new CAPP (App.DefaultNamelist));
 			this.Detail = App.NavPage;
 			this.Master = new ContentPage { 
-				Icon = "ic_menu_white_24dp.png",
-				Title = "Options", 
+				Icon = "Hamburger-blue.png",
+				Title = "Settings", 
 				BackgroundColor = Color.FromHex ("#333333"),
 				Content = createUI (),
 			};
 		}
+
 		ScrollView createUI(){
 			CreateSettings ();
 
@@ -70,28 +72,23 @@ namespace Capp2
 			};
 		}
 		void CreateSettings(){
-			HowToSettings = UIBuilder.CreateSetting ("", "How To Do Stuff", 
+			HowToSettings = UIBuilder.CreateSetting ("help.png", "\tHelp", 
 				new TapGestureRecognizer{ Command = new Command(() => {
-					
+					UIAnimationHelper.ZoomUnZoomElement(HowToSettings);
+					App.NavPage.Navigation.PushModalAsync(new TutorialSettingsPage());
 			})});
 			StatsSettings = UIBuilder.CreateSetting ("trending-Medium.png", "\tMy CAPP Stats", 
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
-						/*UIAnimationHelper.ZoomUnZoomElement(StatsSettings); 
-						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
-						UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);
-*/
+						UIAnimationHelper.ZoomUnZoomElement(StatsSettings); 
 						App.NavPage.Navigation.PushModalAsync(new CapStats());
 					}
 				)});
 			SendYesCallSettings = UIBuilder.CreateSetting ("Leaderboard.png", "\tSend Yes Calls Today", 
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
-						/*UIAnimationHelper.ZoomUnZoomElement(SendYesCallSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
+						UIAnimationHelper.ZoomUnZoomElement(SendYesCallSettings);
+						/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
 						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
@@ -106,12 +103,12 @@ namespace Capp2
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(DailyEmailSettings); 
-						UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
+						/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
 						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);
-
+*/
 						DependencyService.Get<IEmailService>().SendEmail(App.SettingsHelper.DailyEmailTemplateSettings);
 					}
 				)});
@@ -119,19 +116,19 @@ namespace Capp2
 				new TapGestureRecognizer{Command = new Command(async () =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(DefaultNamelistSettings); 
-						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
+						/*UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
 						UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);
-
+*/
 						await Util.ChooseNewDefaultNamelist(App.Database.GetPlaylistNames());
 					}
 				)});
 			TemplateSettings = UIBuilder.CreateSetting ("SpeechBubble.png", "\tText Templates", 
 				new TapGestureRecognizer {Command = new Command (() => {
-					/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
 					UIAnimationHelper.ZoomUnZoomElement(TemplateSettings);
+					/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
 					UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
 					UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
 					UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
@@ -142,9 +139,9 @@ namespace Capp2
 				)});
 			FeedbackSettings = UIBuilder.CreateSetting ("Feedback.png", "\tContact Team CapTap", 
 				new TapGestureRecognizer {Command = new Command (() => {
+					UIAnimationHelper.ZoomUnZoomElement(FeedbackSettings);
 					/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
 					UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
-					UIAnimationHelper.ZoomUnZoomElement(FeedbackSettings);
 					UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
 					UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
 					UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);

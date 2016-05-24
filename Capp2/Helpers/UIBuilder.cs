@@ -11,9 +11,65 @@ namespace Capp2
 {
 	public static class UIBuilder
 	{
-		
+		public static ScrollView CreateTutorialVideoPickerView(VideoChooserItem[] videos){
+			if (videos == null || videos.Length < 1) {
+				throw new ArgumentNullException ("param must not be null and array must not be empty");
+			}
 
+			var stack = new StackLayout { 
+				Orientation = StackOrientation.Horizontal,
+				Padding = new Thickness(10, 0),
+				HorizontalOptions = LayoutOptions.Start,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+			};
 
+			for (int c = 0;c < videos.Length; c++) {
+				stack.Children.Add (CreateTappableImageWithBottomLabel(videos[c].ImagePath, videos[c].LabelText,
+					videos[c].VideoPath));
+			}
+					
+			return new ScrollView{
+				Orientation = ScrollOrientation.Horizontal,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				Content = stack
+			};
+		}
+		public static Grid CreateDynamicGrid(int rows, int cols){
+			Grid grid = new Grid ();
+			grid.RowDefinitions = new RowDefinitionCollection();
+			grid.ColumnDefinitions = new ColumnDefinitionCollection();
+
+			for (int c = 0; c < rows; c++) 
+			{
+				grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });  
+			}
+			for (int x = 0; x < cols; x++) 
+			{
+				grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+			}
+			return grid;
+		}
+		public static StackLayout CreateTappableImageWithBottomLabel(string imagePath, string labelText, string videotoplay){
+			Label lbl = new Label{
+				Text = labelText,
+				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+				HorizontalOptions = LayoutOptions.Center,
+				TextColor = Color.White,
+			};
+			Image img = CreateTappableImage (imagePath, LayoutOptions.Center, Aspect.AspectFit, new Command(()=>{
+				DependencyService.Get<IVideoHelper>().PlayVideo(videotoplay);
+			}), lbl.FontSize, 60, 30);
+
+			var stack = new StackLayout{
+				Orientation = StackOrientation.Vertical,
+				//Padding = new Thickness(10),
+				Children = {
+					img, lbl
+				}
+			};
+			return stack;
+		}
 
 		public static Label CreateTutorialLabel(string text, NamedSize fontSize = NamedSize.Medium, FontAttributes fontattributes = FontAttributes.Bold, 
 			LineBreakMode linebreakmode = LineBreakMode.WordWrap, Command tapCommand = null)
@@ -352,7 +408,9 @@ namespace Capp2
 			}
 		}
 
-		public static Image CreateTappableImage(string icon, LayoutOptions layout, Aspect aspect, Command handlerCommand = null, double fontsize = 0){
+		public static Image CreateTappableImage(string icon, LayoutOptions layout, Aspect aspect, 
+			Command handlerCommand = null, double fontsize = 0, double xscale = 1.5, double yscale = 1.5)
+		{
 			Image img = new Image ();
 
 			TapGestureRecognizer handler = new TapGestureRecognizer{Command = new Command(() => {
@@ -365,8 +423,8 @@ namespace Capp2
 					Source = icon,
 					HorizontalOptions = layout,
 					Aspect = aspect,
-					HeightRequest = fontsize *1.5,
-					WidthRequest = fontsize *1.5,
+					HeightRequest = fontsize *yscale,
+					WidthRequest = fontsize *xscale,
 				};
 			} else {
 				img = new Image{

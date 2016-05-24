@@ -35,6 +35,7 @@ namespace Capp2
 
 			//for some reason, all the contacts are initially shown w the same name. this will 'refresh' the list
 			ReBuildGroupedSearchableListView(playlist, groupedlist, stack);
+			SubscribeToMessagingCenter ();
 		}
 
 		void CreateLayouts(bool isToolTipHolder){
@@ -62,15 +63,40 @@ namespace Capp2
 						UIBuilder.CreateEmptyStackSpace(),
 						UIBuilder.CreateModalXPopper(new Command(() => {
 							App.Database.DeselectAll(this.list, this);
+							MessagingCenter.Send("", Values.DONEADDINGCONTACT);
 							Navigation.PopModalAsync();
 						})),
-						AddTo,
+						//AddTo,
 						stack
 					}
 				};
 				Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(contentstack, 
-					"", new Command (async () => {}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
+					"", new Command (async () => {
+
+						//add to namelist
+						var selectedItems = App.Database.GetSelectedItems(playlist).ToArray();
+						for(int c = 0;c < selectedItems.Length;c++){
+							selectedItems[c].Playlist = this.playlistToAddTo;//Add to Capp playlist where we came from
+						}
+						App.Database.SaveAll(selectedItems);//save as new contacts to preserve other namelists that we're copying from
+
+						await App.Database.DeselectAll(this.list, this);//uncheck checkmarks
+
+						await AlertHelper.Alert(this, "Copied!",
+							string.Format("Moved {0} contacts from {1} to {2}", selectedItems.Length, playlist, playlistToAddTo)
+						);
+
+						MessagingCenter.Send("", Values.DONEADDINGCONTACT);
+						Navigation.PopModalAsync();
+
+					}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 			}
+		}
+
+		public void SubscribeToMessagingCenter(){
+			MessagingCenter.Subscribe<string>(this, Values.UNFOCUSPLAYLISTPAGESEARCHBAR, async (args) =>{ 
+				searchBar.Unfocus();
+			});
 		}
 
 		void CreateUIElements(){
@@ -91,12 +117,11 @@ namespace Capp2
 
 				await App.Database.DeselectAll(this.list, this);//uncheck checkmarks
 
-				//await App.Database.DeselectAll(this.namelisttoaddto, App.CapPage);//uncheck checkmarks that get copied to namelist
-
 				await AlertHelper.Alert(this, "Copied!",
 					string.Format("Moved {0} contacts from {1} to {2}", selectedItems.Length, playlist, playlistToAddTo)
 				);
 
+				MessagingCenter.Send("", Values.DONEADDINGCONTACT);
 				Navigation.PopModalAsync();
 			};
 
@@ -229,12 +254,11 @@ namespace Capp2
 			checkbox.SetBinding (CheckBox.CheckedProperty, "IsSelected");
 			checkbox.CheckedChanged += (sender, e) => {
 				personCalled = (sender as CheckBox).Parent.Parent.Parent.BindingContext as ContactData;
+				if(personCalled.IsSelected){
+					MessagingCenter.Send("", Values.UNFOCUSPLAYLISTPAGESEARCHBAR);
+				}
 				Debug.WriteLine (personCalled.Name+"' selected value is "+personCalled.IsSelected.ToString ());
 				App.Database.UpdateItem(personCalled);
-
-				//var person = (from x in (App.Database.GetItems (Values.ALLPLAYLISTPARAM).Where(x => x.Name == personCalled.Name))
-				//	select x);
-				//Debug.WriteLine (person.ElementAtOrDefault (0).Name+"' selected value is "+person.ElementAtOrDefault (0).IsSelected.ToString ()); 
 			};
 
 		}
