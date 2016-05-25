@@ -17,6 +17,7 @@ namespace Capp2
 
 		public AddContactPage (CAPP capp, ContactData contactDuplicate = null)
 		{
+			
 			this.capp = capp;
 			this.playlist = capp.playlist;
 
@@ -78,6 +79,7 @@ namespace Capp2
 					firstNameEntry.Text = "";
 					lastNameEntry.Text = "";
 					capp.refresh ();
+
 					this.Navigation.PopAsync ();
 				}
 			});
@@ -102,6 +104,11 @@ namespace Capp2
 					//cancelButton
 				}
 			};
+		}
+		protected override void OnDisappearing ()
+		{
+			base.OnDisappearing ();
+			MessagingCenter.Send("", Values.DONEADDINGCONTACT);
 		}
 	}
 }

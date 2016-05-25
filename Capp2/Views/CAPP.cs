@@ -32,6 +32,8 @@ namespace Capp2
 		List<ContactData> AutoCallList;
 		IEnumerable<ContactData> PreloadedList;
 		ScrollView scroller = new ScrollView();
+		//ListView listViewRetain = new ListView(), 
+		//ListView listViewRecycle = new ListView();
 
 		public CAPP (string playlistChosen, bool showtip = true)
 		{
@@ -164,7 +166,7 @@ namespace Capp2
 			}catch(Exception){}
 		}
 
-		void CreateUIElements(){
+		async void CreateUIElements(){
 			
 			this.BackgroundColor = Color.Transparent;
 			if (Device.OS == TargetPlatform.iOS)
@@ -174,11 +176,16 @@ namespace Capp2
 				BackgroundColor = Color.Transparent,
 				Placeholder = "Search for a name or number",
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.FillAndExpand
+				VerticalOptions = LayoutOptions.FillAndExpand,
 			};
 			searchBar.TextChanged += (sender, e) => {
 				FilterCAPPContacts(searchBar.Text, playlist, PreLoadedGroupedList, PreloadedList);
 			};
+			searchBar.Focused += (object sender, FocusEventArgs e) => {
+				ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RecycleElement);
+			};
+			//searchBar.Unfocused += (object sender, FocusEventArgs e) => {
+			//};
 			lblContactsCount = new Label{
 				Text = App.Database.GetItems (playlist).Count().ToString()+" Contacts",
 				FontAttributes = FontAttributes.Bold,
@@ -197,10 +204,22 @@ namespace Capp2
 			cmdAutocall.BackgroundColor = Color.Green;
 
 			CreateTBIs ();
-			CreateListView ();
+
+			//listViewRecycle = CreateListView (ListViewCachingStrategy.RecycleElement);
+			//listViewRetain = CreateListView (ListViewCachingStrategy.RetainElement);
+			CreateListView (ListViewCachingStrategy.RetainElement);
 		}
 
 		public async Task AutoCall(){
+			/*await UIBuilder.ShowConfirmAsync (new Command (async () => {
+				
+			}));*/
+
+			/*var result = await UserDialogs.Instance.ActionSheetAsync ("Start Calling?", "AutoCall", "Nvm", null);
+			if(string.Equals(result.Text, "AutoCall"){
+				
+			}*/
+
 			if (App.Database.GetItems (playlist).Count () == 0) {
 				AlertHelper.Alert (string.Format ("{0} has no contacts to call", playlist), "");
 			} else {
@@ -213,7 +232,6 @@ namespace Capp2
 					DoAutoCall ();
 				}
 			}
-
 		}
 
 		async Task DoAutoCall(){
@@ -234,17 +252,20 @@ namespace Capp2
 
 			TutorialHelper.ContinueCAPPTutorialIfNotDone (this);
 
-			if (App.InTutorialMode && TutorialHelper.ReadyForExtraTips && TutorialHelper.HowToAddContactsDone) {
+			if (App.InTutorialMode && TutorialHelper.ReadyForExtraTips && TutorialHelper.HowToAddContactsDone) 
+			{
 				Debug.WriteLine ("finishing tutorial mode. about to show extra tips");
 				App.InTutorialMode = false;
 				TutorialHelper.ShowExtraTips (this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
 			}
 		}
 
-		void CreateListView(){
+		void CreateListView(ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RetainElement){
+			//this.Content.InputTransparent = true;
+
 			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(App.Database.GetGroupedItems (playlist));
 
-			listView = new ListView (/*ListViewCachingStrategy.RecycleElement*/)
+			listView = new ListView (cachestrat)
 			{
 				RowHeight = 60,
 				VerticalOptions = LayoutOptions.FillAndExpand,
@@ -270,10 +291,12 @@ namespace Capp2
 					};
 				})
 			};
+			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
+				listView.HasUnevenRows = false;
+			}
 			listView.Focused += (object sender, FocusEventArgs e) => {
 				scroller.ScrollToAsync(0, listView.Y, true);
 			};
-
 			listView.ItemSelected += (sender, e) => {
 				// has been set to null, do not 'process' tapped event
 				if (e.SelectedItem == null)
@@ -289,6 +312,9 @@ namespace Capp2
 					((ListView)sender).SelectedItem = null; 
 				}
 			};
+
+			//return listView;
+			//this.Content.InputTransparent = false;
 		}
 
 		void CreateTBIs(){
@@ -443,6 +469,7 @@ namespace Capp2
 		}
 
 		public void SubscribeToMessagingCenterListeners(){
+			
 
 			MessagingCenter.Subscribe<string>(this, Values.READYFOREXTRATIPS, async (args) =>{ 
 				TutorialHelper.ReadyForExtraTips = true;
@@ -540,11 +567,16 @@ namespace Capp2
 			
 		}
 
-		public void ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList){
+		public async Task ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList,
+			ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement)
+		{
+			searchBar.Unfocus ();
             try {
                 this.IsBusy = true;
 				(scroller.Content as StackLayout).Children.Remove((scroller.Content as StackLayout).Children.Last());//RemoveAt(5);//use last instead?
-				CreateListView();
+
+				CreateListView(cachestrat);
+
 				(scroller.Content as StackLayout).Children.Add(listView);
                 this.IsBusy = false;
             }
@@ -555,7 +587,10 @@ namespace Capp2
 
 		public void refresh (ListView list, string playlist)
 		{
-			listView.ItemsSource = App.Database.GetGroupedItems(playlist);
+			PreLoadedGroupedList = App.Database.GetGroupedItems(playlist);
+			listView.ItemsSource = PreLoadedGroupedList;
+			//listViewRetain = CreateListView (ListViewCachingStrategy.RetainElement);
+			//listViewRecycle = CreateListView (ListViewCachingStrategy.RecycleElement);
 			contactsCount = App.Database.GetItems (playlist).Count ();
 			lblContactsCount.Text = contactsCount.ToString()+" Contacts";
 		}
@@ -563,11 +598,12 @@ namespace Capp2
 		public void FilterCAPPContacts(string filter, string playlist, 
 			List<Grouping<string, ContactData>> groupedList, IEnumerable<ContactData> PreloadedList)
         {
-            Debug.WriteLine("Filter called!");
+			App.UsingSearch = true;
             if (string.IsNullOrWhiteSpace(filter))
             {
-                ReBuildGroupedSearchableListView(playlist, groupedList);
-				//UIAnimationHelper.FlyDown (listView, 1000);
+				//ReBuildGroupedSearchableListView(playlist, groupedList, ListViewCachingStrategy.RecycleElement);
+				//searchBar.Unfocus();
+				ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RetainElement);
             }
             else {
                 listView.BeginRefresh();
@@ -579,7 +615,8 @@ namespace Capp2
 				listView.ItemsSource = Util.FilterNameNumberOrg(PreloadedList, filter);
                 
                 listView.EndRefresh();
-            }
+           }
+			App.UsingSearch = false;
         }
 
 		/*async Task<string> HandleMutlipleNumbers(ContactData contact){

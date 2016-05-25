@@ -58,8 +58,8 @@ namespace Capp2.Helpers
 	
 
 	#region DailyEmail
-	private const string DailyEmailTemplate = "";
-		public static readonly string DailyEmailTemplateDefault = "Date:\nMy goal:\nBusiness Achievements:\n1.\n2.\n3.\n\nTomorrow's Goals:\n1.\n2.\n3.\n\nLessons Learned:\n1.\n2.\n3.";
+	private const string DailyEmailTemplate = "dailyemailkey";
+	public static readonly string DailyEmailTemplateDefault = " Date: \n My goal:\n Business Achievements:\n 1.\n 2.\n 3.\n \n Tomorrow's Goals:\n 1.\n 2.\n 3.\n \n Lessons Learned:\n 1.\n 2.\n 3.";
 	#endregion
 
 	public static string DailyEmailTemplateSettings
@@ -145,7 +145,7 @@ namespace Capp2.Helpers
 
 	#region Setting MeetingConfirmation
 		private const string MeetingConfirm = "";
-		public static readonly string MeetingConfirmDefault = ",see you tomorrow <time here>";
+		public static readonly string MeetingConfirmDefault = "see you tomorrow <time here>";
 	#endregion
 
 	public static string MeetingConfirmSettings

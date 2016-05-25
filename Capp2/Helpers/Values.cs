@@ -4,6 +4,9 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const string DISABLEAUTOCALLTOUCHEVENT = "disableautocalltouchevent";
+		public const string ENABLEABLEAUTOCALLTOUCHEVENT = "enableautocalltouchevent";
+
 		public const string UNFOCUSPLAYLISTPAGESEARCHBAR = "unfocussearchbar";
 
 		public const string READYFOREXTRATIPS = "readyforextratips";

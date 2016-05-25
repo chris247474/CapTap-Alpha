@@ -12,6 +12,20 @@ namespace Capp2
 	public static class UIBuilder
 	{
 
+		public static async Task ShowConfirmAsync(Command cmd){
+			var YesNo = new ConfirmConfig () { 
+				Title = "AutoCall", 
+				OkText = "AutoCall",
+				Message = "Start calling?",
+				CancelText = "Nvm",
+			};
+			YesNo.OnConfirm = new Action<bool>(delegate(bool obj) {
+				cmd.Execute(null);
+			});
+
+			await UserDialogs.Instance.ConfirmAsync (YesNo);
+		}
+
 		public static ScrollView CreateTutorialVideoPickerView(VideoChooserItem[] videos){
 			if (videos == null || videos.Length < 1) {
 				throw new ArgumentNullException ("param must not be null and array must not be empty");
@@ -214,7 +228,14 @@ namespace Capp2
 				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
 			);
 
-			return AddFloatingActionButtonToRelativeLayout(layout, icon, FabTapped, NormalColor, PressedColor);
+			return AddFloatingActionButtonToRelativeLayout(layout, icon, new Command(() => {
+				if(!App.UsingSearch){
+					Debug.WriteLine("SearchBar not being used");
+					FabTapped.Execute(null);
+				}else{
+					Debug.WriteLine("SearchBar being used, FAB action cancelled");
+				}
+			}), NormalColor, PressedColor);
 		}
 
 		public static RelativeLayout AddFloatingActionButtonToRelativeLayout(RelativeLayout layout, string icon, 
@@ -223,7 +244,6 @@ namespace Capp2
             var normalFab = new FAB.Forms.FloatingActionButton();
 			normalFab.Clicked += (sender, e) => {
 				UIAnimationHelper.ZoomUnZoomElement (normalFab);
-
 			};
 
 			if (Device.OS == TargetPlatform.Android)
@@ -373,7 +393,7 @@ namespace Capp2
 								}else{
 									TemplateStack.Children.Remove (TemplateEntry);
 									EntryShown = false;
-									Debug.WriteLine (settings.DailyEmailTemplateSettings);
+									Debug.WriteLine (Settings.DailyEmailTemplateSettings);
 								}
 							}
 						)}, true),

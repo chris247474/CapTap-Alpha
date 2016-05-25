@@ -25,21 +25,21 @@ namespace Capp2
 				}
 			} else if (yescalls < 5 && yescalls > 0) {
 				if (synergy) {
-					message = string.Format ("got {0} yes calls today! Not bad. Maybe I won't tell Sandy", yescalls);
+					message = string.Format ("got {0} yes call(s) today! Not bad. Maybe I won't tell Sandy", yescalls);
 				} else {
-					message = string.Format ("got {0} yes calls today! Not bad.", yescalls);
+					message = string.Format ("got {0} yes call(s) today! Not bad.", yescalls);
 				}
 			}else if(yescalls > 5 && yescalls < 10){
 				if (synergy) {
 				} else {
 				}
-				message = string.Format ("got {0} yes calls today! Keep it up!!!", yescalls);
+				message = string.Format ("got {0} yes call(s) today! Keep it up!!!", yescalls);
 			}else if(yescalls >= 10){
 				if (synergy) {
-					message = string.Format ("got {0} yes calls today! " +
+					message = string.Format ("got {0} yes call(s) today! " +
 						"Team Elite here we go!", yescalls);
 				} else {
-					message = string.Format ("got {0} yes calls today! " +
+					message = string.Format ("got {0} yes call(s) today! " +
 						"Beat that!", yescalls);
 				}
 			}

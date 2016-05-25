@@ -4,6 +4,7 @@ using Xamarin.Forms;
 using System.ComponentModel;
 using Acr.UserDialogs;
 using System.Diagnostics;
+using Capp2.Helpers;
 
 namespace Capp2
 {
@@ -178,12 +179,12 @@ namespace Capp2
 				entry.Focus ();
 				parent.Children.Insert (indexToInsertAt, entry);
 				EmailShown = true;
-				entry.Text = (BindingContext as SettingsViewModel).DailyEmailTemplateSettings;
+				entry.Text = Settings/*(BindingContext as SettingsViewModel)*/.DailyEmailTemplateSettings;
 				Debug.WriteLine (entry.Text);
 			}else{
 				parent.Children.Remove (entry);
 				EmailShown = false;
-				Debug.WriteLine ((BindingContext as SettingsViewModel).DailyEmailTemplateSettings);
+				Debug.WriteLine (Settings/*(BindingContext as SettingsViewModel)*/.DailyEmailTemplateSettings);
 			}
 		}
 	}

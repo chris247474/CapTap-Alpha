@@ -29,6 +29,8 @@ namespace Capp2
 			get { return (string)GetValue (ImageFilenameProperty); }
 			set { SetValue (ImageFilenameProperty, value); }
 		}
+
+
 	}
 }
 

@@ -83,6 +83,7 @@ namespace Capp2
 				VerticalOptions = LayoutOptions.FillAndExpand
 			};
 			searchBar.TextChanged += (sender, e) => {searchCommand.Execute(null);};
+
 			return searchBar;
 		}
 

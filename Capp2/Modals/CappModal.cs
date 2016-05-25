@@ -6,6 +6,7 @@ using System.Diagnostics;
 using XLabs.Forms.Controls;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Capp2
 {
@@ -129,6 +130,11 @@ namespace Capp2
 			searchBar = CappBuilder.CreateSearchBar ("Search", new Command (() => {
 				FilterCAPPContacts(searchBar.Text, playlist, groupedlist, stack);
 			}));
+			//searchBar.Unfocused += (object sender, FocusEventArgs e) => {
+			//};
+			searchBar.Focused += (object sender, FocusEventArgs e) => {
+				ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, ListViewCachingStrategy.RecycleElement);
+			};
 
 			listView = CappBuilder.CreateGroupedListView (this, groupedlist, new CappModalViewCell (playlist), new Command (() => {
 				//dont do anything
@@ -144,10 +150,13 @@ namespace Capp2
 		void FilterCAPPContacts(string filter, string playlist, List<Grouping<string, ContactData>> groupedList, 
 			StackLayout stack)
 		{
-			Debug.WriteLine("Filter called!");
+			App.UsingSearch = true;
 			if (string.IsNullOrWhiteSpace(filter))
 			{
-				ReBuildGroupedSearchableListView(playlist, groupedList, stack);
+				//ReBuildGroupedSearchableListView(playlist, groupedList, stack, ListViewCachingStrategy.RecycleElement);
+				//searchBar.Unfocus();
+				ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, ListViewCachingStrategy.RetainElement);
+
 			}
 			else {
 				listView.BeginRefresh();
@@ -156,12 +165,13 @@ namespace Capp2
 				listView.GroupDisplayBinding = new Xamarin.Forms.Binding(".");
 				listView.GroupShortNameBinding = new Xamarin.Forms.Binding(".");
 				listView.GroupHeaderTemplate = null;
-				listView.ItemsSource = Util.FilterNameNumberOrg(App.Database.GetItems(this.playlist), filter);
+				listView.ItemsSource = Util.FilterNameNumberOrg(this.list, filter);
 
 				listView.EndRefresh();
 			}
+			App.UsingSearch = false;
 		}
-		public void ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList, 
+		/*public void ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList, 
 			StackLayout stack)
 		{
 			try {
@@ -185,18 +195,60 @@ namespace Capp2
 							return new HeaderCell();
 						})
 				};
-				/*listView.ItemSelected += (sender, e) => {
-					// has been set to null, do not 'process' tapped event
-					if (e.SelectedItem == null)
-						return;
-						
-					((ListView)sender).SelectedItem = null;
-				};*/
 				stack.Children.Add(listView);
 				this.IsBusy = false;
 			}
 			catch (Exception e) {
 				Debug.WriteLine("ReBuildGroupedSearchableListView() error: {0}", e.Message);
+			}
+		}*/
+
+		public async Task ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList,
+			StackLayout stack, ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RetainElement)
+		{
+			searchBar.Unfocus();
+			try {
+				this.IsBusy = true;
+				stack.Children.Remove(stack.Children.Last());//RemoveAt(5);//use last instead?
+
+				CreateListView(cachestrat, this.groupedlist);
+
+				stack.Children.Add(listView);
+				this.IsBusy = false;
+			}
+			catch (Exception e) {
+				Debug.WriteLine("ReBuildGroupedSearchableListView() error: {0}", e.Message);
+			}
+		}
+
+		public void refresh (ListView list, string playlist)
+		{
+			this.groupedlist = App.Database.GetGroupedItems(playlist);
+			listView.ItemsSource = this.groupedlist;
+		}
+
+		void CreateListView(ListViewCachingStrategy cachestrat, List<Grouping<string, ContactData>> groupedList){
+			listView = new ListView(cachestrat)
+			{
+				RowHeight = 60,
+				BackgroundColor = Color.Transparent,
+				ItemsSource = groupedList,
+				SeparatorColor = Color.Transparent,
+				ItemTemplate = new DataTemplate(() =>
+					{
+						return new CappModalViewCell(playlist);
+					}),
+				IsGroupingEnabled = true,
+				GroupDisplayBinding = new Xamarin.Forms.Binding("Key"),
+				HasUnevenRows = true,
+				GroupShortNameBinding = new Xamarin.Forms.Binding("Key"),//doesnt work android, works iOS
+				GroupHeaderTemplate = new DataTemplate(() =>
+					{
+						return new HeaderCell();
+					})
+			};
+			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
+				listView.HasUnevenRows = false;
 			}
 		}
 	}

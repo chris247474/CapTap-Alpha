@@ -97,7 +97,7 @@ namespace Capp2
 						UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
 */
 						DependencyService.Get<IPhoneContacts>().Share(
-							StatsHelper.GetYesCallMessage(true)
+							StatsHelper.GetYesCallMessage()
 						);
 					}
 				)});
@@ -111,7 +111,7 @@ namespace Capp2
 						UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
 						UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);
 */
-						DependencyService.Get<IEmailService>().SendEmail(App.SettingsHelper.DailyEmailTemplateSettings);
+						DependencyService.Get<IEmailService>().SendEmail(Settings.DailyEmailTemplateSettings);
 					}
 				)});
 			DefaultNamelistSettings = UIBuilder.CreateSetting ("FinishFlag.png", "\tStarting Namelist", 

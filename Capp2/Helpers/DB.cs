@@ -175,9 +175,9 @@ namespace Capp2
 				}
 			}
 
-			ChartData Called = new ChartData{Name = "Called", Value = CalledList.Count};
-			ChartData Appointed = new ChartData{Name = "Appointed", Value = AppointedList.Count};
-			ChartData Presented = new ChartData{Name = "Presented", Value = PresentedList.Count};
+			ChartData Called = new ChartData{Name = "Called", Value = CalledList.Count - AppointedList.Count};
+			ChartData Appointed = new ChartData{Name = "Appointed", Value = AppointedList.Count - PresentedList.Count};
+			ChartData Presented = new ChartData{Name = "Presented", Value = PresentedList.Count - PurchasedList.Count};
 			ChartData Purchased = new ChartData{Name = "Purchased", Value = PurchasedList.Count};
 
 			Debug.WriteLine ("Called: {0}, Appointed: {1}, Presented: {2}, Purchased: {3}", 

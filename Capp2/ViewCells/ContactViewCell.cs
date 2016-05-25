@@ -128,7 +128,18 @@ namespace Capp2
 
 
 		}
+		protected override void OnBindingContextChanged ()
+		{
+			base.OnBindingContextChanged ();
 
+			var item = BindingContext as ContactData;
+			if (item != null) {
+				nameLabel.Text = item.Name;
+				playlistLabel.Text = item.Playlist;
+				circleImage.Source = item.PicStringBase64;
+
+			}
+		}
 		public View createView (string playlist)
 		{
 			if (App.IsEditing) {
