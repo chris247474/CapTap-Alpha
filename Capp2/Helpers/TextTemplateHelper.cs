@@ -60,36 +60,51 @@ namespace Capp2
 		}
 
 		public static async Task PrepareConfirmTomorrowsMeetingsTemplateThenSendText(ContactData person){
-			var DefaultTemplateText = Settings.MeetingConfirmDefault;
+			if (!person.IsConfirmedTomorrow) {
+				var DefaultTemplateText = Settings.MeetingConfirmDefault;
+				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
 
-			string messageToSend = Settings.MeetingConfirmDefault;
+				string messageToSend = Settings.MeetingConfirmDefault;
 
-			messageToSend = string.Format ("Hi {0}, {1}", person.FirstName,  
-				messageToSend);
+				messageToSend = string.Format ("Hi {0}, {1}", person.FirstName,  
+					messageToSend);
 
-			messageToSend = 
-				PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
+				messageToSend = 
+					PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
 
-			await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
-				messageToSend, person.Name, Values.CONFIRM, Values.TOMORROW);
+				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
+					messageToSend, person.Name, Values.CONFIRM, Values.TOMORROW);
 
-			Settings.MeetingConfirmSettings = DefaultTemplateText;
+				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
+				Settings.MeetingConfirmSettings = DefaultTemplateText;
+				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
+				Settings.MeetingConfirmSettings = Settings.DailyEmailTemplateDefault;
+				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
+				messageToSend = "";
+
+				person.IsConfirmedTomorrow = true;
+				App.Database.UpdateItem (person);
+			}
 		}
 
 		public static async Task PrepareConfirmTodaysMeetingsTemplateThenSendText(ContactData person){
-			var DefaultTemplateText = Settings.MeetingTodayConfirmDefault;
-			var messageToSend = Settings.MeetingTodayConfirmDefault;
+			if (!person.IsConfirmedToday) {
+				var messageToSend = Settings.MeetingTodayConfirmDefault;
 
-			messageToSend = string.Format ("Hi {0}, {1}", person.FirstName,  
-				messageToSend);
+				messageToSend = string.Format ("Hi {0}, {1}", person.FirstName,  
+					messageToSend);
 
-			messageToSend = 
-				PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
+				messageToSend = 
+					PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
 
-			await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
-				messageToSend, person.Name, Values.CONFIRM, Values.TODAY);
+				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
+					messageToSend, person.Name, Values.CONFIRM, Values.TODAY);
 
-			Settings.MeetingTodayConfirmSettings = DefaultTemplateText;
+				Settings.MeetingTodayConfirmSettings = Settings.MeetingTodayConfirmDefault;
+
+				person.IsConfirmedToday = true;
+				App.Database.UpdateItem (person);
+			}
 		}
 	}
 }

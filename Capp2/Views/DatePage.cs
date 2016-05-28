@@ -123,9 +123,8 @@ namespace Capp2
                             break;
                         case Values.APPOINTED:
 							personCalled.Appointed = datePicker.Date.AddHours(timePicker.Time.Hours).AddMinutes(timePicker.Time.Minutes);
-							/*if(personCalled.Appointed.Date != DateTime.Today){
-								App.SettingsHelper.DateRemindedSettings = DateTime.MinValue.ToString();
-							}*/
+							
+							ResolveCAPP(personCalled, Values.APPOINTED);
 
                             personCalled.NextMeetingID = await CalendarService.CreateAppointment(personCalled.NextMeetingID, 
 								personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, 
@@ -145,6 +144,8 @@ namespace Capp2
                         case Values.PRESENTED:
                             personCalled.Presented = datePicker.Date;
 
+							ResolveCAPP(personCalled, Values.PRESENTED);
+
                             App.Database.UpdateItem(personCalled);
 							await DisplayAlert ("Presented", "Noted in virtual CapSheet!", "Great!");
 
@@ -154,6 +155,7 @@ namespace Capp2
                         case Values.PURCHASED:
                             //add date to contact's "purchased" property
                             personCalled.Purchased = datePicker.Date;
+							ResolveCAPP(personCalled, Values.PURCHASED);
                             App.Database.UpdateItem(personCalled);
 							await DisplayAlert ("Purchased", "Signup recorded in virtual CapSheet!", "Great!");
                             await this.Navigation.PopModalAsync();
@@ -177,6 +179,36 @@ namespace Capp2
                 Debug.WriteLine("Error in setting date: {0}", e.Message);
             }
 
+		}
+
+		//assign placeholder values to any blank but necessary CAPP functions to maintain CapStats page graphs accuracy
+		public void ResolveCAPP(ContactData personCalled, string cappstrings){
+			switch (cappstrings) {
+			case Values.APPOINTED:
+				if(personCalled.Called == DateTime.MinValue){
+					personCalled.Called = DateTime.Now;
+				}
+				break;
+			case Values.PRESENTED:
+				if(personCalled.Called == DateTime.MinValue){
+					personCalled.Called = DateTime.Now;
+				}
+				if(personCalled.Appointed == DateTime.MinValue){
+					personCalled.Appointed = DateTime.Now;
+				}
+				break;
+			case Values.PURCHASED:
+				if(personCalled.Called == DateTime.MinValue){
+					personCalled.Called = DateTime.Now;
+				}
+				if(personCalled.Appointed == DateTime.MinValue){
+					personCalled.Appointed = DateTime.Now;
+				}
+				if(personCalled.Presented == DateTime.MinValue){
+					personCalled.Presented = DateTime.Now;
+				}
+				break;
+			}
 		}
 
 		public void DisableTimePicker(int defaultHour){

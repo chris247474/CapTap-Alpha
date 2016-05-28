@@ -20,7 +20,8 @@ namespace Capp2
 			return relativeLayout;
 		}
 
-		public CarouselHelper (IndicatorStyleEnum indicatorStyle, Color background, string text = "Tips and Tricks\nto help you burn through those call lists")
+		public CarouselHelper (IndicatorStyleEnum indicatorStyle, Color background, 
+			string text = "Tips and Tricks\nto help you burn through those call lists")
 		{
 			this.BackgroundColor = background;
 
@@ -87,7 +88,8 @@ namespace Capp2
 				break;
 			}
 
-			Content = new StackLayout{
+			Content = relativeLayout;
+			/*new StackLayout{
 				Orientation = StackOrientation.Vertical,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
@@ -99,7 +101,7 @@ namespace Capp2
 					UIBuilder.CreateEmptyStackSpace(),
 					relativeLayout
 				}
-			};
+			};*/
 		}
 
 		CarouselLayout CreatePagesCarousel ()

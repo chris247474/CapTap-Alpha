@@ -17,32 +17,32 @@ namespace Capp2.Helpers
         static bool CalendarExists { get; set; }
 
 		static async Task<bool> CheckToday(bool alerted){
-			SettingsViewModel vm;
-			vm = new SettingsViewModel();
-			List<ContactData> peopleToday = PeopleForToday();
+			//SettingsViewModel vm;
+			//vm = new SettingsViewModel();
+			var peopleToday = PeopleForToday().ToArray();
 
 			//confirm today
-			if (!string.Equals(DateTime.Today.Day.ToString(), Settings.DateRemindedForTodaySettings))
-			{
-				Debug.WriteLine ("Todays appointments not yet confirmed");
+			//if (!string.Equals(DateTime.Today.Day.ToString(), Settings.DateRemindedForTodaySettings))
+			//{
+				//Debug.WriteLine ("Todays appointments not yet confirmed");
 				try
 				{
-					if (peopleToday != null && peopleToday.Count != 0)
+					if (peopleToday != null && peopleToday.Length != 0)
 					{
 						Debug.WriteLine("Going thorugh Todays meetings");
-						if(!alerted){
+						/*if(!alerted){
 							await AlertHelper.Alert("Confirming appointments", 
-								"Let's confirm appointments before starting calls");
+								"Checking for unconfirmed appointments");
 							alerted = true;
-						}
+						}*/
 
-						for (int c = 0; c < peopleToday.Count; c++)
+						for (int c = 0; c < peopleToday.Length; c++)
 						{
-							var person = peopleToday.ElementAt(c);
+							var person = peopleToday[c];
 							await Task.Delay(1000);
 							await TextTemplateHelper.PrepareConfirmTodaysMeetingsTemplateThenSendText(person);
 						}
-						vm.DateRemindedForTodaySettings = DateTime.Today.Day.ToString();
+						//vm.DateRemindedForTodaySettings = DateTime.Today.Day.ToString();
 					}
 				}
 				catch (Exception e)
@@ -50,44 +50,41 @@ namespace Capp2.Helpers
 					Debug.WriteLine("" + e.Message);
 				}
 
-			}
+			/*}
 			else {
 				Debug.WriteLine ("Todays appointments already checked");
-			}
+			}*/
 			return alerted;
 		}
 
 		static async Task<bool> CheckTomorrow(bool alerted){
-			SettingsViewModel vm;
-			vm = new SettingsViewModel();
-			List<ContactData> peopleTomorrow = PeopleForTomorrow();
+			//SettingsViewModel vm;
+			//vm = new SettingsViewModel();
+			var peopleTomorrow = PeopleForTomorrow().ToArray();
 
 			//confirm tomorrow
-			if (!string.Equals(DateTime.Today.Day.ToString(), Settings.DateRemindedSettings))
-			{
-				Debug.WriteLine ("Tomorrows appointments not yet confirmed");
+			//if (!string.Equals(DateTime.Today.Day.ToString(), Settings.DateRemindedSettings))
+			//{
+				//Debug.WriteLine ("Tomorrows appointments not yet confirmed");
 				try
 				{
-					if (peopleTomorrow != null && peopleTomorrow.Count != 0)
+					if (peopleTomorrow != null && peopleTomorrow.Length != 0)
 					{
-						if (!alerted){
+						/*if (!alerted){
 							await AlertHelper.Alert ("Confirming appointments", 
 								"Let's confirm appointments before starting calls");
 							alerted = true;
-						}
+						}*/
 							
-						Debug.WriteLine("Going thorugh tomorrows meetings: {0}", peopleTomorrow.Count);
+						Debug.WriteLine("Going thorugh tomorrows meetings: {0}", peopleTomorrow.Length);
 
-						for (int c = 0; c < peopleTomorrow.Count; c++)
+						for (int c = 0; c < peopleTomorrow.Length; c++)
 						{
-							Debug.WriteLine("Start Iteration {0}", c);
-							var person = peopleTomorrow.ElementAt(c);
-							Debug.WriteLine("after peopleTomorrow.ElementAt(c);");
+							var person = peopleTomorrow[c];
 							await Task.Delay(1000);
 							await TextTemplateHelper.PrepareConfirmTomorrowsMeetingsTemplateThenSendText(person);
-							Debug.WriteLine("Done w Iteration {0}", c);
 						}
-						Settings.DateRemindedSettings = DateTime.Today.Day.ToString();
+						//Settings.DateRemindedSettings = DateTime.Today.Day.ToString();
 					}else{
 						Debug.WriteLine("No meetings tomorrow");
 					}
@@ -96,18 +93,18 @@ namespace Capp2.Helpers
 				{
 					Debug.WriteLine("" + e.Message);
 				}
-			}
+			/*}
 			else {
 				Debug.WriteLine ("Tomorrows appointments already checked");
-			}
+			}*/
 			return alerted;
 		}
 
 		public static async Task CheckMeetingsTodayTomorrowConfirmSentSendIfNot()
         {
 			bool alerted = false;
-			//alerted = await CheckToday(alerted);
-			//await Task.Delay (3000);
+			alerted = await CheckToday(alerted);
+			await Task.Delay (3000);
 			await CheckTomorrow (alerted);
         }
 

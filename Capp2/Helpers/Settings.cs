@@ -55,7 +55,22 @@ namespace Capp2.Helpers
 		}
 	}
 
-	
+	#region InstallDateSettings
+	private const string InstallDate = "installdatekey";
+	private static readonly DateTime InstallDateDefault = DateTime.MinValue;
+	#endregion
+
+	public static DateTime InstallDateSettings
+	{
+		get
+		{
+			return AppSettings.GetValueOrDefault<DateTime>(InstallDate, InstallDateDefault);
+		}
+		set
+		{
+			AppSettings.AddOrUpdateValue<DateTime>(InstallDate, value);
+		}
+	}
 
 	#region DailyEmail
 	private const string DailyEmailTemplate = "dailyemailkey";

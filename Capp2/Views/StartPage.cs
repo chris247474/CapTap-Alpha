@@ -18,12 +18,22 @@ namespace Capp2
 			this.Title = "Namelists";
 
 			Device.OnPlatform(
-				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, EndColor = App.EndColor}), 
+				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, 
+					EndColor = App.EndColor}){
+					//BarBackgroundColor = Color.White,
+					//BarTextColor = Color.FromHex(Values.GOOGLEBLUE),
+				}, 
 				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, EndColor = App.EndColor}){
 					BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),
 					BarTextColor = Color.White,
 				}
 			);
+
+			/*App.NavPage = new NavigationPage (new PlaylistPage{ StartColor = App.StartColor, EndColor = App.EndColor }) {
+				BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),
+				BarTextColor = Color.White,
+			};*/
+
 			App.NavPage.Navigation.PopAsync ();
 			App.NavPage.Navigation.PushAsync (new CAPP (App.DefaultNamelist));
 			this.Detail = App.NavPage;
@@ -42,7 +52,7 @@ namespace Capp2
 				Content = new StackLayout{
 					Orientation = StackOrientation.Vertical,
 					HorizontalOptions = LayoutOptions.Fill,
-					VerticalOptions = LayoutOptions.StartAndExpand,
+					VerticalOptions = LayoutOptions.FillAndExpand,
 					Padding = new Thickness(20),
 					Children = { 
 						UIBuilder.CreateSettingsHeader("Settings"),

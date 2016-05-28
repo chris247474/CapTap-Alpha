@@ -93,7 +93,7 @@ namespace Capp2.iOS
 				await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList());
 			})).Start();*/
 
-			App.ImageImportingStartedInBackground = true;
+			//App.ImageImportingDone = true;
             return base.FinishedLaunching(app, options);
         }
 
@@ -114,16 +114,17 @@ namespace Capp2.iOS
 			Console.WriteLine ("In Background iOS");
 
 			nint taskID = UIApplication.SharedApplication.BeginBackgroundTask( () => {});
-			if (!App.ImageImportingStartedInBackground) {
+
+			if (!App.ImageImportingDone) {
 				Console.WriteLine ("Image importing not yet started, starting");
 				new Task (async () => {
 					PhoneContacts PhoneFunc = new PhoneContacts();
+
 					await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList());
 
 					UIApplication.SharedApplication.EndBackgroundTask(taskID);
 				}).Start();
 			}
-
 		}
 
 		void SetUIStyles(UIApplication iOSApp){
@@ -134,7 +135,7 @@ namespace Capp2.iOS
 
 			//UINavigationBar.Appearance.BarTintColor = UIColor.FromRGB(43, 132, 211); //bar background 
 
-			UINavigationBar.Appearance.TintColor = ColorFromHex(Values.GOOGLEBLUE); //Tint color of button items  
+			//UINavigationBar.Appearance.TintColor = ColorFromHex(Values.GOOGLEBLUE); //Tint color of button items  
 			/*UINavigationBar.Appearance.SetTitleTextAttributes(new UITextAttributes() { 
 				Font = UIFont.FromName("HelveticaNeue-Light", (nfloat)20f), TextColor = UIColor.White 
 			});*/

@@ -26,7 +26,7 @@ namespace Capp2.iOS
 			CGSize size = rect.Size;
 			UIGraphics.BeginImageContext(size);
 			CGContext currentContext = UIGraphics.GetCurrentContext();
-			currentContext.SetFillColor(Color.FromHex("#FFC107").ToCGColor());
+			currentContext.SetFillColor(Color.FromHex(Values.YELLOW).ToCGColor());
 			currentContext.FillRect(rect);
 			var backgroundImage = UIGraphics.GetImageFromCurrentImageContext();
 			currentContext.Dispose();
@@ -38,17 +38,17 @@ namespace Capp2.iOS
 
 			// Now change the static field value! "normalBackground" OR "destructiveBackground"
 			var field = t.GetField("normalBackground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-			field.SetValue(null, backgroundImage);
+			field.SetValue(new object(), backgroundImage);
 
 			//set destructive color
 			currentContext = UIGraphics.GetCurrentContext();
-			currentContext.SetFillColor(Color.FromHex("#FF5722").ToCGColor());
+			currentContext.SetFillColor(Color.FromHex(Values.MaterialDesignOrange/*"#FF5722"*/).ToCGColor());
 			currentContext.FillRect(rect);
 			backgroundImage = UIGraphics.GetImageFromCurrentImageContext();
 			currentContext.Dispose();
 
 			field = t.GetField("destructiveBackground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-			field.SetValue(null, backgroundImage);
+			field.SetValue(new object(), backgroundImage);
 
 			return cell;
 		}

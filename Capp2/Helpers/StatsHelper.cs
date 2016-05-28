@@ -11,7 +11,47 @@ namespace Capp2
 {
 	public static class StatsHelper
 	{
-		
+
+		public static StackLayout CreateSplineChart(ObservableCollection<ChartDataPoint> data, string XLabel, 
+			string YLabel, string LegendTitle)
+		{
+			SplineAreaSeries splineseries = CreateSplineAreaSeries (data, XLabel, YLabel);
+
+			SfChart chart = new SfChart{
+				Legend = CreateLegend(LegendTitle, Color.Maroon),
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+			};
+
+			chart.Series.Add(splineseries);
+
+			return new StackLayout{
+				Orientation = StackOrientation.Vertical,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				Children = {
+					chart,
+				}
+			};
+		}
+
+		public static SplineAreaSeries CreateSplineAreaSeries(ObservableCollection<ChartDataPoint> data, string XLabel, string YLabel){
+			return new SplineAreaSeries{
+				EnableTooltip = true,
+				EnableDataPointSelection = true,
+				EnableAnimation = true,
+				ItemsSource = data, 
+				XBindingPath = XLabel, 
+				YBindingPath = YLabel,
+				StrokeColor = Color.FromHex(Values.YELLOW),
+				DataMarker=new ChartDataMarker(){
+					LabelStyle = new DataMarkerLabelStyle{
+						Font = Font.SystemFontOfSize(18, FontAttributes.Bold)
+					}
+				},
+			};
+		}
+
 		public static string GetYesCallMessage(bool synergy = false){
 			var yescalls = App.Database.GetTodaysYesCalls ();
 			string message = string.Empty;
@@ -127,6 +167,7 @@ namespace Capp2
 					}
 				},
 				//EnableTooltip = true,
+				CircularCoefficient = 0.9,
 			};
 		}
 		public static StackLayout CreatePieChart(ObservableCollection<ChartDataPoint> data, string XLabel, string YLabel, string LegendTitle){
@@ -167,7 +208,8 @@ namespace Capp2
 			Label totalLabel = new Label{ 
 				Text = string.Format("Total Calls: {0}", 
 					App.Database.GetCalledContacts (Values.ALLPLAYLISTPARAM).Count),
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				FontAttributes = FontAttributes.Bold,
 			};
 
 			return new StackLayout{
@@ -188,9 +230,8 @@ namespace Capp2
 			};
 		}
 
-		public static ObservableCollection<ChartDataPoint> CreatePieChartData (ChartData[] list){
+		public static ObservableCollection<ChartDataPoint> CreateChartData (ChartData[] list){
 			ObservableCollection<ChartDataPoint> data = new ObservableCollection<ChartDataPoint> ();
-
 			//convert input List to ChartDataPoint ObservableCollection
 			for(int c = 0;c < list.Length;c++){
 				if (list [c].Value > 0) {
@@ -204,7 +245,7 @@ namespace Capp2
 
 	public class ChartData{
 		public string Name{ get; set;}
-		public double Value{ get; set;}
+		public double Value{ get; set;} = 0;
 	}
 }
 

@@ -78,7 +78,7 @@ namespace Capp2
 			phone.GestureRecognizers.Add (tapGestureRecognizer);
 			tapGestureRecognizer.NumberOfTapsRequired = 1;
 
-			var nextAction = new MenuItem { Text = "Next Meeting", IsDestructive = true };
+			var nextAction = new MenuItem { Text = "Resched", IsDestructive = true };
 			nextAction.SetBinding (MenuItem.CommandParameterProperty, new Binding ("."));
 			nextAction.Clicked += (sender, e) => {
 				var mi = ((MenuItem)sender);

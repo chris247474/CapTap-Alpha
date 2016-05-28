@@ -69,6 +69,12 @@ namespace Capp2
 
 		[Column("LargePic")]
 		public string LargePic{ get; set;} = "placeholder-contact-male.png";
+
+		[Column("IsConfirmedTomorrow")]
+		public bool IsConfirmedTomorrow{ get; set;} = false;
+
+		[Column("IsConfirmedToday")]
+		public bool IsConfirmedToday{ get; set;} = false;
 	}
 }
 

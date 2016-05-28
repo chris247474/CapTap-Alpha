@@ -9,16 +9,16 @@ namespace Capp2
 	{
 		public SwitcherPageViewModel()
 		{
-			var background = Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange); 
+			var background = Color.Transparent;//FromHex (Values.CAPPTUTORIALCOLOR_Orange); 
 			List<HomeViewModel> list = new List<HomeViewModel> ();
 			list.Add (new HomeViewModel {
 				Title = "Where'd my CAPP Sheet go?",
 				Background = background,
 				ImageSource = "HowToCappScreenshot.png"
 			});
-			list.Add (new HomeViewModel { Title = "2", Background = background, ImageSource = "icon.png" });
-			list.Add (new HomeViewModel { Title = "3", Background = background, ImageSource = "icon.png" });
-			list.Add (new HomeViewModel { Title = "4", Background = background, ImageSource = "icon.png" });
+			list.Add (new HomeViewModel { Title = "Questions, Suggestions, Feedback?", Background = background, ImageSource = "HowToFeedbackScreenshot.png" });
+			//list.Add (new HomeViewModel { Title = "3", Background = background, ImageSource = "icon.png" });
+			//list.Add (new HomeViewModel { Title = "4", Background = background, ImageSource = "icon.png" });
 
 			Pages = list;
 

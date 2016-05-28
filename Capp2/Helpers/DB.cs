@@ -7,6 +7,7 @@ using Acr.UserDialogs;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using Capp2.Helpers;
 
 namespace Capp2
 {
@@ -147,6 +148,40 @@ namespace Capp2
 			return PurchasedList;
 		}
 
+		public ChartData[] GetDailyYesCalls(){
+			var ListArr = GetCalledContacts (Values.ALLPLAYLISTPARAM).ToArray();
+			var tempChartData = new ChartData ();
+			List<ChartData> data = new List<ChartData> ();
+
+			var date = DateTime.Today.Date;
+			var installdate = Settings.InstallDateSettings;
+
+			if (ListArr != null && ListArr.Length > 0) {
+				while (date.Date != installdate.Date) {
+					Debug.WriteLine ("Looped date: {0}", date.Date);
+
+					tempChartData = new ChartData {
+						Name = date.Date.ToString ()
+					};
+
+					for (int c = 0; c < ListArr.Length; c++) {
+						if (ListArr [c].Called.Date == date.Date) {
+							tempChartData.Value++;
+						}
+					}
+
+					data.Add (tempChartData);
+
+					date = date.AddDays (-1);
+				}
+			} else {
+				//no yes calls yet
+				return new ChartData[]{ };
+			}
+
+			return data.ToArray ();
+		}
+
 		public ChartData[] GetCappStats(){
 			var ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
 
@@ -175,7 +210,7 @@ namespace Capp2
 				}
 			}
 
-			ChartData Called = new ChartData{Name = "Called", Value = CalledList.Count - AppointedList.Count};
+			ChartData Called = new ChartData{Name = "Not Appointed", Value = CalledList.Count - AppointedList.Count};
 			ChartData Appointed = new ChartData{Name = "Appointed", Value = AppointedList.Count - PresentedList.Count};
 			ChartData Presented = new ChartData{Name = "Presented", Value = PresentedList.Count - PurchasedList.Count};
 			ChartData Purchased = new ChartData{Name = "Purchased", Value = PurchasedList.Count};
@@ -242,8 +277,8 @@ namespace Capp2
 						.ToList();
 
 				return groupedData;
-			}catch(Exception){
-				UserDialogs.Instance.ErrorToast ("Error", "Couldn't load call list");
+			}catch(Exception e){
+				Debug.WriteLine ("Couldn't load call list: {0}", e.Message);
 				return null;
 			}
 		}

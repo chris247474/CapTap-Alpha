@@ -15,9 +15,15 @@ namespace Capp2
 
 		public const string CAPPTUTORIALCOLOR_Green = "#004D26";//"#388E3C";
 		public const string CAPPTUTORIALCOLOR_Orange = "#DE6C00";//"#388E3C";
+		public const string MaterialDesignOrange = "#F57C00";
 		public const string CAPPTUTORIALCOLOR_Blue = "##2196F3";//"#388E3C";
 		public const string CAPPTUTORIALCOLOR_Purple = "##9C27B0";//"#388E3C";
 		public const string CAPPTUTORIALCOLOR_LIGHTORANGE = "#FFB24A";
+		public const string DARKBLUENAVBAR = "#1976D2";
+		public const string YELLOW = "#FFC107";
+
+		public const string FABNORMALCOLOR = "#FF9800";
+		public const string FABPRESSEDCOLOR = "#3F51B5";
 
 		public const string WARMCONTACTS = "warm";
 		public const string COLDCONTACTS = "cold";

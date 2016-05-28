@@ -9,11 +9,14 @@ namespace Capp2
 	{
 		public CapStats ()
 		{
-			var piedata = StatsHelper.CreatePieChartData (App.Database.GetCappStats ());
+			var piedata = StatsHelper.CreateChartData (App.Database.GetCappStats ());
+			StackLayout stack;
 
 			if (piedata.Count > 0) {
-				Content = new StackLayout{ 
+				stack = new StackLayout{ 
 					Orientation = StackOrientation.Vertical,
+					HorizontalOptions = LayoutOptions.FillAndExpand,
+					VerticalOptions = LayoutOptions.FillAndExpand,
 					Padding = new Thickness(20),
 					Children = {
 						UIBuilder.CreateEmptyStackSpace(),
@@ -24,12 +27,18 @@ namespace Capp2
 						}), "Stats"),
 
 						StatsHelper.CreatePieChart (piedata, 
-							"CAPP", "Values", "CAPP Ratio")
+							"CAPP", "Values", "CAPP Ratio"),
+						
+						UIBuilder.CreateEmptyStackSpace(),
+						StatsHelper.CreateSplineChart(StatsHelper.CreateChartData(App.Database.GetDailyYesCalls()),
+							"Dates", "Yes Calls", "Productivity"),
 					}
 				};
 			} else {
-				Content = new StackLayout{
+				stack = new StackLayout{
 					Orientation = StackOrientation.Vertical,
+					HorizontalOptions = LayoutOptions.FillAndExpand,
+					VerticalOptions = LayoutOptions.FillAndExpand,
 					Padding = new Thickness(20),
 					Children = {
 						UIBuilder.CreateEmptyStackSpace(),
@@ -60,6 +69,13 @@ namespace Capp2
 					}
 				};
 			}
+
+			Content = new ScrollView{
+				Orientation = ScrollOrientation.Vertical,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Content = stack
+			};
 		}
 
 		StackLayout CreateView(){

@@ -216,6 +216,8 @@ namespace Capp2
 				}
 			};
 		}
+
+
 		public static RelativeLayout AddFloatingActionButtonToViewWrapWithRelativeLayout(View view, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
 			var layout = new RelativeLayout ();
 			layout.VerticalOptions = LayoutOptions.FillAndExpand;
@@ -252,9 +254,9 @@ namespace Capp2
 				normalFab.Source = FileImageSource.FromFile (icon);
 			normalFab.Size = FabSize.Normal;
 			normalFab.HasShadow = true;
-			normalFab.NormalColor = NormalColor;
+			normalFab.NormalColor = NormalColor;//Color.FromHex(Values.MaterialDesignOrange);
 			normalFab.Opacity = 0.9;
-			normalFab.PressedColor = PressedColor;
+			normalFab.PressedColor = PressedColor;//Color.FromHex (Values.GOOGLEBLUE);
 
 			if (Device.OS == TargetPlatform.iOS) {
 				layout.Children.Add(

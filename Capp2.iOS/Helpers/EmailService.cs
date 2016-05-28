@@ -34,7 +34,7 @@ namespace Capp2.iOS
 				}
 
 				mailController = new MFMailComposeViewController ();
-				mailController.SetToRecipients (new string[]{"captapuserfeedback@gmail.com"});
+				//mailController.SetToRecipients (new string[]{"captapuserfeedback@gmail.com"});
 				mailController.SetSubject ("CapTap User Feedback");
 				mailController.SetMessageBody (body, false);
 

@@ -181,6 +181,9 @@
     <BundleResource Include="Resources\HowToUseTextTemplatesScreenshot.png" />
     <Compile Include="CustomRenderers\CarouselLayoutRenderer.cs" />
     <BundleResource Include="Resources\Play-LightGray.png" />
+    <BundleResource Include="Resources\dome.png" />
+    <BundleResource Include="Resources\dome%402x.png" />
+    <BundleResource Include="Resources\dome%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

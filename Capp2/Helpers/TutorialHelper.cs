@@ -53,7 +53,7 @@ namespace Capp2
 						HorizontalOptions = LayoutOptions.Center,
 						Padding = new Thickness(60),
 						Children = {
-							//UIBuilder.CreateEmptyStackSpace(),
+							UIBuilder.CreateEmptyStackSpace(),
 							InfoLabel,
 							UIBuilder.CreateEmptyStackSpace(),
 							UIBuilder.CreateTutorialVideoPickerView(new VideoChooserItem[]{
@@ -135,7 +135,7 @@ namespace Capp2
 					App.MasterDetailPage.Detail = App.NavPage;
 					App.NavPage.Navigation.PushAsync (new CAPP (Values.ALLPLAYLISTPARAM));
 					UserDialogs.Instance.HideLoading ();
-				}));
+				}), true, true);
 			} else {
 				Debug.WriteLine ("not shown in tutorial mode");
 
@@ -636,7 +636,8 @@ namespace Capp2
 			}));
 		}
 
-		public static async Task ResetContinueLabel(RelativeLayout layout, Command ContinueCommand, bool tipshownintutorial = true){
+		public static async Task ResetContinueLabel(RelativeLayout layout, Command ContinueCommand, 
+			bool tipshownintutorial = true, bool SetDoneLowerRight = false){
 			continuePressed = false;
 			if(tipshownintutorial)
 				layout.Children.Remove (DoneLabel);
@@ -654,10 +655,21 @@ namespace Capp2
 				})});
 			}
 
-			UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, DoneLabel,
-				Constraint.RelativeToParent((parent) =>  { return (continuePositionX); }),
-				Constraint.RelativeToParent((parent) =>  { return (continuePositionY) ; })
-			);
+			if (SetDoneLowerRight) {
+				UIBuilder.AddElementRelativeToViewonRelativeLayoutParent (layout, DoneLabel,
+					Constraint.RelativeToParent ((parent) => {
+						return parent.Width * 0.7;
+					}),
+					Constraint.RelativeToParent ((parent) => {
+						return parent.Height * 0.92;
+					})
+				);
+			} else {
+				UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, DoneLabel,
+					Constraint.RelativeToParent((parent) =>  { return (continuePositionX); }),
+					Constraint.RelativeToParent((parent) =>  { return (continuePositionY) ; })
+				);
+			}
 
 			DoneLabel.FadeTo (1);
 

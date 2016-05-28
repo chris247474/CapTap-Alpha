@@ -145,7 +145,7 @@ namespace Capp2
 			try{
 				if (importResult == Values.IMPORTCHOICEMANUAL)
 				{
-					await Navigation.PushAsync(new AddContactPage(this));
+					await Navigation.PushModalAsync(new AddContactPage(this));
 				}
 				else if (importResult == Values.IMPORTCHOICEGDRIVE)
 				{
@@ -289,7 +289,7 @@ namespace Capp2
 							lblContactsCount
 						}
 					};
-				})
+				}),
 			};
 			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
 				listView.HasUnevenRows = false;
@@ -693,6 +693,8 @@ namespace Capp2
 				SetupNotAutoCalling ();
 				
 				Debug.WriteLine ("Autocalling done");
+
+				NavigationHelper.ClearModals (this);
 				
 				MessagingCenter.Send ("", Values.READYFOREXTRATIPS);
 			}

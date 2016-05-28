@@ -41,7 +41,7 @@ namespace Capp2
 		public static int DeviceImageCtr{ get; set;}
 		public static bool AppJustLaunched;
 		public static SettingsViewModel SettingsHelper = new SettingsViewModel ();
-		public static bool ImageImportingStartedInBackground = false;
+		public static bool ImageImportingDone = false;
 		public static bool MadeForNuskin = false;
 
 		public App ()
@@ -57,11 +57,23 @@ namespace Capp2
 			contactFuncs = new Util ();
 			DefaultNamelist = Settings.DefaultNamelistSettings;
 
+			SetInstallDateForStatsPageReference (); 
+
 			SetupGradientBackground ();
 
 			await contactFuncs.loadDeviceContactsIntoDBSingleTransaction (false);
 			CheckForMeetingsTodayTomorrowThenSendSMSToConfirm ();
 		}
+
+		public void SetInstallDateForStatsPageReference(){
+			if (Settings.InstallDateSettings == DateTime.MinValue) {
+				Settings.InstallDateSettings = DateTime.Today.Date;
+				Debug.WriteLine ("Install Date: {0}", Settings.InstallDateSettings);
+			} else {
+				Debug.WriteLine ("Install Date already set");
+			}
+		}
+
 		public static async Task CheckForMeetingsTodayTomorrowThenSendSMSToConfirm(){
 			try {
 				//returns true, then device calendar has at least one calendar account
