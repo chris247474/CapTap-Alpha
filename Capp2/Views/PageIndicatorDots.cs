@@ -125,7 +125,7 @@ namespace Capp2
 		void SelectedItemChanged () {
 
 			var selectedIndex = ItemsSource.IndexOf (SelectedItem);
-			var pagerIndicators = Children.Cast<Button> ().ToList ();
+			var pagerIndicators = Children.Cast<Button> ().ToList<Button> ();
 
 			foreach(var pi in pagerIndicators)
 			{

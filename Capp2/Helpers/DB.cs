@@ -34,12 +34,12 @@ namespace Capp2
 			if (playlist == "All") {
 				//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
 				list = (from x in (database.Table<ContactData> ().OrderBy (x => x.LastName))
-				        select x).ToList ();
+					select x).ToList<ContactData> ();
 				App.lastIndex = list.Count+1;
 			} else {
 				try{
 					list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist == playlist).OrderBy (x => x.LastName))
-						select x).ToList ();
+						select x).ToList<ContactData> ();
 					App.lastIndex = list.Count+1;
 				}catch(Exception e){
 					Debug.WriteLine (e.Message+" --------------------------- EMPTYEXCEPTION");
@@ -47,13 +47,29 @@ namespace Capp2
 					list = null;
 				}
 			}
-			foreach(ContactData c in list){
+
+			var listarr = list.ToArray();
+
+			for(int c = 0;c < listarr.Length;c++){
+				var firstinitial = listarr[c].FirstName.ToCharArray()[0];
+				var secondinitial = listarr[c].LastName.ToCharArray()[0];
+				listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
+
+
+				listarr[c].Number = App.contactFuncs.MakeDBContactCallable (listarr[c].Number, false);
+				listarr[c].Number2 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number2, false);
+				listarr[c].Number3 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number3, false);
+				listarr[c].Number4 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number4, false);
+				listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number5, false);
+			}
+
+			/*foreach(ContactData c in list){
 				c.Number = App.contactFuncs.MakeDBContactCallable (c.Number, false);
 				c.Number2 = App.contactFuncs.MakeDBContactCallable (c.Number2, false);
 				c.Number3 = App.contactFuncs.MakeDBContactCallable (c.Number3, false);
 				c.Number4 = App.contactFuncs.MakeDBContactCallable (c.Number4, false);
 				c.Number5 = App.contactFuncs.MakeDBContactCallable (c.Number5, false);
-			}
+			}*/
 			return list;
 		}
         
@@ -247,17 +263,17 @@ namespace Capp2
 				if (playlist == Values.ALLPLAYLISTPARAM) {
 					//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
 					list = (from x in (database.Table<ContactData> ().OrderBy (x => x.LastName))
-						select x).ToList ();
+						select x).ToList<ContactData> ();
 					App.lastIndex = list.Count+1;
 				}else if(playlist == Values.TODAYSCALLS){
 					//all contacts regardless of playlist, marked for callback today
 					list = (from x in (database.Table<ContactData> ().Where (c => c.NextCall == DateTime.Now.Date).OrderBy (x => x.LastName))
-						select x).ToList ();
+						select x).ToList<ContactData> ();
 					App.lastIndex = list.Count+1;
 				} else {
 					try{
 						list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist == playlist).OrderBy (x => x.LastName))
-							select x).ToList ();
+							select x).ToList<ContactData> ();
 						App.lastIndex = list.Count+1;
 					}catch(Exception e){
 						Debug.WriteLine (e.Message+" --------------------------- EMPTYEXCEPTION");
@@ -266,15 +282,23 @@ namespace Capp2
 					}
 				}
 
-				for(int c = 0;c < list.Count;c++){
-					list.ElementAt (c).Number = App.contactFuncs.MakeDBContactCallable(list.ElementAt (c).Number, false);
+				var listarr = list.ToArray();
+
+				for(int c = 0;c < listarr.Length;c++){
+					//list.ElementAt (c).Number = App.contactFuncs.MakeDBContactCallable(list.ElementAt (c).Number, false);
+					listarr[c].Number = App.contactFuncs.MakeDBContactCallable(listarr[c].Number, false);
+					var firstinitial = listarr[c].FirstName.ToCharArray()[0];
+					var secondinitial = listarr[c].LastName.ToCharArray()[0];
+					listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
+
 				}
+
 
 				var groupedData =
 					list.OrderBy(p => p.LastName)
 						.GroupBy(p => p.LastName[0].ToString())
 						.Select(p => new Grouping<string, ContactData>(p))
-						.ToList();
+						.ToList<Grouping<string, ContactData>>();
 
 				return groupedData;
 			}catch(Exception e){
@@ -354,11 +378,18 @@ namespace Capp2
         {
             Debug.WriteLine("in playlist GetItems()");
             int ctr = 0;
-            List<Playlist> list = (from i in (database.Table<Playlist>().OrderBy(i => i.PlaylistName)) select i).ToList();
+			List<Playlist> list = (from i in (database.Table<Playlist>().OrderBy(i => i.PlaylistName)) select i).ToList<Playlist>();
             foreach (Playlist c in list)
             {
                 ctr++;
                 Debug.WriteLine(c.PlaylistName);
+				if (string.IsNullOrWhiteSpace (c.Icon)) {
+					if (string.Equals (c.PlaylistName, Values.ALLPLAYLISTPARAM)) {
+						c.Icon = "people.png";
+					} else if(string.Equals(c.PlaylistName, Values.TODAYSCALLS)){
+						c.Icon = "todo.png";
+					}
+				}
             }
             App.lastIndex = ctr + 1;
             Debug.WriteLine(App.lastIndex + ": lastIndex");

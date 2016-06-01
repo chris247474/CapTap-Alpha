@@ -9,7 +9,16 @@ namespace Capp2
 	{
 		public CapStats ()
 		{
-			var piedata = StatsHelper.CreateChartData (App.Database.GetCappStats ());
+			var piedata = StatsHelper.CreateChartData (
+				App.Database.GetCappStats ()
+				/*new ChartData[]{
+				 * //tests
+					new ChartData{Name = "Called", Value = 10},
+					new ChartData{Name = "Appointed", Value = 5},
+					new ChartData{Name = "Presented", Value = 10},
+					new ChartData{Name = "Purchased", Value = 5},
+				}*/
+			);
 			StackLayout stack;
 
 			if (piedata.Count > 0) {
@@ -29,9 +38,17 @@ namespace Capp2
 						StatsHelper.CreatePieChart (piedata, 
 							"CAPP", "Values", "CAPP Ratio"),
 						
-						UIBuilder.CreateEmptyStackSpace(),
-						StatsHelper.CreateSplineChart(StatsHelper.CreateChartData(App.Database.GetDailyYesCalls()),
-							"Dates", "Yes Calls", "Productivity"),
+						/*UIBuilder.CreateEmptyStackSpace(),
+						StatsHelper.CreateSplineChart(StatsHelper.CreateChartData(
+							//App.Database.GetDailyYesCalls()
+							new ChartData[]{
+								new ChartData{Name = "Date1", Value = 10},
+								new ChartData{Name = "Date2", Value = 5},
+								new ChartData{Name = "Date3", Value = 10},
+								new ChartData{Name = "Date4", Value = 5},
+							}
+						), "Dates", "Yes Calls", "Productivity"),*/
+
 					}
 				};
 			} else {

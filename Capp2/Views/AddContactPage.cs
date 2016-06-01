@@ -24,6 +24,7 @@ namespace Capp2
 		dome = new Image();
 		RelativeLayout relativeLayout = new RelativeLayout ();
 		double layoutyposition;
+		string imageColor;
 
 		public AddContactPage (CAPP capp, ContactData contactDuplicate = null)
 		{
@@ -37,7 +38,7 @@ namespace Capp2
 			CreateUIElements ();
 			CreateLayouts ();
 
-			Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "CheckmarkWhite500.png", 
+			Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "Checkmark.png", 
 				new Command(() => {
 					Add();
 				}), Color.FromHex(Values.YELLOW), Color.FromHex(Values.PURPLE));
@@ -53,6 +54,8 @@ namespace Capp2
 		}
 
 		void CreateUIElements(){
+			imageColor = UIBuilder.ChooseRandomProfilePicBackground (App.ProfileBackground);
+
 
 			firstNameLabel = new Label { Text = "First Name" };
 			firstNameEntry = new Entry ();
@@ -80,11 +83,11 @@ namespace Capp2
 			affEntry.Unfocused += SlideBackUIOnKeyboardUnfocus;
 
 			backgroundImage = new Image () {
-				Source = new FileImageSource () { File = "" },
+				Source = imageColor,
 				Aspect = Aspect.AspectFill,
 				IsOpaque = true,
 				Opacity = 0.8,
-				BackgroundColor = Color.FromHex(Values.GOOGLEBLUE),
+				//BackgroundColor = Color.FromHex(Values.GOOGLEBLUE),
 			};
 
 			dome = new Image () {
@@ -93,10 +96,10 @@ namespace Capp2
 			};
 
 			shader = new BoxView () {
-				Color = Color.Black.MultiplyAlpha(.5),//FromHex(Values.DARKBLUENAVBAR),
+				Color = Color.Transparent.MultiplyAlpha(0.9),
 			};
 
-			ContactPic = UIBuilder.CreateTappableCircleImage ("placeholder-contact-male.png", 
+			ContactPic = UIBuilder.CreateTappableCircleImage (imageColor, 
 				LayoutOptions.Fill, Aspect.Fill, new Command(()=>{}));
 			ContactPic.BackgroundColor = Color.White;
 
@@ -212,6 +215,8 @@ namespace Capp2
 					Number = numberEntry.Text,
 					Playlist = this.playlist,
 					Aff = affEntry.Text,
+					PicStringBase64 = imageColor,
+					LargePic = imageColor,
 				};
 
 				//check if added contact details already exists in playlist

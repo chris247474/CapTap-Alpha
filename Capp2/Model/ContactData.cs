@@ -65,16 +65,19 @@ namespace Capp2
 		public string AzureID{ get; set;}
 
 		[Column("PicStringBase64")]
-		public string PicStringBase64{ get; set;} = "placeholder-contact-male.png";
+		public string PicStringBase64 { get; set;} = UIBuilder.ChooseRandomProfilePicBackground(App.ProfileBackground);//"profile-blue.png";
 
 		[Column("LargePic")]
-		public string LargePic{ get; set;} = "placeholder-contact-male.png";
+		public string LargePic{ get; set;} = UIBuilder.ChooseRandomProfilePicBackground(App.ProfileBackground);
 
 		[Column("IsConfirmedTomorrow")]
 		public bool IsConfirmedTomorrow{ get; set;} = false;
 
 		[Column("IsConfirmedToday")]
 		public bool IsConfirmedToday{ get; set;} = false;
+
+		[Column("Initials")]
+		public string Initials{ get; set;}
 	}
 }
 

@@ -93,7 +93,7 @@ namespace Capp2.iOS.Helpers
 				App.DeviceImageCtr = 0;
 				Console.WriteLine("Done w all images, {0}", App.DeviceImageCtr);
 				App.ImageImportingDone = true;
-				return contactListArr.ToList();
+				return contactListArr.ToList<ContactData>();
 			}catch(Exception e){
 				Console.WriteLine ("PhoneContacts.GetProfilePicPerPerson() iOS error: {0}", e.Message);
 			}

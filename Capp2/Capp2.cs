@@ -43,6 +43,7 @@ namespace Capp2
 		public static SettingsViewModel SettingsHelper = new SettingsViewModel ();
 		public static bool ImageImportingDone = false;
 		public static bool MadeForNuskin = false;
+		public static string[] ProfileBackground;
 
 		public App ()
 		{			
@@ -56,6 +57,21 @@ namespace Capp2
             AutoCallStatus = false;
 			contactFuncs = new Util ();
 			DefaultNamelist = Settings.DefaultNamelistSettings;
+
+			ProfileBackground = new string[]{ 
+				"profile-orange.png",
+				"profile-red.png",
+				"profile-orange.png",
+				"profile-green.png",
+				"profile-orange.png",
+				"profile-blue.png",
+				"profile-orange.png",
+				"profile-red.png",
+				"profile-purple.png",
+				"profile-orange.png",
+				"profile-red.png",
+				"profile-orange.png",
+			};
 
 			SetInstallDateForStatsPageReference (); 
 

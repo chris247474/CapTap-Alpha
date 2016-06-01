@@ -19,7 +19,7 @@ namespace Capp2
 		public IEnumerable<Playlist> GetItems () {
 			Debug.WriteLine ("in playlist GetItems()");
 			int ctr = 0;
-			List<Playlist> list = (from i in (database.Table<Playlist>().OrderBy(i => i.PlaylistName)) select i).ToList(); 
+			List<Playlist> list = (from i in (database.Table<Playlist>().OrderBy(i => i.PlaylistName)) select i).ToList<Playlist>(); 
 			foreach (Playlist c in list){
 				ctr++; 
 				Debug.WriteLine (c.PlaylistName);

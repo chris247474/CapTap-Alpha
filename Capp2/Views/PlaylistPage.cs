@@ -48,14 +48,12 @@ namespace Capp2
 							Padding = new Thickness(0, 10, 0, 0),
 							Children = {searchBar}
 						},
-						UIBuilder.CreateEmptyStackSpace(),
-						UIBuilder.CreateEmptyStackSpace(),
                         new StackLayout{
+							VerticalOptions = LayoutOptions.Start,
                             Padding = new Thickness(7,0,0,0),
-							VerticalOptions = LayoutOptions.CenterAndExpand,
                             Children = {listView}
-                    }
-                }
+	                    }
+	                }
                 };
             } else if (Device.OS == TargetPlatform.Android) {
                 stack = new StackLayout
@@ -66,6 +64,7 @@ namespace Capp2
 						UIBuilder.CreateEmptyStackSpace(),
 						searchBar,
                         new StackLayout{
+							VerticalOptions = LayoutOptions.Start,
                             Padding = new Thickness(7,0,0,0),
                             Children = {listView}
                     }
@@ -73,8 +72,7 @@ namespace Capp2
                 };
             }
 
-			/*AddFloatingActionButtonToStackLayout*/
-			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "", new Command (async () =>
+			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "Plus.png", new Command (async () =>
 				{
 					Util.AddNamelist(this);
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
@@ -86,12 +84,12 @@ namespace Capp2
 			listView = new ListView {
 				BackgroundColor = Color.Transparent,
 				ItemsSource = App.Database.GetPlaylistItems(),
-				SeparatorColor = Color.Transparent,//this.BackgroundColor,
+				SeparatorColor = Color.Transparent,//FromHex("#E1E1E1"),//this.BackgroundColor,
 				ItemTemplate = new DataTemplate(() =>
 					{
 						return new PlaylistViewCell(this);
 					}),
-				VerticalOptions = LayoutOptions.CenterAndExpand,
+				VerticalOptions = LayoutOptions.Start,
 			};
 			listView.ItemSelected += (sender, e) => {
 				//UserDialogs.Instance.ShowLoading("So many contacts...");
@@ -151,12 +149,33 @@ namespace Capp2
 	{
 		public PlaylistViewCell (PlaylistPage page)
 		{
-
+			this.Height = this.RenderHeight * 1.5;
 			Label playlistLabel = new Label();
 			playlistLabel.SetBinding(Label.TextProperty, "PlaylistName");//"Name" binds directly to the ContactData.Name property
-			playlistLabel.HorizontalTextAlignment = TextAlignment.Center;
-			playlistLabel.HorizontalOptions = LayoutOptions.CenterAndExpand;
+			playlistLabel.HorizontalTextAlignment = TextAlignment.Start;
+			playlistLabel.HorizontalOptions = LayoutOptions.StartAndExpand;
 			playlistLabel.HeightRequest = playlistLabel.Height * 2;
+			playlistLabel.FontFamily = Device.OnPlatform ("SFCompact", "sans-serif-black", null);
+			playlistLabel.FontSize = playlistLabel.FontSize * 1.2;
+			playlistLabel.TextColor = Color.FromHex ("#797979");
+			//playlistLabel.FontAttributes = FontAttributes.Bold;
+			//playlistLabel.SetBinding (Label.TextColorProperty, "TextColor");
+
+			Image nextImage = new Image{ 
+				Source = FileImageSource.FromFile ("NextArrowBlue.png"),
+				Aspect = Aspect.AspectFit,
+				HorizontalOptions = LayoutOptions.StartAndExpand,
+				//HeightRequest = playlistLabel.FontSize *1.5,
+				//WidthRequest = playlistLabel.FontSize *1.5,
+			};
+			Image WarmCold = new Image{ 
+				Source = "",//FileImageSource.FromFile ("people.png"),
+				Aspect = Aspect.Fill,
+				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				//HeightRequest = playlistLabel.FontSize *1.5,
+				//WidthRequest = playlistLabel.FontSize *1.5,
+			};
+			WarmCold.SetBinding (Image.SourceProperty, "Icon");
 
 			var EditAction = new MenuItem { Text = "Edit" };
 			EditAction.SetBinding (MenuItem.CommandParameterProperty, new Binding ("."));
@@ -176,9 +195,27 @@ namespace Capp2
 
 			View = new StackLayout {
 				Orientation = StackOrientation.Horizontal,
-				HorizontalOptions = LayoutOptions.CenterAndExpand,
+				HorizontalOptions = LayoutOptions.StartAndExpand,
 				Padding = new Thickness (0, 5, 5, 15),
-				Children = { playlistLabel }
+				Children = { 
+					new StackLayout{
+						Orientation = StackOrientation.Horizontal,
+						HorizontalOptions = LayoutOptions.StartAndExpand,
+						Children = {
+							WarmCold,
+							new StackLayout{
+								HorizontalOptions = LayoutOptions.EndAndExpand,
+								Children = { new Label{WidthRequest = 20} }
+							},
+							playlistLabel
+						}
+					},
+					new StackLayout{
+						HorizontalOptions = LayoutOptions.End,
+						VerticalOptions = LayoutOptions.Center,
+						Children = {nextImage}
+					}
+				}
 			};
 
 			ContextActions.Add(EditAction);

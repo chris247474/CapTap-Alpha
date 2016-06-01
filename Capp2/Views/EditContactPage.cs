@@ -33,10 +33,10 @@ namespace Capp2
 
 			CreateLayouts (contact);
 
-			this.Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "CheckmarkWhite500.png", 
+			this.Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "Edit.png", 
 				new Command(() => {
 					SwitchEditViewMode(page, contact);
-				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE));
+				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE), "Checkmark.png");
 
 			UIAnimationHelper.FlyDown (relativeLayout);
 		}
@@ -56,7 +56,7 @@ namespace Capp2
 				})
 			);
 
-			relativeLayout.Children.Add (
+			/*relativeLayout.Children.Add (
 				shader,
 				Constraint.Constant (0),
 				Constraint.Constant (0),
@@ -66,7 +66,7 @@ namespace Capp2
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Height * .4;
 				})
-			);
+			);*/
 
 			relativeLayout.Children.Add (
 				dome,
@@ -95,6 +95,17 @@ namespace Capp2
 					return parent.Width * .5;
 				})
 			);
+			bool drawinitials = false;
+			for (int c = 0; c < App.ProfileBackground.Length; c++) {
+				if (string.Equals (contact.LargePic, App.ProfileBackground [c])) {
+					Debug.WriteLine ("LargePic: {0}, placeholder {1}: {2}", contact.LargePic, c, App.ProfileBackground[c]);
+					drawinitials = true;
+				}
+			}
+			Debug.WriteLine ("draw initials: {0}", drawinitials);
+			if (drawinitials) {
+				UIBuilder.PlaceInitialsTextOnImage (relativeLayout, details.name.FontSize, ContactPic, contact);
+			}
 
 			relativeLayout.Children.Add (
 				MainStack,
@@ -151,12 +162,13 @@ namespace Capp2
 			BindingContext = contact;
 
 			backgroundImage = new Image () {
-				Source = new FileImageSource () { File = "" },
+				//Source = ContactPic.Source,
 				Aspect = Aspect.AspectFill,
 				IsOpaque = true,
 				Opacity = 0.8,
-				BackgroundColor = Color.FromHex(Values.GOOGLEBLUE),
+				//BackgroundColor = Color.FromHex(Values.GOOGLEBLUE),
 			};
+			backgroundImage.SetBinding(Image.SourceProperty, new Xamarin.Forms.Binding{Path = "LargePic"});
 
 			dome = new Image () {
 				Aspect = Aspect.AspectFill,
@@ -164,7 +176,8 @@ namespace Capp2
 			};
 
 			shader = new BoxView () {
-				Color = Color.Black.MultiplyAlpha(.5),//FromHex(Values.DARKBLUENAVBAR),
+				Color = Color.Black.MultiplyAlpha(0.5),
+					
 			};
 
 			ContactPic = UIBuilder.CreateTappableCircleImage ("", LayoutOptions.Fill, Aspect.Fill, new Command(()=>{}));

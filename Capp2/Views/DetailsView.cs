@@ -7,11 +7,13 @@ namespace Capp2
 {
 	public class DetailsView : ContentView
 	{
+		public Label name;
+
 		public DetailsView (ContactData contact)
 		{
 			BindingContext = contact;
 
-			var name = new Label () {
+			name = new Label () {
 				Text = contact.Name,
 				FontSize = 20,
 				FontFamily = Device.OnPlatform("HelveticaNeue-Bold","sans-serif-black",null),

@@ -4,6 +4,10 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const string WARM = "Warm";
+		public const string COLD = "Cold";
+		public const string SEMIWARM = "Semi Warm";
+
 		public const string DISABLEAUTOCALLTOUCHEVENT = "disableautocalltouchevent";
 		public const string ENABLEABLEAUTOCALLTOUCHEVENT = "enableautocalltouchevent";
 
@@ -17,7 +21,7 @@ namespace Capp2
 		public const string CAPPTUTORIALCOLOR_Orange = "#DE6C00";//"#388E3C";
 		public const string MaterialDesignOrange = "#F57C00";
 		public const string CAPPTUTORIALCOLOR_Blue = "##2196F3";//"#388E3C";
-		public const string CAPPTUTORIALCOLOR_Purple = "##9C27B0";//"#388E3C";
+		public const string CAPPTUTORIALCOLOR_Purple = "#9C27B0";//"#388E3C";
 		public const string CAPPTUTORIALCOLOR_LIGHTORANGE = "#FFB24A";
 		public const string DARKBLUENAVBAR = "#1976D2";
 		public const string YELLOW = "#FFC107";

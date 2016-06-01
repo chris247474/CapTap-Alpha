@@ -35,7 +35,7 @@ namespace Capp2
 		public ContactViewModel (string fname, string lname, IQueryable<Plugin.Contacts.Abstractions.Phone> phone, string aff, string playlist)
 		{
 			//required minimim info
-			this.Contact = new Contact{FirstName = fname, LastName = lname, Phones = phone.ToList()};
+			this.Contact = new Contact{FirstName = fname, LastName = lname, Phones = phone.ToList<Phone>()};
 			this.Playlist = playlist;
 		}
 		public ContactViewModel (string fname, string lname, string number, string aff, string playlist/*, CAPPDates cappDates*/)

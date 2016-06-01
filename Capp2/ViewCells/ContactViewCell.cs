@@ -12,40 +12,47 @@ namespace Capp2
 	{
 		public ContactData personCalled{ set; get;}
 		TapGestureRecognizer tapGestureRecognizer;
-		Label nameLabel;
+		Label nameLabel, firstnameLabel, lastnameLabel;
 		Label playlistLabel;
 		Image phone;
 		CheckBox checkbox;
 		CircleImage circleImage;
+		RelativeLayout layout = new RelativeLayout();
 
 		public ContactViewCell (CAPP page)
 		{
-			this.Height = 56;
-			this.Height *= 1.3;
+			this.Height = RenderHeight*1.9;
 
 			nameLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				HorizontalTextAlignment = TextAlignment.Start,
 			};
-			nameLabel.SetBinding(Label.TextProperty, "Name");//"Name" links directly to the ContactData.Name property
+			nameLabel.SetBinding(Label.TextProperty, "Name");
+
+			firstnameLabel = new Label();
+			firstnameLabel.SetBinding (Label.TextProperty, "FirstName");
+			lastnameLabel = new Label();
+			lastnameLabel.SetBinding (Label.TextProperty, "LastName");
 
 			circleImage = new CircleImage{
 				HorizontalOptions = LayoutOptions.Fill,
 				Aspect = Aspect.AspectFill,
+				//BackgroundColor = Color.FromHex(Values.YELLOW),
 			};
 			circleImage.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
 			playlistLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), 
 				TextColor = Color.Green,
-				VerticalOptions = LayoutOptions.Center,
+				VerticalOptions = LayoutOptions.Start,
 				HorizontalTextAlignment = TextAlignment.Start,
 			};
 			playlistLabel.SetBinding(Label.TextProperty, "Playlist");//"Playlist" links directly to the ContactData.Name property
 
 			checkbox = new CheckBox{ 
-				HorizontalOptions = LayoutOptions.Center
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
 			};
             checkbox.IsEnabled = true;
             checkbox.IsVisible = true;
@@ -117,15 +124,38 @@ namespace Capp2
 				personCalled = (ContactData)mi.BindingContext;
 				page.Navigation.PushModalAsync(new DatePage(Values.PURCHASED, personCalled, false));
 			};
+				
+			layout.Children.Add(
+				createView (page.playlist),
+				xConstraint: Constraint.Constant(0),
+				yConstraint: Constraint.Constant(0),
+				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
+				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
+			); 
 
-			View = createView (page.playlist);
+			var label = new Label{
+				FontSize = nameLabel.FontSize,
+				BackgroundColor = Color.Transparent,
+				TextColor = Color.White,
+				//FontAttributes = FontAttributes.Bold,
+				HorizontalOptions = LayoutOptions.Center,
+			};
+			label.Opacity = label.Opacity / 1.5;
+			label.SetBinding (Label.TextProperty, "Initials");
+
+			layout.Children.Add(
+				label,
+				xConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.58)),
+				yConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.37)
+			); 
+
+			View = layout;
 
 			// add context actions to the cell
 			ContextActions.Add(nextAction);
 			ContextActions.Add (appointedAction);
 			ContextActions.Add (presentedAction);
 			ContextActions.Add (purchasedAction);
-
 
 		}
 		protected override void OnBindingContextChanged ()
@@ -149,7 +179,7 @@ namespace Capp2
 							Orientation = StackOrientation.Horizontal,
 							HorizontalOptions = LayoutOptions.StartAndExpand,
 							Children = {
-								circleImage, 
+								circleImage,
 								new StackLayout {
 									Orientation = StackOrientation.Vertical,
 									Children = { nameLabel, playlistLabel }
@@ -169,8 +199,9 @@ namespace Capp2
 							Orientation = StackOrientation.Horizontal,
 							HorizontalOptions = LayoutOptions.StartAndExpand,
 							Children = {
-								circleImage, 
+								circleImage,
 								new StackLayout{
+									//VerticalOptions = LayoutOptions.Center,
 									Children = {
 										nameLabel
 									}
@@ -211,8 +242,9 @@ namespace Capp2
 							Orientation = StackOrientation.Horizontal,
 							HorizontalOptions = LayoutOptions.StartAndExpand,
 							Children = {
-								circleImage, 
+								circleImage,
 								new StackLayout{
+									//VerticalOptions = LayoutOptions.Center,
 									Children = {
 										nameLabel
 									}

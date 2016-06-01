@@ -268,7 +268,9 @@ namespace Capp2
 		}
 
 		View CreateView(string playlist){
-			return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
+			var layout = new RelativeLayout ();
+
+			var content = UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
 				
 				new StackLayout{
 					Orientation = StackOrientation.Horizontal,
@@ -280,9 +282,37 @@ namespace Capp2
 					Children = {checkbox}
 				}
 			);
+
+			var label = new Label{
+				FontSize = nameLabel.FontSize,
+				BackgroundColor = Color.Transparent,
+				TextColor = Color.White,
+				//FontAttributes = FontAttributes.Bold,
+				HorizontalOptions = LayoutOptions.Center,
+			};
+			label.Opacity = label.Opacity / 1.5;
+			label.SetBinding (Label.TextProperty, "Initials");
+
+			layout.Children.Add (
+				content,
+				xConstraint: Constraint.Constant(0),
+				yConstraint: Constraint.Constant(0),
+				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
+				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
+			);
+
+			layout.Children.Add(
+				label,
+				xConstraint: Constraint.RelativeToParent(parent => (ContactPic.Width*0.59)),
+				yConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.37)
+			); 
+
+			return layout;
 		}
 		void CreateUIElements(){
-			this.Height = 56;
+			//this.Height = 56;
+			this.Height = RenderHeight*1.8;
+
 			ContactPic = UIBuilder.CreateTappableCircleImage ("", LayoutOptions.CenterAndExpand, 
 				Aspect.AspectFit, new Command (() => {
 					
@@ -312,6 +342,7 @@ namespace Capp2
 				Debug.WriteLine (personCalled.Name+"' selected value is "+personCalled.IsSelected.ToString ());
 				App.Database.UpdateItem(personCalled);
 			};
+
 
 		}
 	}

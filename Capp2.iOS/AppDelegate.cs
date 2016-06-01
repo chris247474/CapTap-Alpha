@@ -120,7 +120,7 @@ namespace Capp2.iOS
 				new Task (async () => {
 					PhoneContacts PhoneFunc = new PhoneContacts();
 
-					await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList());
+					await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList<ContactData>());
 
 					UIApplication.SharedApplication.EndBackgroundTask(taskID);
 				}).Start();

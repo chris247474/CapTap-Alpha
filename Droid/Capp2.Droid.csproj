@@ -317,4 +317,10 @@
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxxhdpi\ic_trending_up_deep_orange_500_24dp.png" />
   </ItemGroup>
+  <ItemGroup>
+    <XamarinComponentReference Include="googleplayservices-ads">
+      <Version>29.0.0.1</Version>
+      <Visible>False</Visible>
+    </XamarinComponentReference>
+  </ItemGroup>
 </Project>

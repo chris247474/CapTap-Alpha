@@ -76,7 +76,8 @@ namespace Capp2
 					if (showtip) {
 						Debug.WriteLine ("created new Capp as modal");
 
-						CappModal cappmodal = new CappModal (Values.ALLPLAYLISTPARAM, "", PreLoadedGroupedList, PreloadedList.ToList (), 
+						CappModal cappmodal = new CappModal (Values.ALLPLAYLISTPARAM, "", 
+							PreLoadedGroupedList, PreloadedList.ToList<ContactData> (), 
 							                      new List<ContactData> (), true);
 						await TutorialHelper.ShowTip_Welcome (cappmodal, "Welcome to CapTap!!!", Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange));
 					}
@@ -133,7 +134,8 @@ namespace Capp2
 					};
 			}
 
-			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "", new Command (async () =>
+			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "", 
+				new Command (async () =>
 				{
 					AutoCall();
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
@@ -155,12 +157,13 @@ namespace Capp2
 				}else
 				{
 					Debug.WriteLine("Importing from {0}", importResult);
-					var list = App.Database.GetItems(importResult).ToList();
+					var list = App.Database.GetItems(importResult).ToList<ContactData>();
 					if(list.Count == 0){
 						AlertHelper.Alert(this, "Empty Namelist", importResult+" has no contacts", "OK");
 					}else{
-						await Navigation.PushModalAsync(new CappModal(importResult, this.playlist, App.Database.GetGroupedItems(importResult), 
-							list, App.Database.GetItems(this.playlist).ToList()));
+						await Navigation.PushModalAsync(new CappModal(importResult, 
+							this.playlist, App.Database.GetGroupedItems(importResult), 
+							list, App.Database.GetItems(this.playlist).ToList<ContactData>()));
 					}
 				}
 			}catch(Exception){}
@@ -184,8 +187,6 @@ namespace Capp2
 			searchBar.Focused += (object sender, FocusEventArgs e) => {
 				ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RecycleElement);
 			};
-			//searchBar.Unfocused += (object sender, FocusEventArgs e) => {
-			//};
 			lblContactsCount = new Label{
 				Text = App.Database.GetItems (playlist).Count().ToString()+" Contacts",
 				FontAttributes = FontAttributes.Bold,
@@ -205,21 +206,10 @@ namespace Capp2
 
 			CreateTBIs ();
 
-			//listViewRecycle = CreateListView (ListViewCachingStrategy.RecycleElement);
-			//listViewRetain = CreateListView (ListViewCachingStrategy.RetainElement);
 			CreateListView (ListViewCachingStrategy.RetainElement);
 		}
 
 		public async Task AutoCall(){
-			/*await UIBuilder.ShowConfirmAsync (new Command (async () => {
-				
-			}));*/
-
-			/*var result = await UserDialogs.Instance.ActionSheetAsync ("Start Calling?", "AutoCall", "Nvm", null);
-			if(string.Equals(result.Text, "AutoCall"){
-				
-			}*/
-
 			if (App.Database.GetItems (playlist).Count () == 0) {
 				AlertHelper.Alert (string.Format ("{0} has no contacts to call", playlist), "");
 			} else {
@@ -551,7 +541,7 @@ namespace Capp2
 			});
 
 			MessagingCenter.Subscribe<string>(this, Values.DONEWAUTOCALLTIP, (args) =>{ 
-				TutorialHelper.ShowTip_HowToGoBackToPlaylistPage(this, "Let's start by making a new namelist", 
+				TutorialHelper.ShowTip_HowToGoBackToPlaylistPage(this, "Let's start by making a new namelist\nTap 'Namelists' up here", 
 					Color.FromHex(Values.CAPPTUTORIALCOLOR_Blue));
 				
 			});
@@ -686,7 +676,7 @@ namespace Capp2
 		void PrepareForAutoCall(){
 			AutoCallCounter = 0;
 			AutoCallContinue = true;
-			AutoCallList = App.Database.GetItems(playlist).ToList ();
+			AutoCallList = App.Database.GetItems(playlist).ToList<ContactData> ();
         }
 		void StartContinueAutoCall(){
 			if(AutoCallCounter >= AutoCallList.Count){

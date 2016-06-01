@@ -11,6 +11,9 @@ namespace Capp2
 
 		[Column("PlaylistName"), NotNull, Unique]
 		public string PlaylistName { get; set; }
+
+		[Column("Icon")]
+		public string Icon { get; set; } = "people.png";
 	}
 }
 

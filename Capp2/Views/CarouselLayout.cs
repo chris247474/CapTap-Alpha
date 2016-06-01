@@ -160,7 +160,7 @@ namespace Capp2
 
 			SelectedIndex = Children
 				.Select (c => c.BindingContext)
-				.ToList ()
+				.ToList<object> ()
 				.IndexOf (SelectedItem);
 		}
 	}

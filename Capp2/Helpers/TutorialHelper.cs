@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using FAB.Forms;
 using Acr.UserDialogs;
+using System.Collections.Generic;
 
 namespace Capp2
 {
@@ -56,7 +57,7 @@ namespace Capp2
 							UIBuilder.CreateEmptyStackSpace(),
 							InfoLabel,
 							UIBuilder.CreateEmptyStackSpace(),
-							UIBuilder.CreateTutorialVideoPickerView(new VideoChooserItem[]{
+							UIBuilder./*CreateCarouselView*/CreateTutorialVideoPickerView(new VideoChooserItem[]/*List<VideoChooserItem>*/{
 								new VideoChooserItem{
 									ImagePath = "HowToCappScreenshot.png",
 									LabelText = "Where'd my CAPP Sheet go?",
@@ -207,7 +208,7 @@ namespace Capp2
 				})
 			);
 
-			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, new Command(async () => {
+			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "", new Command(async () => {
 				layout.Children.Remove(content.Content);
 				layout.Children.Remove(fab);
 				ReadyForAutoCallTipDone = true;
@@ -415,7 +416,7 @@ namespace Capp2
 
 			Debug.WriteLine ("Created fab");
 
-			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, new Command(async () => {
+			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "Plus.png", new Command(async () => {
 				layout.Children.Remove(content.Content);
 				layout.Children.Remove(fab);
 				TutorialHelper.HowToMakeNamelistDone = true;
@@ -479,7 +480,7 @@ namespace Capp2
 			);
 
 			while (true) {
-				await UIAnimationHelper.ZoomUnZoomElement (img, 1.3, 1000, true);
+				await UIAnimationHelper.ZoomUnZoomElement (img, 1.6, 1000, true);
 				await Task.Delay (1000);
 			}
 		}
@@ -613,7 +614,7 @@ namespace Capp2
 			continuePositionX = DoneLabel.X;
 			continuePositionY = DoneLabel.Y;
 
-			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, new Command(() => {}));
+			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "", new Command(() => {}));
 			layout = ((RelativeLayout)page.Content);
 
 			UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, AutoCallInfoLabel,

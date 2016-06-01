@@ -24,6 +24,19 @@ namespace Capp2
 		public Util ()
 		{
 		}
+
+		public static Color MatchPlaylistTextColorToIcon(string icon){
+			if (string.Equals (icon, "people.png")) {
+				return Color.FromHex (Values.CAPPTUTORIALCOLOR_Purple);
+			}else if (string.Equals (icon, "flame.png")) {
+				return Color.FromHex (Values.MaterialDesignOrange);
+			}else if (string.Equals (icon, "snowflake.png")) {
+				return Color.FromHex (Values.GOOGLEBLUE);
+			}
+
+			return Color.Transparent;
+		}
+
 		public static async Task AddNamelist(PlaylistPage page){
 			var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", 
 				"New namelist", "OK");
@@ -33,7 +46,26 @@ namespace Capp2
 					await AlertHelper.Alert ("That namelist already exists", "Let's try again");
 					AddNamelist (page);
 				} else {
-					App.Database.SavePlaylistItem(new Playlist{PlaylistName = result.Text});
+					var newplaylist = new Playlist{ PlaylistName = result.Text };
+					App.Database.SavePlaylistItem(newplaylist);
+					newplaylist = App.Database.GetPlaylistItems ().
+						Where (playlist => playlist.PlaylistName == newplaylist.PlaylistName).FirstOrDefault ();
+
+					var warmcold = await UserDialogs.Instance.ActionSheetAsync ("What kind of namelist is this?", null, null, 
+						new string[]{ Values.WARM, Values.SEMIWARM, Values.COLD });
+					if (string.Equals (warmcold, Values.WARM)) {
+						newplaylist.Icon = "flame.png";
+						//newplaylist.TextColor = Values.MaterialDesignOrange;
+					}else if(string.Equals (warmcold, Values.COLD)) {
+						newplaylist.Icon = "snowflake.png";
+						//newplaylist.TextColor = Values.GOOGLEBLUE;
+					}else if(string.Equals (warmcold, Values.SEMIWARM)){
+						newplaylist.Icon = "semi.png";
+						//newplaylist.TextColor = Values.CAPPTUTORIALCOLOR_Purple;
+					}
+					Debug.WriteLine ("new playlist: {0}", newplaylist.Icon);
+					App.Database.UpdatePlaylistItem (newplaylist);
+
 					page.refresh();
 				}
 			}
@@ -47,26 +79,32 @@ namespace Capp2
 		}
 
 		public static string[] ImportChoices(string playlist){
-			var arr = (App.Database.GetPlaylistItems ()).ToArray();
-			string[] importchoices = new string[arr.Length+2];
+			var playlistsList = (App.Database.GetPlaylistItems ());
+			var playlistarr = playlistsList.ToArray ();
+			Debug.WriteLine ("Import contacts options: {0}", playlistarr.Length + 2);
+			List<string> importchoices = new List<string>();
 
-			importchoices [0] = Values.IMPORTCHOICEMANUAL;
-			importchoices [1] = Values.IMPORTCHOICEGDRIVE;
-			try{
-				
-				for (int c = 0; c < arr.Length; c++) {
-					if(string.Equals(importchoices[c], playlist))
-					{
-						//
-					}else{
-						importchoices [c+2] = arr [c].PlaylistName;
+			importchoices.Add(Values.IMPORTCHOICEMANUAL);
+			importchoices.Add(Values.IMPORTCHOICEGDRIVE);
+
+			if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
+				//importchoices.Add (Values.ALLPLAYLISTPARAM);
+			} else {
+				try{
+					for (int c = 0; c < playlistarr.Length; c++) {
+						if(!string.Equals(playlistarr[c].PlaylistName, playlist))
+						{
+							importchoices.Add(playlistarr [c].PlaylistName);
+						}else{
+							Debug.WriteLine("importchoices[{0}] and playlist db {1} are the same", c, c-2);
+						}
 					}
+				}catch(Exception e){
+					Debug.WriteLine ("Couldn't get PlaylistItems: {0}", e.Message);
 				}
-			}catch(Exception e){
-				Debug.WriteLine ("Couldn't get PlaylistItems: {0}", e.Message);
 			}
 
-			return importchoices;
+			return importchoices.ToArray();
 		}
 
 		public static async Task<string> GetUserInputSingleLinePromptDialogue(string message = "Please enter a name for this list:", string title = "New namelist", string template = ""){
@@ -137,7 +175,7 @@ namespace Capp2
                 {
                     return list
                     .Where(x => x.Name.ToLower().Contains(filter.ToLower())
-							|| x.Number.ToLower().Contains(filter.ToLower())/* || x.Aff.ToLower().Contains(filter.ToLower())*/).ToList();//including aff field causes crashes in android layout
+							|| x.Number.ToLower().Contains(filter.ToLower())/* || x.Aff.ToLower().Contains(filter.ToLower())*/).ToList<ContactData>();//including aff field causes crashes in android layout
                 }
 
 
@@ -212,7 +250,7 @@ namespace Capp2
 				arr [c].Number = MakeDBContactCallable (arr [c].Number, debug);
 			}
 
-			return arr.ToList ();
+			return arr.ToList<ContactData> ();
 		}
 
 		public async void loadContactsFromPic(string playlist, Stream s, CAPP page, bool saveProcessedImage){
@@ -690,7 +728,7 @@ namespace Capp2
 			IQueryable<Contact> list = await getDeviceContacts ();
 
 			if (contactPermission) {
-				foreach (Contact c in list.ToList()) {
+				foreach (Contact c in list.ToList<Contact>()) {
 					try {
 						aff = c.Organizations.ElementAtOrDefault (0).Name;
 					} catch (NullReferenceException) {
@@ -745,7 +783,7 @@ namespace Capp2
 		}
 
 		public static async Task GetContactsImagesInBackground(){
-			var ContactListWithImages = await DependencyService.Get<IPhoneContacts> ().GetProfilePicPerPerson (App.Database.GetItems (Values.ALLPLAYLISTPARAM).ToList());
+		var ContactListWithImages = await DependencyService.Get<IPhoneContacts> ().GetProfilePicPerPerson (App.Database.GetItems (Values.ALLPLAYLISTPARAM).ToList<ContactData>());
 			App.Database.UpdateAll (ContactListWithImages);
 		}
 	}

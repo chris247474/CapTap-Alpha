@@ -24,7 +24,7 @@ namespace Capp2
 			}
 		}*/
 		public static void AccuracyTest(string[] lastname, string[] firstname, string[] number, CAPP page, bool printComparisons, string playlist){
-			List<ContactData> DBList = App.Database.GetItems (playlist).ToList();
+			List<ContactData> DBList = App.Database.GetItems (playlist).ToList<ContactData>();
 			List<ContactData> control = new List<ContactData> ();
 			List<ContactData> temp = new List<ContactData>();
 			float d = (float)lastname.Length, numerator = 0.00f;
@@ -49,7 +49,7 @@ namespace Capp2
 					});
 				}
 				control = (from x in temp.OrderBy (x => x.LastName)
-					select x).ToList ();
+					select x).ToList<ContactData> ();
 
 				if (printComparisons) {	
 					//print out namelist

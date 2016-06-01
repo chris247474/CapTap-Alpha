@@ -37,18 +37,18 @@ namespace Capp2
 
 		public static SplineAreaSeries CreateSplineAreaSeries(ObservableCollection<ChartDataPoint> data, string XLabel, string YLabel){
 			return new SplineAreaSeries{
-				EnableTooltip = true,
-				EnableDataPointSelection = true,
-				EnableAnimation = true,
+				//EnableTooltip = true,
+				//EnableDataPointSelection = true,
+				//EnableAnimation = true,
 				ItemsSource = data, 
 				XBindingPath = XLabel, 
 				YBindingPath = YLabel,
-				StrokeColor = Color.FromHex(Values.YELLOW),
+				/*StrokeColor = Color.FromHex(Values.YELLOW),
 				DataMarker=new ChartDataMarker(){
 					LabelStyle = new DataMarkerLabelStyle{
 						Font = Font.SystemFontOfSize(18, FontAttributes.Bold)
 					}
-				},
+				},*/
 			};
 		}
 

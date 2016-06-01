@@ -6,11 +6,85 @@ using FAB.Forms;
 using Acr.UserDialogs;
 using XLabs.Forms.Controls;
 using Capp2.Helpers;
+using System.Collections.Generic;
 
 namespace Capp2
 {
 	public static class UIBuilder
 	{
+		public static string ChooseRandomProfilePicBackground(string[] images){
+			if (images == null || images.Length == 0) {
+				throw new ArgumentException ("param is null or empty");
+			}
+
+			Random r = new Random ();
+			int result = 0;
+
+			for (int c = 0; c < images.Length; c++) {
+				result = r.Next (0, images.Length);
+			}
+
+			return images[result];
+		}
+
+		public static string ExtractInitials(ContactData contact){
+			if(contact == null) throw new ArgumentException("ExtractInitials contact argument is null");
+
+			var firstname = contact.FirstName.ToCharArray ();
+			var lastname = contact.LastName.ToCharArray ();
+			string initials = "";
+
+			if (!char.IsWhiteSpace (firstname[0])) {
+				initials += firstname [0];
+			}
+			if (!char.IsWhiteSpace (lastname[0])) {
+				initials += lastname [0];
+			}
+
+			return initials;
+		}
+
+		public static string ChooseContactPicColor(){
+			return "";
+		}
+
+		public static void PlaceInitialsTextOnImage(RelativeLayout layout, double NameFont, CircleImage circleImage, 
+			ContactData contact)
+		{
+			var letters = ExtractInitials (contact);
+
+			if (letters.Length > 2) {
+				throw new ArgumentException ("DrawLetterTextOnImage allows a max of 2 letters to be drawn on an image");
+			}
+
+			var label = new Label{
+				Text = letters,
+				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label))*4,
+				BackgroundColor = Color.Transparent,
+				TextColor = Color.White,
+				FontAttributes = FontAttributes.Bold,
+				HorizontalOptions = LayoutOptions.CenterAndExpand
+			};
+			label.Opacity = label.Opacity / 2;
+
+			layout.Children.Add(//change to relativetoview
+				label,
+				xConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
+					return view.X+(label.Width*0.2);
+				}),
+				//Constraint.RelativeToParent(parent => circleImage.Width*0.59),
+				yConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
+					return view.Y*1.255;
+				}),
+				//Constraint.RelativeToParent(parent => circleImage.Height*0.37)
+				widthConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
+					return view.Width;
+				}),
+				heightConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
+					return view.Height*0.66;
+				})
+			); 
+		}
 
 		public static async Task ShowConfirmAsync(Command cmd){
 			var YesNo = new ConfirmConfig () { 
@@ -25,6 +99,16 @@ namespace Capp2
 
 			await UserDialogs.Instance.ConfirmAsync (YesNo);
 		}
+
+		/*public static CarouselView CreateCarouselView(List<VideoChooserItem> videos){
+			CarouselView carousel = new CarouselView{
+				ItemsSource = videos,
+				ItemTemplate = new DataTemplate(() => {
+					return new CarouselTemplateView();
+				}),
+			};
+			return carousel;
+		}*/
 
 		public static ScrollView CreateTutorialVideoPickerView(VideoChooserItem[] videos){
 			if (videos == null || videos.Length < 1) {
@@ -76,10 +160,6 @@ namespace Capp2
 			Image img = CreateTappableImage (imagePath, LayoutOptions.Center, Aspect.AspectFit, new Command(()=>{
 				DependencyService.Get<IVideoHelper>().PlayVideo(videotoplay);
 			}), lbl.FontSize, 60, 30);
-			Image PlayIcon = CreateTappableImage ("Play-LightGray.png", LayoutOptions.Center, Aspect.AspectFit, 
-				new Command(()=>{
-					DependencyService.Get<IVideoHelper>().PlayVideo(videotoplay);
-				}), lbl.FontSize, 3, 3);
 
 			var stack = new StackLayout{
 				Orientation = StackOrientation.Vertical,
@@ -161,7 +241,7 @@ namespace Capp2
 			);
 		} 
 
-		public static RelativeLayout AddFABToViewWrapRelativeLayout(View viewparent, FloatingActionButton child,
+		public static RelativeLayout AddFABToViewWrapRelativeLayout(View viewparent, FloatingActionButton child, string icon,
 			Command FabTapped = null)
 		{
 			RelativeLayout parentlayout = new RelativeLayout();
@@ -176,11 +256,26 @@ namespace Capp2
 				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
 			);
 
+			var img = CreateTappableCircleImage (icon, 
+				LayoutOptions.Fill, Aspect.AspectFit, new Command(()=>{
+					//FabTapped.Execute(null);
+				}));
+			img.InputTransparent = true;
+
 			if (Device.OS == TargetPlatform.iOS) {
 				parentlayout.Children.Add(  
 					child,
 					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - child.Width) - 30; }), 
 					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - child.Height) - 45; }) 
+				);
+				parentlayout.Children.Add (
+					img,
+					Constraint.RelativeToView (child, (parent, view) => {
+						return view.X + (view.Width*0.31);
+					}),
+					Constraint.RelativeToView (child, (parent, view) => {
+						return view.Y + (view.Height*0.31);
+					})
 				);
 			} else {
 				parentlayout.Children.Add(  
@@ -240,23 +335,56 @@ namespace Capp2
 			}), NormalColor, PressedColor);
 		}
 
+		static string SwapIconsOnPressIfNeeded(FloatingActionButton fab, Image img, string normalIcon, string PressedIcon, string tempicon){
+			Device.OnPlatform (
+				() => {
+					if(string.Equals(tempicon, normalIcon)){
+						img.Source = PressedIcon;
+						tempicon = PressedIcon;
+					}else if(string.Equals(tempicon, PressedIcon)){
+						img.Source = normalIcon;
+						tempicon = normalIcon;
+					}
+				},
+				()=>{
+					if(string.Equals(tempicon, normalIcon)){
+						fab.Source = PressedIcon;
+						tempicon = PressedIcon;
+					}else if(string.Equals(tempicon, PressedIcon)){
+						fab.Source = normalIcon;
+						tempicon = normalIcon;
+					}
+				}
+			);
+
+			return tempicon;
+		}
+
 		public static RelativeLayout AddFloatingActionButtonToRelativeLayout(RelativeLayout layout, string icon, 
-			Command FabTapped, Color NormalColor, Color PressedColor)
+			Command FabTapped, Color NormalColor, Color PressedColor, string PressedIcon = "")
 		{
+			string tempicon = icon;
+
             var normalFab = new FAB.Forms.FloatingActionButton();
+
+			var img = CreateTappableImage (icon, 
+				LayoutOptions.Fill, Aspect.Fill, new Command(()=>{}));
+			img.InputTransparent = true;
+
 			normalFab.Clicked += (sender, e) => {
 				UIAnimationHelper.ZoomUnZoomElement (normalFab);
+
+				if(!string.IsNullOrWhiteSpace(PressedIcon)){
+					tempicon = SwapIconsOnPressIfNeeded(normalFab, img, icon, PressedIcon, tempicon);
+				}
 			};
 
-			if (Device.OS == TargetPlatform.Android)
-				normalFab.Source = icon;
-			else if (Device.OS == TargetPlatform.iOS)
-				normalFab.Source = FileImageSource.FromFile (icon);
+			//normalFab.Source = FileImageSource.FromFile("Plus.png");
 			normalFab.Size = FabSize.Normal;
 			normalFab.HasShadow = true;
-			normalFab.NormalColor = NormalColor;//Color.FromHex(Values.MaterialDesignOrange);
+			normalFab.NormalColor = NormalColor;
 			normalFab.Opacity = 0.9;
-			normalFab.PressedColor = PressedColor;//Color.FromHex (Values.GOOGLEBLUE);
+			normalFab.PressedColor = PressedColor;
 
 			if (Device.OS == TargetPlatform.iOS) {
 				layout.Children.Add(
@@ -273,6 +401,18 @@ namespace Capp2
 			}
 			normalFab.SizeChanged += (sender, args) => { layout.ForceLayout(); };
 			normalFab.SetBinding (FloatingActionButton.CommandProperty, new Binding(){Source = FabTapped});
+
+			if (Device.OS == TargetPlatform.iOS) {
+				layout.Children.Add (
+					img,
+					Constraint.RelativeToView (normalFab, (parent, view) => {
+						return view.X + (view.Width*0.31);
+					}),
+					Constraint.RelativeToView (normalFab, (parent, view) => {
+						return view.Y + (view.Height*0.31);
+					})
+				);
+			}
 
 			return layout;
 		}
