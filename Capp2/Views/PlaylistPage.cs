@@ -67,10 +67,12 @@ namespace Capp2
 							VerticalOptions = LayoutOptions.Start,
                             Padding = new Thickness(7,0,0,0),
                             Children = {listView}
-                    }
-                }
+	                    }
+	                }
                 };
             }
+
+			AdHelper.AddGreenURLOrangeTitleBannerToStack (stack);
 
 			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "Plus.png", new Command (async () =>
 				{
@@ -149,7 +151,7 @@ namespace Capp2
 	{
 		public PlaylistViewCell (PlaylistPage page)
 		{
-			this.Height = this.RenderHeight * 1.5;
+			this.Height = this.RenderHeight * 2;
 			Label playlistLabel = new Label();
 			playlistLabel.SetBinding(Label.TextProperty, "PlaylistName");//"Name" binds directly to the ContactData.Name property
 			playlistLabel.HorizontalTextAlignment = TextAlignment.Start;
@@ -158,15 +160,13 @@ namespace Capp2
 			playlistLabel.FontFamily = Device.OnPlatform ("SFCompact", "sans-serif-black", null);
 			playlistLabel.FontSize = playlistLabel.FontSize * 1.2;
 			playlistLabel.TextColor = Color.FromHex ("#797979");
-			//playlistLabel.FontAttributes = FontAttributes.Bold;
-			//playlistLabel.SetBinding (Label.TextColorProperty, "TextColor");
 
 			Image nextImage = new Image{ 
 				Source = FileImageSource.FromFile ("NextArrowBlue.png"),
 				Aspect = Aspect.AspectFit,
 				HorizontalOptions = LayoutOptions.StartAndExpand,
-				//HeightRequest = playlistLabel.FontSize *1.5,
-				//WidthRequest = playlistLabel.FontSize *1.5,
+				HeightRequest = playlistLabel.FontSize *1.3,
+				WidthRequest = playlistLabel.FontSize *1.3,
 			};
 			Image WarmCold = new Image{ 
 				Source = "",//FileImageSource.FromFile ("people.png"),
@@ -195,25 +195,25 @@ namespace Capp2
 
 			View = new StackLayout {
 				Orientation = StackOrientation.Horizontal,
-				HorizontalOptions = LayoutOptions.StartAndExpand,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Padding = new Thickness (0, 5, 5, 15),
 				Children = { 
 					new StackLayout{
 						Orientation = StackOrientation.Horizontal,
 						HorizontalOptions = LayoutOptions.StartAndExpand,
 						Children = {
+							UIBuilder.CreateDataTemplateLabelEmptySpace(),
 							WarmCold,
-							new StackLayout{
-								HorizontalOptions = LayoutOptions.EndAndExpand,
-								Children = { new Label{WidthRequest = 20} }
-							},
-							playlistLabel
+							UIBuilder.CreateDataTemplateLabelEmptySpace(),
+							playlistLabel,
+
 						}
 					},
 					new StackLayout{
+						Orientation = StackOrientation.Horizontal,
 						HorizontalOptions = LayoutOptions.End,
 						VerticalOptions = LayoutOptions.Center,
-						Children = {nextImage}
+						Children = {nextImage, UIBuilder.CreateDataTemplateLabelEmptySpace(),}
 					}
 				}
 			};

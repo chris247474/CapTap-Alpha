@@ -27,6 +27,19 @@ namespace Capp2
 			return images[result];
 		}
 
+		public static string GetGradientBackground(string hex){
+			/*if (string.Equals(hex, Values.MaterialDesignOrange)) {
+			}else if (string.Equals(hex, Values.CAPPTUTORIALCOLOR_Purple)) {
+				return "PurpleGradientBackground.png";
+			}else if (string.Equals(hex, Values.GOOGLEBLUE)) {
+				return "BlueGradientBackground.png";
+			}else if (string.Equals(hex, Values.CAPPTUTORIALCOLOR_Green)) {
+				return "GreenGradientBackground.png";
+			}*/
+
+			return "OrangeGradientBackground.png";
+		}
+
 		public static string ExtractInitials(ContactData contact){
 			if(contact == null) throw new ArgumentException("ExtractInitials contact argument is null");
 
@@ -102,13 +115,23 @@ namespace Capp2
 
 		/*public static CarouselView CreateCarouselView(List<VideoChooserItem> videos){
 			CarouselView carousel = new CarouselView{
-				ItemsSource = videos,
+				BackgroundColor = Color.Transparent,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				ItemsSource = videos, 
 				ItemTemplate = new DataTemplate(() => {
 					return new CarouselTemplateView();
 				}),
 			};
 			return carousel;
 		}*/
+
+		public static StackLayout CreateDataTemplateLabelEmptySpace(){
+			return new StackLayout {
+				HorizontalOptions = LayoutOptions.EndAndExpand,
+				Children = { new Label{ WidthRequest = 20 } }
+			};
+		}
 
 		public static ScrollView CreateTutorialVideoPickerView(VideoChooserItem[] videos){
 			if (videos == null || videos.Length < 1) {
@@ -241,7 +264,7 @@ namespace Capp2
 			);
 		} 
 
-		public static RelativeLayout AddFABToViewWrapRelativeLayout(View viewparent, FloatingActionButton child, string icon,
+		public static RelativeLayout AddFABToViewWrapRelativeLayout(View viewToAddTo, FloatingActionButton child, string icon,
 			Command FabTapped = null)
 		{
 			RelativeLayout parentlayout = new RelativeLayout();
@@ -249,16 +272,19 @@ namespace Capp2
 			parentlayout.VerticalOptions = LayoutOptions.FillAndExpand;
 			parentlayout.HorizontalOptions = LayoutOptions.FillAndExpand;
 			parentlayout.Children.Add(
-				viewparent,
+				viewToAddTo,
 				xConstraint: Constraint.Constant(0),
 				yConstraint: Constraint.Constant(0),
 				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
 				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
 			);
 
-			var img = CreateTappableCircleImage (icon, 
+			CircleImage img = new CircleImage ();
+			img = CreateTappableCircleImage (icon, 
 				LayoutOptions.Fill, Aspect.AspectFit, new Command(()=>{
-					//FabTapped.Execute(null);
+					UIAnimationHelper.ShrinkUnshrinkElement (child, 100);
+					UIAnimationHelper.ShrinkUnshrinkElement (img, 100);
+					FabTapped.Execute(null);
 				}));
 			img.InputTransparent = true;
 
@@ -277,6 +303,23 @@ namespace Capp2
 						return view.Y + (view.Height*0.31);
 					})
 				);
+				/*if (Device.OS == TargetPlatform.iOS) {
+					parentlayout.Children.Add (
+						img,
+						Constraint.RelativeToView (child, (parent, view) => {
+							return view.X + (view.Width*0.25);//0.31
+						}),
+						Constraint.RelativeToView (child, (parent, view) => {
+							return view.Y + (view.Height*0.25);//0.31
+						}),
+						Constraint.RelativeToView (child, (parent, view) => {
+							return view.Width*0.5;
+						}),
+						Constraint.RelativeToView (child, (parent, view) => {
+							return view.Height*0.5;
+						})
+					);
+				}*/
 			} else {
 				parentlayout.Children.Add(  
 					child,
@@ -290,7 +333,7 @@ namespace Capp2
 			return parentlayout;
 		}
 
-		public static StackLayout AddFloatingActionButtonToStackLayout(View view, string icon, Command FabTapped, 
+		/*public static StackLayout AddFloatingActionButtonToStackLayout(View view, string icon, Command FabTapped, 
 			Color NormalColor, Color PressedColor)
 		{
 			var layout = new RelativeLayout ();
@@ -310,7 +353,7 @@ namespace Capp2
 					AddFloatingActionButtonToRelativeLayout(layout, icon, FabTapped, NormalColor, PressedColor)
 				}
 			};
-		}
+		}*/
 
 
 		public static RelativeLayout AddFloatingActionButtonToViewWrapWithRelativeLayout(View view, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
@@ -328,7 +371,7 @@ namespace Capp2
 			return AddFloatingActionButtonToRelativeLayout(layout, icon, new Command(() => {
 				if(!App.UsingSearch){
 					Debug.WriteLine("SearchBar not being used");
-					FabTapped.Execute(null);
+					FabTapped.Execute(new object());
 				}else{
 					Debug.WriteLine("SearchBar being used, FAB action cancelled");
 				}
@@ -367,16 +410,30 @@ namespace Capp2
 
             var normalFab = new FAB.Forms.FloatingActionButton();
 
-			var img = CreateTappableImage (icon, 
-				LayoutOptions.Fill, Aspect.Fill, new Command(()=>{}));
+			Image img = new Image();
+			img = CreateTappableImage (icon, 
+				LayoutOptions.Fill, Aspect.AspectFit, new Command(()=>{
+					Debug.WriteLine("icon tapped");
+					UIAnimationHelper.ShrinkUnshrinkElement (normalFab, 100);
+					UIAnimationHelper.ShrinkUnshrinkElement (img, 100);
+
+					if(!string.IsNullOrWhiteSpace(PressedIcon)){
+						tempicon = SwapIconsOnPressIfNeeded(normalFab, img, icon, PressedIcon, tempicon);
+					}
+
+					FabTapped.Execute(null);
+				}));
 			img.InputTransparent = true;
 
 			normalFab.Clicked += (sender, e) => {
+				Debug.WriteLine("Clicked");
 				UIAnimationHelper.ZoomUnZoomElement (normalFab);
 
 				if(!string.IsNullOrWhiteSpace(PressedIcon)){
 					tempicon = SwapIconsOnPressIfNeeded(normalFab, img, icon, PressedIcon, tempicon);
 				}
+
+				Debug.WriteLine("FabTapped");
 			};
 
 			//normalFab.Source = FileImageSource.FromFile("Plus.png");
@@ -406,11 +463,17 @@ namespace Capp2
 				layout.Children.Add (
 					img,
 					Constraint.RelativeToView (normalFab, (parent, view) => {
-						return view.X + (view.Width*0.31);
+						return view.X + (view.Width*0.31);//0.25
 					}),
 					Constraint.RelativeToView (normalFab, (parent, view) => {
-						return view.Y + (view.Height*0.31);
-					})
+						return view.Y + (view.Height*0.31);//0.25
+					})//,
+					/*Constraint.RelativeToView (normalFab, (parent, view) => {
+						return view.Width*0.5;
+					}),
+					Constraint.RelativeToView (normalFab, (parent, view) => {
+						return view.Height*0.5;
+					})*/
 				);
 			}
 
@@ -427,7 +490,7 @@ namespace Capp2
 			if (Device.OS == TargetPlatform.iOS) {
 				return new StackLayout {
 					Orientation = StackOrientation.Horizontal,
-					HorizontalOptions = LayoutOptions.StartAndExpand,
+					HorizontalOptions = LayoutOptions.FillAndExpand,
 					Padding = new Thickness (15, 5, 5, 15),
 					Children = { 
 						parent,
@@ -438,7 +501,7 @@ namespace Capp2
 			} else if (Device.OS == TargetPlatform.Android) {
 				return new StackLayout {
 					Orientation = StackOrientation.Horizontal,
-					HorizontalOptions = LayoutOptions.StartAndExpand,
+					HorizontalOptions = LayoutOptions.FillAndExpand,
 					Padding = new Thickness (15, 5, 5, 15),
 					Children = { parent, child }
 				};
@@ -547,7 +610,9 @@ namespace Capp2
 		}
 
 
-		public static StackLayout CreateModalXPopper(Command CloseCommand, string text = "", string icon = "Close.png"){
+		public static StackLayout CreateModalXPopper(Command CloseCommand, string text = "", 
+			string icon = "Close.png", double opacity = 1)
+		{
 			Image DoneImage = new Image ();
 
 			Label MainLabel = new Label{
@@ -555,13 +620,15 @@ namespace Capp2
 				Text = text,
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				HorizontalTextAlignment = TextAlignment.Start,
-				VerticalTextAlignment = TextAlignment.Center
+				VerticalTextAlignment = TextAlignment.Center,
+				Opacity = opacity,
 			};
 
 			DoneImage = UIBuilder.CreateTappableImage (icon, LayoutOptions.Start, Aspect.AspectFit, new Command(() => {
 				UIAnimationHelper.ShrinkUnshrinkElement(DoneImage);
 				CloseCommand.Execute(null);
 			}), MainLabel.FontSize);
+			DoneImage.Opacity = opacity;
 
 			if(string.IsNullOrWhiteSpace(text)){
 				return new StackLayout{ 

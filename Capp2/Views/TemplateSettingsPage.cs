@@ -11,24 +11,24 @@ namespace Capp2
 	public class TemplateSettingsPage:ContentPage
 	{
 		Label MainLabel, EmptyLabel;
-		Image DoneImage;
 		Editor SMSEntry, LocEntry, DailyEmailEntry;
 		StackLayout SettingsList1, SettingsList2, DailyEmailTemplate;
 		bool SMSEntryShown = false, LocEntrySHown = false, EmailShown = false;
 
 		public TemplateSettingsPage ()
 		{
-			WarnUserNotToDeleteMeetingAndTimePlaceholders ();
-			Content = createUI ();
+			//WarnUserNotToDeleteMeetingAndTimePlaceholders ();
+			var scroller = createUI ();
+			AdHelper.AddGreenURLOrangeTitleBannerToStack (scroller.Content as StackLayout);
+			Content = scroller;
 		}
 		void WarnUserNotToDeleteMeetingAndTimePlaceholders(){
-			DisplayAlert ("Warning", "Please don't delete the <meeting here> and <date here> parts. CapTap looks for those to automatically input your meetup details", "OK");
+			AlertHelper.Alert("Warning", "Please don't delete the <meeting here> and <date here> parts. " +
+				"CapTap looks for those to automatically input your meetup details");
 		}
 		ScrollView createUI(){
 			this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
 			BindingContext = new SettingsViewModel();
-
-			//DoneImage = ;
 
 			EmptyLabel = new Label{
 				Text = "     "

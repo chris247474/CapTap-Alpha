@@ -20,6 +20,23 @@ namespace Capp2.Helpers
         return CrossSettings.Current;
       }
     }
+
+	#region IsPremiumSettings
+	private const string IsPremiumKey = "ispremium";
+	private static bool IsPremiumDefault = false;
+	#endregion
+
+	public static bool IsPremiumSettings
+	{
+		get
+		{
+			return AppSettings.GetValueOrDefault<bool>(IsPremiumKey, IsPremiumDefault);
+		}
+		set
+		{
+			AppSettings.AddOrUpdateValue<bool>(IsPremiumKey, value);
+		}
+	}
 	
 	#region TutorialSettings
 	private const string TutorialKey = "tutorialshown";

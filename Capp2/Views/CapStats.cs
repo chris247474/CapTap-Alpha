@@ -93,6 +93,8 @@ namespace Capp2
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				Content = stack
 			};
+
+			AdHelper.AddGreenURLOrangeTitleBannerToStack (stack);
 		}
 
 		StackLayout CreateView(){

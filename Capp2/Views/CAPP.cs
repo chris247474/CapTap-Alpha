@@ -49,6 +49,8 @@ namespace Capp2
 			PlayCappLoadAnimation ();
 
 			ShowTipsIfFirstRun (showtip);
+
+			AdHelper.AddGreenURLOrangeTitleBannerToStack (scroller.Content as StackLayout);
         }
 
 		void Init(string playlistChosen){
@@ -242,14 +244,12 @@ namespace Capp2
 
 			TutorialHelper.ContinueCAPPTutorialIfNotDone (this);
 
-			if (App.InTutorialMode && TutorialHelper.ReadyForExtraTips && TutorialHelper.HowToAddContactsDone) 
-			{
+			if (App.InTutorialMode && TutorialHelper.ReadyForExtraTips && TutorialHelper.HowToAddContactsDone) {
 				Debug.WriteLine ("finishing tutorial mode. about to show extra tips");
 				App.InTutorialMode = false;
 				TutorialHelper.ShowExtraTips (this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
 			}
 		}
-
 		void CreateListView(ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RetainElement){
 			//this.Content.InputTransparent = true;
 
@@ -313,8 +313,6 @@ namespace Capp2
 				{
 					TutorialHelper.RemoveHowToAddContactsTipIfNeeded(this);
 					await AddContacts();
-
-
 				});
 			if (Device.OS == TargetPlatform.iOS) {
 				this.ToolbarItems.Add(AddTBI);

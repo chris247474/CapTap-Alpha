@@ -29,85 +29,72 @@ namespace Capp2
 		}
 
 		public static async Task<RelativeLayout> ShowExtraTips(ContentPage page, Color background, 
-			string text = "A few extra tips...", bool tipshowintutorial = true)
+			string text = "A few extra tips...", bool intutorial = true, string gradientcolor = Values.MaterialDesignOrange)
 		{
 			Debug.WriteLine ("In ShowExtraTips");
 
 			layout = ((RelativeLayout)page.Content);
 
-			Debug.WriteLine ("Assigned layout");
+			var TipView = UIBuilder./*CreateCarouselView(
+						new List<VideoChooserItem>()*/
+			CreateTutorialVideoPickerView (new VideoChooserItem[] {
+				new VideoChooserItem {
+					ImagePath = "HowToCappScreenshot.png",
+					LabelText = "Where'd my CAPP Sheet go?",
+					VideoPath = "HowToCapp.mov",
+					DetailText = "Just slide out a name to mark a schedule"
+				},
+				new VideoChooserItem {
+					ImagePath = "HowToUseTextTemplatesScreenshot.png",
+					LabelText = "Type your meetup texts once",
+					VideoPath = "HowToUseTextTemplates.mov",
+					DetailText = "It'll get filled in for you next time"
+				},
+				new VideoChooserItem {
+					ImagePath = "HowToUseStatsScreenshot.png",
+					LabelText = "See your work stats",
+					VideoPath = "HowToUseStats.mov",
+					DetailText = "Your efficiency at a glance"
+				},
+				new VideoChooserItem {
+					ImagePath = "HowToFeedbackScreenshot.png",
+					LabelText = "Suggestions, Feedback, Questions?",
+					VideoPath = "HowToFeedback.mov",
+					DetailText = ""
+				},
+				new VideoChooserItem {
+					ImagePath = "HowToSendYesCallsScreenshot.png",
+					LabelText = "Report your daily yes calls from CapTap",
+					VideoPath = "HowToUseSendYesCalls.mov",
+					DetailText = ""
+				},
+				new VideoChooserItem {
+					ImagePath = "HowToSetStartingScreenshot.png",
+					LabelText = "Always start with this namelist",
+					VideoPath = "HowToSetStarting.mov",
+					DetailText = "Open to this list when startin CapTap"
+				},
+				new VideoChooserItem {
+					ImagePath = "HowToUseDailyEmailScreenshot.png",
+					LabelText = "Daily Emails",
+					VideoPath = "HowToUseDailyEmail.mov",
+					DetailText = "Report your daily targets"
+				},
+			});
 
-			InfoLabel = UIBuilder.CreateTutorialLabel (text, NamedSize.Large, FontAttributes.None);
-
-			Debug.WriteLine ("Created Tutorial label");
-
-			stack = new StackLayout { 
+			content = new ContentView();
+			var stack = new StackLayout {
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = new Color (
 					background.R, 
 					background.G, 
 					background.B, 
-					BackgroundColorAlpha
+					0.9
 				),
-				Children = {
-					new StackLayout{
-						Orientation = StackOrientation.Vertical,
-						HorizontalOptions = LayoutOptions.Center,
-						Padding = new Thickness(60),
-						Children = {
-							UIBuilder.CreateEmptyStackSpace(),
-							InfoLabel,
-							UIBuilder.CreateEmptyStackSpace(),
-							UIBuilder./*CreateCarouselView*/CreateTutorialVideoPickerView(new VideoChooserItem[]/*List<VideoChooserItem>*/{
-								new VideoChooserItem{
-									ImagePath = "HowToCappScreenshot.png",
-									LabelText = "Where'd my CAPP Sheet go?",
-									VideoPath = "HowToCapp.mov"
-								},
-								new VideoChooserItem{
-									ImagePath = "HowToUseTextTemplatesScreenshot.png",
-									LabelText = "Type your meetup texts once, then never again",
-									VideoPath = "HowToUseTextTemplates.mov"
-								},
-								new VideoChooserItem{
-									ImagePath = "HowToUseStatsScreenshot.png",
-									LabelText = "See your daily work stats!",
-									VideoPath = "HowToUseStats.mov"
-								},
-								new VideoChooserItem{
-									ImagePath = "HowToFeedbackScreenshot.png",
-									LabelText = "Suggestions, Feedback, Questions?",
-									VideoPath = "HowToFeedback.mov"
-								},
-								new VideoChooserItem{
-									ImagePath = "HowToSendYesCallsScreenshot.png",
-									LabelText = "Send your daily yes calls from CapTap!",
-									VideoPath = "HowToUseSendYesCalls.mov"
-								},
-								new VideoChooserItem{
-									ImagePath = "HowToSetStartingScreenshot.png",
-									LabelText = "Always start with this namelist",
-									VideoPath = "HowToSetStarting.mov"
-								},
-								new VideoChooserItem{
-									ImagePath = "HowToUseDailyEmailScreenshot.png",
-									LabelText = "Daily Emails",
-									VideoPath = "HowToUseDailyEmail.mov"
-								},
-
-
-							})
-						}
-					}
-				}
+				Children = { TipView }
 			};
-
-			Debug.WriteLine ("stacklayout done");
-
-			content = new ContentView{
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.FillAndExpand,
-				Content = stack
-			};
+			content.Content = stack;
 
 			Debug.WriteLine ("contentview initialized");
 
@@ -123,9 +110,7 @@ namespace Capp2
 				})
 			);
 
-			Debug.WriteLine ("content added to layout");
-
-			if (tipshowintutorial) {
+			if (intutorial) {
 				ResetContinueLabel (layout, new Command (async () => {
 					App.InTutorialMode = false;
 					layout.Children.Remove (content.Content);
@@ -137,19 +122,17 @@ namespace Capp2
 					App.NavPage.Navigation.PushAsync (new CAPP (Values.ALLPLAYLISTPARAM));
 					UserDialogs.Instance.HideLoading ();
 				}), true, true);
-			} else {
-				Debug.WriteLine ("not shown in tutorial mode");
 
-				DoneLabel = UIBuilder.CreateTutorialLabel ("Got it", NamedSize.Large, FontAttributes.Bold, 
-					LineBreakMode.WordWrap, new Command(()=>{
-						App.NavPage.Navigation.PopModalAsync();
-					}));
-				UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, DoneLabel,
-					Constraint.RelativeToParent((parent) =>  { return parent.Width *0.7; }),
-					Constraint.RelativeToParent((parent) =>  { return parent.Height * 0.92 ; })
-				);
-				UIAnimationHelper.StartPressMeEffectOnView (DoneLabel);
+
+			} else {
+				page.BackgroundImage = UIBuilder.GetGradientBackground (gradientcolor);
+				layout.BackgroundColor = Color.Transparent;
+				content.BackgroundColor = Color.Transparent;
+				stack.BackgroundColor = Color.Transparent;
+				//content.Content = TipView;
 			}
+
+
 
 			Debug.WriteLine ("donelabel reset");
 
@@ -208,11 +191,13 @@ namespace Capp2
 				})
 			);
 
+			//fab.Clicked += (object sender, EventArgs e) => {
+				
+			//};
 			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "", new Command(async () => {
 				layout.Children.Remove(content.Content);
 				layout.Children.Remove(fab);
 				ReadyForAutoCallTipDone = true;
-
 
 				page.AutoCall();
 			}));
@@ -417,6 +402,7 @@ namespace Capp2
 			Debug.WriteLine ("Created fab");
 
 			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "Plus.png", new Command(async () => {
+				Debug.WriteLine("How to add nameist fab clicked");
 				layout.Children.Remove(content.Content);
 				layout.Children.Remove(fab);
 				TutorialHelper.HowToMakeNamelistDone = true;
@@ -577,19 +563,21 @@ namespace Capp2
 
 		public static async Task RemoveHowToAddContactsTipIfNeeded(CAPP capp){
 			Debug.WriteLine("About to remove tip and call AddContacts()");
-			if (App.InTutorialMode && TutorialHelper.PrevPageIsPlaylistPage () && TutorialHelper.HowToMakeNamelistDone) { 
-				Debug.WriteLine("Condition to remove HowToAddContactsTip satisfied");
-				try {
-					TutorialHelper.layout.Children.Remove (TutorialHelper.content.Content);
-					TutorialHelper.PrevPage = capp;
-					TutorialHelper.HowToAddContactsDone = true;
-				} catch (Exception e) {
-					Debug.WriteLine ("Couldn't remove HowToAddContactsTip: {0}", e.Message);
+			if (TutorialHelper.PrevPage != null) {
+				if (App.InTutorialMode && TutorialHelper.PrevPageIsPlaylistPage () && TutorialHelper.HowToMakeNamelistDone) { 
+					Debug.WriteLine("Condition to remove HowToAddContactsTip satisfied");
+					try {
+						TutorialHelper.layout.Children.Remove(content.Content);
+						TutorialHelper.PrevPage = capp;
+						TutorialHelper.HowToAddContactsDone = true;
+					} catch (Exception e) {
+						Debug.WriteLine ("Couldn't remove HowToAddContactsTip: {0}", e.Message);
+					}
+				} else {
+					Debug.WriteLine ("Condition to remove HowToAddContactsTip not satisfied: " +
+						"In tutorial: {0}, Came from namelist page: {1}, Finished HowToMakeNamelistTip: {2}", App.InTutorialMode,
+						TutorialHelper.PrevPageIsPlaylistPage(), TutorialHelper.HowToMakeNamelistDone);
 				}
-			} else {
-				Debug.WriteLine ("Condition to remove HowToAddContactsTip not satisfied: " +
-					"In tutorial: {0}, Came from namelist page: {1}, Finished HowToMakeNamelistTip: {2}", App.InTutorialMode,
-					TutorialHelper.PrevPageIsPlaylistPage(), TutorialHelper.HowToMakeNamelistDone);
 			}
 		}
 

@@ -177,7 +177,7 @@ namespace Capp2
 					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
 						new StackLayout{
 							Orientation = StackOrientation.Horizontal,
-							HorizontalOptions = LayoutOptions.StartAndExpand,
+							HorizontalOptions = LayoutOptions.FillAndExpand,
 							Children = {
 								circleImage,
 								new StackLayout {
@@ -197,7 +197,7 @@ namespace Capp2
 					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
 						new StackLayout{
 							Orientation = StackOrientation.Horizontal,
-							HorizontalOptions = LayoutOptions.StartAndExpand,
+							HorizontalOptions = LayoutOptions.FillAndExpand,
 							Children = {
 								circleImage,
 								new StackLayout{
@@ -221,7 +221,7 @@ namespace Capp2
 					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
 						new StackLayout{
 							Orientation = StackOrientation.Horizontal,
-							HorizontalOptions = LayoutOptions.StartAndExpand,
+							HorizontalOptions = LayoutOptions.FillAndExpand,
 							Children = {
 								circleImage,
 								new StackLayout {
@@ -240,7 +240,7 @@ namespace Capp2
 					return UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding( 
 						new StackLayout{
 							Orientation = StackOrientation.Horizontal,
-							HorizontalOptions = LayoutOptions.StartAndExpand,
+							HorizontalOptions = LayoutOptions.FillAndExpand,
 							Children = {
 								circleImage,
 								new StackLayout{

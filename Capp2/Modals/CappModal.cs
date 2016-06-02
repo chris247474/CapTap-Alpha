@@ -72,7 +72,7 @@ namespace Capp2
 					}
 				};
 				Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(contentstack, 
-					"", new Command (async () => {
+					"Checkmark.png", new Command (async () => {
 
 						//add to namelist
 						var selectedItems = App.Database.GetSelectedItems(playlist).ToArray();

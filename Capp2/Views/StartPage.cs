@@ -3,6 +3,8 @@ using Xamarin.Forms;
 using System.Collections.Generic;
 using System.Linq;
 using Capp2.Helpers;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Capp2
 {
@@ -10,7 +12,8 @@ namespace Capp2
 	{
 		StackLayout StatsSettings = new StackLayout(), TemplateSettings = new StackLayout(), 
 		FeedbackSettings = new StackLayout(), DefaultNamelistSettings = new StackLayout(), 
-		DailyEmailSettings = new StackLayout(), SendYesCallSettings = new StackLayout(), HowToSettings = new StackLayout();
+		DailyEmailSettings = new StackLayout(), SendYesCallSettings = new StackLayout(), HowToSettings = new StackLayout(),
+		SettingsLayout = new StackLayout();
 
 		public StartPage ()
 		{
@@ -43,42 +46,47 @@ namespace Capp2
 				BackgroundColor = Color.FromHex ("#333333"),
 				Content = createUI (),
 			};
+
+			AdHelper.AddGreenURLOrangeTitleBannerToStack (SettingsLayout);
 		}
 
 		ScrollView createUI(){
 			CreateSettings ();
 
+			SettingsLayout = new StackLayout {
+				Orientation = StackOrientation.Vertical,
+				HorizontalOptions = LayoutOptions.Fill,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Padding = new Thickness (20),
+				Children = { 
+					UIBuilder.CreateSettingsHeader ("Settings"),
+
+					StatsSettings,
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+
+					TemplateSettings,
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+
+					FeedbackSettings,
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+
+					DefaultNamelistSettings,
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+
+					DailyEmailSettings,
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+
+					SendYesCallSettings,
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+
+					HowToSettings,
+					UIBuilder.CreateSeparator (Color.Gray, 0.3),
+
+				},
+			};
+
 			return new ScrollView {
-				Content = new StackLayout{
-					Orientation = StackOrientation.Vertical,
-					HorizontalOptions = LayoutOptions.Fill,
-					VerticalOptions = LayoutOptions.FillAndExpand,
-					Padding = new Thickness(20),
-					Children = { 
-						UIBuilder.CreateSettingsHeader("Settings"),
-
-						StatsSettings,
-						UIBuilder.CreateSeparator (Color.Gray, 0.3),
-
-						TemplateSettings,
-						UIBuilder.CreateSeparator (Color.Gray, 0.3),
-
-						FeedbackSettings,
-						UIBuilder.CreateSeparator (Color.Gray, 0.3),
-
-						DefaultNamelistSettings,
-						UIBuilder.CreateSeparator (Color.Gray, 0.3),
-
-						DailyEmailSettings,
-						UIBuilder.CreateSeparator(Color.Gray, 0.3),
-
-						SendYesCallSettings,
-						UIBuilder.CreateSeparator(Color.Gray, 0.3),
-
-						HowToSettings,
-						UIBuilder.CreateSeparator(Color.Gray, 0.3),
-					}
-				}
+				Content = SettingsLayout
 			};
 		}
 		void CreateSettings(){

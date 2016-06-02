@@ -37,8 +37,22 @@ namespace Capp2.iOS
 			var t = Type.GetType("Xamarin.Forms.Platform.iOS.ContextActionsCell, Xamarin.Forms.Platform.iOS, Version=9.6.1.9, Culture=neutral, PublicKeyToken=null");
 
 			// Now change the static field value! "normalBackground" OR "destructiveBackground"
-			var field = t.GetField("normalBackground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-			field.SetValue(new object(), backgroundImage);
+			/*var field = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+			for (int c = 0; c < field.Length; c++) {
+				Console.WriteLine ("iteration {0}, field.Name: {1}", c, field[c].Name);
+				if (string.Equals (field [c].Name, "normalBackground")) {
+					Console.WriteLine ("found normalBackground field");
+					field[c].SetValue(new object(), backgroundImage);
+				}
+			}*/
+			//Xamarin.Forms >2.1.0.6529: change "normalBackground" to "NormalBackground"
+			try{
+				var field = t.GetField("NormalBackground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); 
+				field.SetValue(new object(), backgroundImage);
+			}catch(NullReferenceException){
+				var field = t.GetField("normalBackground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); 
+				field.SetValue(new object(), backgroundImage);
+			}
 
 			//set destructive color
 			currentContext = UIGraphics.GetCurrentContext();
@@ -47,8 +61,14 @@ namespace Capp2.iOS
 			backgroundImage = UIGraphics.GetImageFromCurrentImageContext();
 			currentContext.Dispose();
 
-			field = t.GetField("destructiveBackground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-			field.SetValue(new object(), backgroundImage);
+			//Xamarin.Forms >2.1.0.6529: change "normalBackground" to "NormalBackground"
+			try{
+				var field = t.GetField("DestructiveBackground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); 
+				field.SetValue(new object(), backgroundImage);
+			}catch(NullReferenceException){
+				var field = t.GetField("destructiveBackground", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static); 
+				field.SetValue(new object(), backgroundImage);
+			}
 
 			return cell;
 		}

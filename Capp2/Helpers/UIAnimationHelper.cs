@@ -38,10 +38,10 @@ namespace Capp2
 			elem.FadeTo (1, duration, Easing.CubicInOut);
 			await elem.ScaleTo(scale, duration, Easing.CubicInOut);
 		}
-		public static async Task ShrinkUnshrinkElement(View elem){
+		public static async Task ShrinkUnshrinkElement(View elem, uint duration = 250){
 			var scale = elem.Scale;
-			await elem.ScaleTo(scale*.85, 125, Easing.CubicInOut);
-			elem.ScaleTo(scale, 125, Easing.CubicInOut);
+			await elem.ScaleTo(scale*.85, duration/2, Easing.CubicInOut);
+			elem.ScaleTo(scale, duration/2, Easing.CubicInOut);
 		}
 		public static async Task FlyDown(View elem, UInt32 duration = 500){
 			var height = Application.Current.MainPage.Height;
