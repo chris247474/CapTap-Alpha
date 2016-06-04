@@ -245,24 +245,25 @@ namespace Capp2
 		public static void AddElementRelativeToViewonRelativeLayoutParent(RelativeLayout parentlayout, 
 			View child, 
 			Constraint xConst,
-			Constraint yConst)
+			Constraint yConst,
+			Constraint widthConstraint = null,
+			Constraint heightConstraint = null)
 		{
-			/*parentlayout.Children.Add (
-				child, Constraint.RelativeToView (referenceChildView, (Parent, sibling) => {
-					return sibling.X + 20;
-				}), Constraint.RelativeToView (child, (parent, sibling) => {
-					return sibling.Y + 10;
-				}), Constraint.RelativeToParent((parent) => {
-					return parent.Width * .5;
-				}), Constraint.RelativeToParent((parent) => {
-					return parent.Height * .5;
-			}));*/
-
-			parentlayout.Children.Add(  
-				child,
-				xConstraint: xConst, 
-				yConstraint: yConst 
-			);
+			if (widthConstraint == null || heightConstraint == null) {
+				parentlayout.Children.Add (
+					child,
+					xConstraint: xConst, 
+					yConstraint: yConst 
+				);
+			} else {
+				parentlayout.Children.Add (
+					child,
+					xConstraint: xConst, 
+					yConstraint: yConst ,
+					widthConstraint: widthConstraint,
+					heightConstraint: heightConstraint
+				);
+			}
 		} 
 
 		public static RelativeLayout AddFABToViewWrapRelativeLayout(View viewToAddTo, FloatingActionButton child, string icon,

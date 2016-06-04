@@ -531,10 +531,10 @@ namespace Capp2
 							UIBuilder.CreateEmptyStackSpace(),
 
 							InfoLabel3, 
-							UIBuilder.CreateEmptyStackSpace(),
-							UIBuilder.CreateEmptyStackSpace(),
+							//UIBuilder.CreateEmptyStackSpace(),
+							//UIBuilder.CreateEmptyStackSpace(),
 
-							DoneLabel
+							//DoneLabel
 						}
 					}
 				}
@@ -555,6 +555,16 @@ namespace Capp2
 				}),
 				Constraint.RelativeToParent((parent) => {
 					return parent.Height;
+				})
+			);
+
+			layout.Children.Add(
+				DoneLabel,
+				Constraint.RelativeToParent ((parent) => {
+					return InfoLabel3.X;
+				}),
+				Constraint.RelativeToParent((parent) => {
+					return InfoLabel3.Y * 1.3;
 				})
 			);
 
@@ -609,7 +619,9 @@ namespace Capp2
 
 			UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, AutoCallInfoLabel,
 				Constraint.RelativeToParent((parent) =>  { return (parent.Width - fab.Width) * 0.15; }),
-				Constraint.RelativeToParent((parent) =>  { return (parent.Height * 0.67) ; })
+				Constraint.RelativeToParent((parent) =>  { return (parent.Height * 0.67) ; }),
+				Constraint.RelativeToParent((parent) =>  { return (parent.Width * 0.67) ; }),
+				Constraint.RelativeToParent((parent) =>  { return (parent.Height * 0.33) ; })
 			);
 
 			await Task.Delay(100);
@@ -630,6 +642,10 @@ namespace Capp2
 		public static async Task ResetContinueLabel(RelativeLayout layout, Command ContinueCommand, 
 			bool tipshownintutorial = true, bool SetDoneLowerRight = false){
 			continuePressed = false;
+
+			//layout.Children.Remove (DoneLabel);
+			//DoneLabel = null;
+
 			if(tipshownintutorial)
 				layout.Children.Remove (DoneLabel);
 
@@ -639,11 +655,16 @@ namespace Capp2
 					ContinueCommand.Execute (null);
 				}));
 			} else {
-				DoneLabel.GestureRecognizers.Clear ();
+				DoneLabel = UIBuilder.CreateTutorialLabel ("Continue", NamedSize.Large, FontAttributes.Bold,
+					LineBreakMode.WordWrap, new Command (async () => {
+						continuePressed = true;
+						ContinueCommand.Execute(null);
+					}));
+				/*DoneLabel.GestureRecognizers.Clear ();
 				DoneLabel.GestureRecognizers.Add (new TapGestureRecognizer{Command = new Command(()=>{
 					continuePressed = true;
 					ContinueCommand.Execute(null);
-				})});
+				})});*/
 			}
 
 			if (SetDoneLowerRight) {
