@@ -76,25 +76,26 @@ namespace Capp2
 				BackgroundColor = Color.Transparent,
 				TextColor = Color.White,
 				FontAttributes = FontAttributes.Bold,
-				HorizontalOptions = LayoutOptions.CenterAndExpand
+				HorizontalTextAlignment = TextAlignment.Center,
+				VerticalTextAlignment = TextAlignment.Center,
 			};
 			label.Opacity = label.Opacity / 2;
 
 			layout.Children.Add(//change to relativetoview
 				label,
 				xConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
-					return view.X+(label.Width*0.2);
+					return view.X*1.2;// - (label.Width*0.50);
 				}),
 				//Constraint.RelativeToParent(parent => circleImage.Width*0.59),
 				yConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
-					return view.Y*1.255;
+					return view.Y*1.35;
 				}),
 				//Constraint.RelativeToParent(parent => circleImage.Height*0.37)
 				widthConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
-					return view.Width;
+					return view.Width*0.8;
 				}),
 				heightConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
-					return view.Height*0.66;
+					return view.Height*0.4;
 				})
 			); 
 		}

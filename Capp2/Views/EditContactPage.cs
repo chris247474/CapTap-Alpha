@@ -125,13 +125,13 @@ namespace Capp2
 					return parent.Width * .1;
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return (parent.Height * .5);
+					return (parent.Height * .45);
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return parent.Width * .09;
+					return parent.Width * .10;
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return parent.Width * .09;
+					return parent.Width * .10;
 				})
 			);
 
@@ -141,7 +141,7 @@ namespace Capp2
 					return parent.Width * .95 - (parent.Width * .15);
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return (parent.Height * .5);
+					return (parent.Height * .46);
 				}),
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Width * .09;
@@ -259,15 +259,15 @@ namespace Capp2
 				contact.Playlist = playlistArr[x];
 			};
 
-			phoneImg = UIBuilder.CreateTappableImage ("Phone", LayoutOptions.Fill, Aspect.AspectFit,
+			phoneImg = UIBuilder.CreateTappableImage ("Phone-blue-outline", LayoutOptions.Fill, Aspect.AspectFit,
 				new Command (async () => {
 					await CallHelper.call (contact, false);
-				}), firstNameLabel.FontSize * 1.5);
+				}), firstNameLabel.FontSize * 2);
 
-			messageImg = UIBuilder.CreateTappableImage ("Message-green-100", LayoutOptions.Fill, Aspect.AspectFit,
+			messageImg = UIBuilder.CreateTappableImage ("message-blue-outline"/*"Message-green-100"*/, LayoutOptions.Fill, Aspect.AspectFit,
 				new Command (async () => {
 					DependencyService.Get<IPhoneContacts> ().SendSMS (await CallHelper.HandleMutlipleNumbers (contact));
-				}), firstNameLabel.FontSize * 1.5);
+				}), firstNameLabel.FontSize * 2);
 
 			details = new DetailsView (contact);
 
@@ -309,6 +309,7 @@ namespace Capp2
 			};*/
 			MainStack = new StackLayout{
 				Orientation = StackOrientation.Vertical,
+				BackgroundColor = Color.Transparent,
 				Children = {
 					//MessageCallStack,
 					DetailStack

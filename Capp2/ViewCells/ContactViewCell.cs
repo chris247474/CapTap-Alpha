@@ -124,7 +124,9 @@ namespace Capp2
 				personCalled = (ContactData)mi.BindingContext;
 				page.Navigation.PushModalAsync(new DatePage(Values.PURCHASED, personCalled, false));
 			};
-				
+
+			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
+
 			layout.Children.Add(
 				createView (page.playlist),
 				xConstraint: Constraint.Constant(0),
@@ -137,16 +139,22 @@ namespace Capp2
 				FontSize = nameLabel.FontSize,
 				BackgroundColor = Color.Transparent,
 				TextColor = Color.White,
-				//FontAttributes = FontAttributes.Bold,
-				HorizontalOptions = LayoutOptions.Center,
+				HorizontalTextAlignment = TextAlignment.Center,
+				VerticalTextAlignment = TextAlignment.Center,
 			};
-			label.Opacity = label.Opacity / 1.5;
+			//label.Opacity = label.Opacity / 1.5;
 			label.SetBinding (Label.TextProperty, "Initials");
 
 			layout.Children.Add(
 				label,
-				xConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.58)),
-				yConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.37)
+				/*xConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.56)),
+				yConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.39),
+				widthConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.8)),
+				heightConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.33)*/
+				xConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.36)),
+				yConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.39),
+				widthConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.8)),
+				heightConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.33)
 			); 
 
 			View = layout;

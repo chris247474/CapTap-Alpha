@@ -60,17 +60,10 @@ namespace Capp2
 
 			ProfileBackground = new string[]{ 
 				"profile-orange.png",
-				"profile-red.png",
-				"profile-orange.png",
-				"profile-green.png",
 				"profile-orange.png",
 				"profile-blue.png",
-				"profile-orange.png",
-				"profile-red.png",
-				"profile-purple.png",
-				"profile-orange.png",
-				"profile-red.png",
-				"profile-orange.png",
+				"profile-green.png",
+				"profile-purpleblue.png",
 			};
 
 			SetInstallDateForStatsPageReference (); 

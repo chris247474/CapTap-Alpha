@@ -97,7 +97,7 @@ namespace Capp2
 					/*App.NavPage.Navigation.PushModalAsync(new CarouselHelper(IndicatorStyleEnum.Dots, 
 						Color.FromHex(Values.CAPPTUTORIALCOLOR_Orange)));*/
 			})});
-			StatsSettings = UIBuilder.CreateSetting ("trending-Medium.png", "\tMy CAPP Stats", 
+			StatsSettings = UIBuilder.CreateSetting ("trending-Medium.png", "\tMy CAP Stats", 
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(StatsSettings); 

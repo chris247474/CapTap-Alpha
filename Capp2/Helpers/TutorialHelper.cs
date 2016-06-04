@@ -40,7 +40,7 @@ namespace Capp2
 			CreateTutorialVideoPickerView (new VideoChooserItem[] {
 				new VideoChooserItem {
 					ImagePath = "HowToCappScreenshot.png",
-					LabelText = "Where'd my CAPP Sheet go?",
+					LabelText = "How do I mark appointments?",
 					VideoPath = "HowToCapp.mov",
 					DetailText = "Just slide out a name to mark a schedule"
 				},
@@ -557,6 +557,8 @@ namespace Capp2
 					return parent.Height;
 				})
 			);
+
+			UIAnimationHelper.StartPressMeEffectOnView (DoneLabel, 1.1);
 
 			App.NavPage.Navigation.PushModalAsync (page);
 		} 

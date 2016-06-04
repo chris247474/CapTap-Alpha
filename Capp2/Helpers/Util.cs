@@ -108,7 +108,7 @@ namespace Capp2
 		}
 
 		public static async Task<string> GetUserInputSingleLinePromptDialogue(string message = "Please enter a name for this list:", string title = "New namelist", string template = ""){
-			var result = await UserDialogs.Instance.PromptAsync(message, title, "OK");
+			var result = await UserDialogs.Instance.PromptAsync(message, title, "OK", null);
 			if (result.Ok) {
 				if (string.IsNullOrWhiteSpace(result.Text))
 				{

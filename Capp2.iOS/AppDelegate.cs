@@ -13,6 +13,9 @@ using Syncfusion.SfChart.XForms.iOS.Renderers;
 using System.Threading.Tasks;
 using Capp2.iOS.Helpers;
 using System.Linq;
+using FireSharp.Interfaces;
+using FireSharp.Config;
+using FireSharp;
 
 namespace Capp2.iOS
 {
@@ -82,6 +85,14 @@ namespace Capp2.iOS
 
 			//FABForms
 			new FAB.iOS.FloatingActionButtonRenderer();
+
+			//FireBase for Google AdMobs Analytics
+			IFirebaseConfig config = new FirebaseConfig
+			{
+				AuthSecret = "ABNRVFSSpRqCXZBusVQVw2XltaZcjqxJPe2uEpYM",
+				BasePath = "https://admob-app-id-1021936400.firebaseio.com"
+			};
+			IFirebaseClient client = new FirebaseClient(config);
 
 			SetUIStyles (app);
             
