@@ -108,6 +108,12 @@ namespace Capp2.iOS
             return base.FinishedLaunching(app, options);
         }
 
+		//resets user keyboard to default iOS keyboard - layouts crash when custom keyboard is used
+		public override bool ShouldAllowExtensionPointIdentifier(UIApplication application, NSString extensionPointIdentifier)
+		{
+			return extensionPointIdentifier != UIExtensionPointIdentifier.Keyboard;
+		}
+
         public override void ReceivedLocalNotification(UIApplication application, UILocalNotification notification)
         {
             // show an alert
