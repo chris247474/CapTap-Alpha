@@ -175,7 +175,6 @@ namespace Capp2
 				nameLabel.Text = item.Name;
 				playlistLabel.Text = item.Playlist;
 				circleImage.Source = item.PicStringBase64;
-
 			}
 		}
 		public View createView (string playlist)

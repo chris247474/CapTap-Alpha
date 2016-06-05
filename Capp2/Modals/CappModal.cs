@@ -150,13 +150,14 @@ namespace Capp2
 		void FilterCAPPContacts(string filter, string playlist, List<Grouping<string, ContactData>> groupedList, 
 			StackLayout stack)
 		{
+			//Debug.WriteLine ("Performing grouped filter search");
+			//listView.BeginRefresh();
+
 			App.UsingSearch = true;
 			if (string.IsNullOrWhiteSpace(filter))
 			{
-				//ReBuildGroupedSearchableListView(playlist, groupedList, stack, ListViewCachingStrategy.RecycleElement);
-				//searchBar.Unfocus();
 				ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, ListViewCachingStrategy.RetainElement);
-
+				//listView.ItemsSource = groupedlist;
 			}
 			else {
 				listView.BeginRefresh();
@@ -165,11 +166,16 @@ namespace Capp2
 				listView.GroupDisplayBinding = new Xamarin.Forms.Binding(".");
 				listView.GroupShortNameBinding = new Xamarin.Forms.Binding(".");
 				listView.GroupHeaderTemplate = null;
-				listView.ItemsSource = Util.FilterNameNumberOrg(this.list, filter);
+				listView.ItemsSource = //groupedlist.Where(o => o.Any(p => p.Name.ToLower().Contains(filter.ToLower())));
+					/*groupedlist.Select(group => group.Where(x => x.Name.ToLower().Contains(filter.ToLower())
+					|| x.Number.ToLower().Contains(filter.ToLower())));*/
+					Util.FilterNameNumberOrg(this.list, filter);
 
 				listView.EndRefresh();
 			}
 			App.UsingSearch = false;
+
+			//listView.EndRefresh();
 		}
 		/*public void ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList, 
 			StackLayout stack)

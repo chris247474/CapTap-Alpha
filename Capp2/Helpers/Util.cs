@@ -88,7 +88,6 @@ namespace Capp2
 			importchoices.Add(Values.IMPORTCHOICEGDRIVE);
 
 			if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
-				//importchoices.Add (Values.ALLPLAYLISTPARAM);
 			} else {
 				try{
 					for (int c = 0; c < playlistarr.Length; c++) {
@@ -147,7 +146,7 @@ namespace Capp2
             }
             return ocList;
         }
-		public static IList<ContactData> FilterNameNumberOrg(IEnumerable<ContactData> list, string filter)
+		public static IEnumerable<ContactData> FilterNameNumberOrg(IEnumerable<ContactData> list, string filter)
         {
             if (list == null)
             {
@@ -155,16 +154,18 @@ namespace Capp2
                 return null;
             }
 
-            List<ContactData> filteredList = new List<ContactData>();
+            //List<ContactData> filteredList = new List<ContactData>();
             try
             {
-
-                if (Device.OS == TargetPlatform.iOS)//arrays are processed faster than linq
-                {
+				return list
+					.Where(x => x.Name.ToLower().Contains(filter.ToLower())
+						|| x.Number.ToLower().Contains(filter.ToLower()));
+               /* if (Device.OS == TargetPlatform.iOS)//arrays are processed faster than linq 
+                { 
                     var arr = list.ToArray();
                     for (int c = 0; c < arr.Length; c++)
                     {
-                        if (arr[c].Name.ToLower().Contains(filter.ToLower()) || arr[c].Number.Contains(filter.ToLower()) /*|| arr[c].Aff.ToLower().Contains(filter.ToLower())*/)
+                        if (arr[c].Name.ToLower().Contains(filter.ToLower()) || arr[c].Number.Contains(filter.ToLower()))
                         {
                             filteredList.Add(arr[c]);
                         }
@@ -175,9 +176,9 @@ namespace Capp2
                 {
                     return list
                     .Where(x => x.Name.ToLower().Contains(filter.ToLower())
-							|| x.Number.ToLower().Contains(filter.ToLower())/* || x.Aff.ToLower().Contains(filter.ToLower())*/).ToList<ContactData>();//including aff field causes crashes in android layout
+							|| x.Number.ToLower().Contains(filter.ToLower())).ToList<ContactData>();//including aff field causes crashes in android layout
                 }
-
+			*/
 
             }
             catch (Exception e)
@@ -265,8 +266,13 @@ namespace Capp2
 			List<ContactData> saveList = new List<ContactData> ();
 
 			//user manual crop
+			//Preprocess image for better text recognition results
 			System.IO.Stream bwSharpenedStream = DependencyService.Get<IPics>().PreprocessImage(s, Values.GAUSSIANSIZEX, Values.GAUSSIANSIZEY);
+
+			//save for testing purposes
 			if(saveProcessedImage) DependencyService.Get<IPics>().SaveImageToDisk(bwSharpenedStream, System.DateTime.Now.Second+"bwsharp.png");
+
+			//Tesseract text recognition
 			await DependencyService.Get<IPics> ().loadFromPicDivideBy (Tesseract.PageIteratorLevel.Textline, bwSharpenedStream);
 			IEnumerable<Tesseract.Result> imageResult = DependencyService.Get<IPics> ().imageResult;
 

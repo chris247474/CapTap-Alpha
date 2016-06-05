@@ -465,10 +465,11 @@ namespace Capp2
 				})
 			);
 
-			while (true) {
+			/*while (true) {
 				await UIAnimationHelper.ZoomUnZoomElement (img, 1.6, 1000, true);
 				await Task.Delay (1000);
-			}
+			}*/
+			UIAnimationHelper.StartPressMeEffectOnView (img, 1.6);
 		}
 
 		public static async Task ShowTip_Welcome(ContentPage page, string TutorialText, Color background){

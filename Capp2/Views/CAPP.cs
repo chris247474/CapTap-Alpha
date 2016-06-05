@@ -561,11 +561,12 @@ namespace Capp2
 			searchBar.Unfocus ();
             try {
                 this.IsBusy = true;
-				(scroller.Content as StackLayout).Children.Remove((scroller.Content as StackLayout).Children.Last());//RemoveAt(5);//use last instead?
+				//(scroller.Content as StackLayout).Children.Last()
+				(scroller.Content as StackLayout).Children.Remove(listView);//RemoveAt(5);//use last instead?
 
 				CreateListView(cachestrat);
 
-				(scroller.Content as StackLayout).Children.Add(listView);
+				(scroller.Content as StackLayout).Children.Insert((scroller.Content as StackLayout).Children.Count - 1, listView);
                 this.IsBusy = false;
             }
             catch (Exception e) {
@@ -589,11 +590,10 @@ namespace Capp2
 			App.UsingSearch = true;
             if (string.IsNullOrWhiteSpace(filter))
             {
-				//ReBuildGroupedSearchableListView(playlist, groupedList, ListViewCachingStrategy.RecycleElement);
-				//searchBar.Unfocus();
 				ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RetainElement);
             }
             else {
+				Debug.WriteLine ("Searching");
                 listView.BeginRefresh();
 
                 listView.IsGroupingEnabled = false;
@@ -603,8 +603,21 @@ namespace Capp2
 				listView.ItemsSource = Util.FilterNameNumberOrg(PreloadedList, filter);
                 
                 listView.EndRefresh();
+				
            }
 			App.UsingSearch = false;
+
+			/*App.UsingSearch = true;
+			listView.BeginRefresh ();
+			if(string.IsNullOrWhiteSpace(filter)){
+				ReBuildGroupedSearchableListView(playlist, groupedList, ListViewCachingStrategy.RetainElement);
+				//listView.ItemsSource = groupedList;
+			}else{
+				//returns GROUPING that contains matching contact along w all other contacts in that group
+				listView.ItemsSource = groupedList.Where(o => o.Any(p => p.Name.ToLower().Contains(filter.ToLower()))).ToList();
+			}
+			App.UsingSearch = false;
+			listView.EndRefresh ();*/
         }
 
 		/*async Task<string> HandleMutlipleNumbers(ContactData contact){
@@ -700,11 +713,16 @@ namespace Capp2
 	public class Grouping<S, T> : ObservableCollection<T>
 	{
 		private readonly S _key;
+		private readonly T _contact;
 
 		public Grouping(IGrouping<S, T> group)
 			: base(group)
 		{
 			_key = group.Key;
+		}
+
+		public T Contact{
+			get{ return _contact;}
 		}
 
 		public S Key
@@ -721,23 +739,25 @@ namespace Capp2
 			var title = new Label 
 			{ 
 				BackgroundColor = Color.Transparent,
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
+				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				FontAttributes = FontAttributes.Bold,
 				TextColor = Color.Black,
-				VerticalOptions = LayoutOptions.Center 
+				VerticalOptions = LayoutOptions.Center,
+				HorizontalOptions = LayoutOptions.FillAndExpand,
 			}; 
 			title.SetBinding(Label.TextProperty, "Key"); 
 			View = new StackLayout 
 			{ 
-				BackgroundColor = Color.Transparent,
+				BackgroundColor = Color.FromHex("E9E9E9"),
 				HorizontalOptions = LayoutOptions.FillAndExpand, 
-				HeightRequest = 25, 
+				//HeightRequest = this.RenderHeight*0.5, 
 				//BackgroundColor = Color.FromRgb(52, 152, 218), 
 				Padding = 5, 
 				Orientation = StackOrientation.Horizontal, 
 				Children = { title } 
 			}; 
-			this.View.BackgroundColor = Color.Transparent;
+			this.View.BackgroundColor = Color.White;
+			this.View.Opacity = 0.5;
 		} 
 	}
 
