@@ -12,6 +12,16 @@ namespace Capp2
 	{
 		static TimeSpan StartTime = new TimeSpan(0,0,0,0,0);
 
+		public static string GetNumbers(ContactData contact){
+			string numbers = string.Empty;
+			numbers += string.Format("\n{0}",contact.Number);
+			numbers += string.Format("\n{0}",contact.Number2);
+			numbers += string.Format("\n{0}",contact.Number3);
+			numbers += string.Format("\n{0}",contact.Number4);
+			numbers += string.Format("\n{0}",contact.Number5);
+			return numbers;
+		}
+
 		public static void ShowUserYesCallTime(Page page, bool AutoCall){
 			App.SingleCallTimeEllapsed = StopTimer();
 

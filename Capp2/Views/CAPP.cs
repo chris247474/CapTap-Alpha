@@ -172,7 +172,6 @@ namespace Capp2
 		}
 
 		async void CreateUIElements(){
-			
 			this.BackgroundColor = Color.Transparent;
 			if (Device.OS == TargetPlatform.iOS)
 				App.NavPage.BackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
@@ -182,11 +181,13 @@ namespace Capp2
 				Placeholder = "Search for a name or number",
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
+				//CancelButtonColor = Color.FromHex(Values.GOOGLEBLUE),
 			};
 			searchBar.TextChanged += (sender, e) => {
 				FilterCAPPContacts(searchBar.Text, playlist, PreLoadedGroupedList, PreloadedList);
 			};
 			searchBar.Focused += (object sender, FocusEventArgs e) => {
+				Debug.WriteLine("SearchBar focused");
 				ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RecycleElement);
 			};
 			lblContactsCount = new Label{
@@ -558,7 +559,10 @@ namespace Capp2
 		public async Task ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList,
 			ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement)
 		{
-			searchBar.Unfocus ();
+			if (cachestrat == ListViewCachingStrategy.RetainElement) {
+				searchBar.Unfocus ();
+			}
+
             try {
                 this.IsBusy = true;
 				//(scroller.Content as StackLayout).Children.Last()

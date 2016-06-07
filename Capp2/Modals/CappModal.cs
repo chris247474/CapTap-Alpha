@@ -35,7 +35,7 @@ namespace Capp2
 			CreateLayouts (isToolTipHolder);
 
 			//for some reason, all the contacts are initially shown w the same name. this will 'refresh' the list
-			ReBuildGroupedSearchableListView(playlist, groupedlist, stack);
+			ReBuildGroupedSearchableListView(playlist, groupedlist, stack, ListViewCachingStrategy.RetainElement);
 			SubscribeToMessagingCenter ();
 		}
 
@@ -212,7 +212,10 @@ namespace Capp2
 		public async Task ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList,
 			StackLayout stack, ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RetainElement)
 		{
-			searchBar.Unfocus();
+			if (cachestrat == ListViewCachingStrategy.RetainElement) {
+				searchBar.Unfocus ();
+			}
+
 			try {
 				this.IsBusy = true;
 				stack.Children.Remove(stack.Children.Last());//RemoveAt(5);//use last instead?
@@ -289,15 +292,7 @@ namespace Capp2
 				}
 			);
 
-			var label = new Label{
-				FontSize = nameLabel.FontSize,
-				BackgroundColor = Color.Transparent,
-				TextColor = Color.White,
-				//FontAttributes = FontAttributes.Bold,
-				HorizontalOptions = LayoutOptions.Center,
-			};
-			label.Opacity = label.Opacity / 1.5;
-			label.SetBinding (Label.TextProperty, "Initials");
+			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials"); 
 
 			layout.Children.Add (
 				content,
@@ -307,16 +302,11 @@ namespace Capp2
 				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
 			);
 
-			layout.Children.Add(
-				label,
-				xConstraint: Constraint.RelativeToParent(parent => (ContactPic.Width*0.59)),
-				yConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.37)
-			); 
+			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.042, ContactPic);
 
 			return layout;
 		}
 		void CreateUIElements(){
-			//this.Height = 56;
 			this.Height = RenderHeight*1.8;
 
 			ContactPic = UIBuilder.CreateTappableCircleImage ("", LayoutOptions.CenterAndExpand, 

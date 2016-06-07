@@ -38,7 +38,7 @@ namespace Capp2
 			circleImage = new CircleImage{
 				HorizontalOptions = LayoutOptions.Fill,
 				Aspect = Aspect.AspectFill,
-				//BackgroundColor = Color.FromHex(Values.YELLOW),
+				BackgroundColor = Color.Transparent,//
 			};
 			circleImage.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
@@ -135,27 +135,9 @@ namespace Capp2
 				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
 			); 
 
-			var label = new Label{
-				FontSize = nameLabel.FontSize,
-				BackgroundColor = Color.Transparent,
-				TextColor = Color.White,
-				HorizontalTextAlignment = TextAlignment.Center,
-				VerticalTextAlignment = TextAlignment.Center,
-			};
-			//label.Opacity = label.Opacity / 1.5;
-			label.SetBinding (Label.TextProperty, "Initials");
+			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
 
-			layout.Children.Add(
-				label,
-				/*xConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.56)),
-				yConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.39),
-				widthConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.8)),
-				heightConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.33)*/
-				xConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.36)),
-				yConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.39),
-				widthConstraint: Constraint.RelativeToParent(parent => (circleImage.Width*0.8)),
-				heightConstraint: Constraint.RelativeToParent(parent => circleImage.Height*0.33)
-			); 
+			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage);
 
 			View = layout;
 

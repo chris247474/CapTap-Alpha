@@ -12,6 +12,37 @@ namespace Capp2
 {
 	public static class UIBuilder
 	{
+		public static Label CreateInitialsLabel(double fontsize, string binding, double opacity = 1){
+			var initials = new Label{
+				FontSize = fontsize,
+				BackgroundColor = Color.Transparent,
+				TextColor = Color.White,
+				//FontAttributes = FontAttributes.Bold,
+				HorizontalOptions = LayoutOptions.Center,
+				HorizontalTextAlignment = TextAlignment.Center,
+				VerticalTextAlignment = TextAlignment.Center
+			};
+			initials.Opacity = opacity;
+			initials.SetBinding (Label.TextProperty, binding);
+
+			return initials;
+		}
+		public static void AddInitialsToContactListItem(RelativeLayout layout, Label initials, 
+			double leftSpacingPercentage, CircleImage ContactPic)
+		{
+			if (layout == null || initials == null) {
+				throw new ArgumentNullException ("AddInitialsToCAPPList(RelativeLayout, Label, CircleImage) - null param not allowed");
+			}
+
+			layout.Children.Add(
+				initials,
+				xConstraint: Constraint.RelativeToParent(parent => (parent.Width*leftSpacingPercentage)+(leftSpacingPercentage+(ContactPic.Width *0.2)*0.5)),
+				yConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.5*0.62),
+				widthConstraint: Constraint.RelativeToParent(parent => (ContactPic.Width*0.8)),
+				heightConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.5)
+			); 
+		}
+
 		public static string ChooseRandomProfilePicBackground(string[] images){
 			if (images == null || images.Length == 0) {
 				throw new ArgumentException ("param is null or empty");
