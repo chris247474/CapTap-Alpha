@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Capp2
 {
-	public class PlaylistPage:GradientContentPage//MasterDetailPage
+	public class PlaylistPage:GradientContentPage
 	{
 		public ListView listView{ get; set;}
 		public Playlist playlistSelected;

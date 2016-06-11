@@ -252,7 +252,6 @@ namespace Capp2
 			}
 		}
 		void CreateListView(ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RetainElement){
-			//this.Content.InputTransparent = true;
 
 			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(App.Database.GetGroupedItems (playlist));
 
@@ -284,7 +283,10 @@ namespace Capp2
 			};
 			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
 				listView.HasUnevenRows = false;
-			}
+				//listView.RowHeight = -1;
+			}/*else if(cachestrat == ListViewCachingStrategy.RetainElement){
+				listView.RowHeight = 60;
+			}*/
 			listView.Focused += (object sender, FocusEventArgs e) => {
 				scroller.ScrollToAsync(0, listView.Y, true);
 			};

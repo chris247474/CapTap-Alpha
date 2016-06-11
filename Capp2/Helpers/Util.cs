@@ -81,11 +81,10 @@ namespace Capp2
 		public static string[] ImportChoices(string playlist){
 			var playlistsList = (App.Database.GetPlaylistItems ());
 			var playlistarr = playlistsList.ToArray ();
-			Debug.WriteLine ("Import contacts options: {0}", playlistarr.Length + 2);
 			List<string> importchoices = new List<string>();
 
 			importchoices.Add(Values.IMPORTCHOICEMANUAL);
-			importchoices.Add(Values.IMPORTCHOICEGDRIVE);
+			//importchoices.Add(Values.IMPORTCHOICEGDRIVE);
 
 			if (string.Equals (playlist, Values.ALLPLAYLISTPARAM)) {
 			} else {

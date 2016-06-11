@@ -178,7 +178,6 @@ namespace Capp2
 						new StackLayout{
 							HorizontalOptions = LayoutOptions.End,
 							VerticalOptions = LayoutOptions.Center,
-
 							Children = {checkbox}
 						}
 					);
@@ -200,7 +199,6 @@ namespace Capp2
 						new StackLayout{
 							HorizontalOptions = LayoutOptions.End,
 							VerticalOptions = LayoutOptions.Center,
-
 							Children = {checkbox}
 						}
 					);

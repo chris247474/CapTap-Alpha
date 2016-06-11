@@ -333,6 +333,7 @@ namespace Capp2
 		}
 
 		public static async Task HowToMakeANamelist(PlaylistPage page, string text, Color background){
+			
 			Debug.WriteLine ("In HowToMakeANamelist");
 
 			layout = ((RelativeLayout)page.Content);
@@ -417,6 +418,9 @@ namespace Capp2
 			}
 		}
 		public static async Task ShowTip_HowToGoBackToPlaylistPage(ContentPage page, string text, Color background){
+			
+			UserDialogs.Instance.ShowLoading ("Loading...", MaskType.Clear);
+
 			layout = ((RelativeLayout)page.Content);
 
 			InfoLabel = UIBuilder.CreateTutorialLabel (text, NamedSize.Large, FontAttributes.None);
@@ -465,10 +469,11 @@ namespace Capp2
 				})
 			);
 
-			/*while (true) {
-				await UIAnimationHelper.ZoomUnZoomElement (img, 1.6, 1000, true);
-				await Task.Delay (1000);
-			}*/
+			//for some reason, app consistently freezes within this function, unsure if its related to this code
+			//just to make it less obvious to the user until i find a solution
+			await Task.Delay (600);
+			UserDialogs.Instance.HideLoading ();
+
 			UIAnimationHelper.StartPressMeEffectOnView (img, 1.6);
 		}
 
