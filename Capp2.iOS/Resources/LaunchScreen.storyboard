@@ -16,7 +16,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" customColorSpace="calibratedWhite" colorSpace="calibratedRGB" red="0.2" green="0.611764705882353" blue="1" alpha="1"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" id="18" translatesAutoresizingMaskIntoConstraints="NO" image="splashbackgroundorangegradient.png">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" id="18" translatesAutoresizingMaskIntoConstraints="NO" image="BlueGradientBackground.png">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                                 <constraints>
                                     <constraint id="21" firstAttribute="width" constant="600"/>
@@ -94,7 +94,7 @@
         <image name="dome.png" width="670" height="94"/>
         <image name="profile-blue.png" width="250" height="220"/>
         <image name="profile-orange.png" width="250" height="250"/>
-        <image name="profile-green.png" width="250" height="250"/>
+        <image name="profile-green.png" width="316" height="314"/>
         <image name="profile-purple.png" width="398" height="398"/>
         <image name="profile-red.png" width="392" height="392"/>
         <image name="Plus.png" width="22" height="22"/>
@@ -109,5 +109,11 @@
         <image name="Close-Thin.png" width="100" height="100"/>
         <image name="OrangeGradientBackground.png" width="640" height="1138"/>
         <image name="splashbackgroundorangegradient.png" width="1242" height="2208"/>
+        <image name="profile-purpleblue.png" width="400" height="400"/>
+        <image name="message-blue-outline.png" width="100" height="100"/>
+        <image name="Phone-blue-outline.png" width="100" height="100"/>
+        <image name="Phone-blue-filled.png" width="100" height="100"/>
+        <image name="message-blue-filled.png" width="100" height="100"/>
+        <image name="BlueGradientBackground.png" width="640" height="1131"/>
     </resources>
 </document>

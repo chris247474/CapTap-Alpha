@@ -224,6 +224,9 @@
     <BundleResource Include="Resources\Phone-blue-outline.png" />
     <BundleResource Include="Resources\Phone-blue-filled.png" />
     <BundleResource Include="Resources\message-blue-filled.png" />
+    <BundleResource Include="Resources\BlueGradientBackground.png" />
+    <BundleResource Include="Resources\BlueGradientBackground%402x.png" />
+    <BundleResource Include="Resources\BlueGradientBackground%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
