@@ -43,6 +43,9 @@ namespace Capp2
 		[Column("Playlist")]
 		public string Playlist { get; set; }
 
+		[Column("OldPlaylist")]
+		public string OldPlaylist { get; set; } = Values.TODAYSCALLSUNDEFINED;
+
 		[Column("Called")]
 		public DateTime Called{ get; set;}
 		[Column("Appointed")]
@@ -78,6 +81,18 @@ namespace Capp2
 
 		[Column("Initials")]
 		public string Initials{ get; set;}
+
+		public bool IsAppointed{
+			get{ return (Appointed.Date == DateTime.MinValue) ? false : true; }
+		}
+
+		public bool IsSetForNextCall{
+			get{ return (NextCall.Date == DateTime.MinValue) ? false : true; }
+		}
+
+		public bool ShouldCallToday{
+			get{ return (NextCall.Date == DateTime.Today.Date) ? true : false; }
+		}
 	}
 }
 

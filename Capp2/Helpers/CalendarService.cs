@@ -17,74 +17,50 @@ namespace Capp2.Helpers
         static bool CalendarExists { get; set; }
 
 		static async Task<bool> CheckToday(bool alerted){
-			//SettingsViewModel vm;
-			//vm = new SettingsViewModel();
-			var peopleToday = PeopleForToday().ToArray();
+			UserDialogs.Instance.HideLoading ();
 
-			//confirm today
-			//if (!string.Equals(DateTime.Today.Day.ToString(), Settings.DateRemindedForTodaySettings))
-			//{
-				//Debug.WriteLine ("Todays appointments not yet confirmed");
+			var peopleToday = PeopleForToday().ToArray();
 				try
-				{
+				{	
 					if (peopleToday != null && peopleToday.Length != 0)
 					{
 						Debug.WriteLine("Going thorugh Todays meetings");
-						/*if(!alerted){
-							await AlertHelper.Alert("Confirming appointments", 
-								"Checking for unconfirmed appointments");
-							alerted = true;
-						}*/
-
+						UserDialogs.Instance.HideLoading ();
 						for (int c = 0; c < peopleToday.Length; c++)
 						{
 							var person = peopleToday[c];
 							await Task.Delay(1000);
 							await TextTemplateHelper.PrepareConfirmTodaysMeetingsTemplateThenSendText(person);
 						}
-						//vm.DateRemindedForTodaySettings = DateTime.Today.Day.ToString();
 					}
+					
 				}
 				catch (Exception e)
 				{
 					Debug.WriteLine("" + e.Message);
+					
 				}
 
-			/*}
-			else {
-				Debug.WriteLine ("Todays appointments already checked");
-			}*/
 			return alerted;
 		}
 
 		static async Task<bool> CheckTomorrow(bool alerted){
-			//SettingsViewModel vm;
-			//vm = new SettingsViewModel();
+			UserDialogs.Instance.HideLoading ();
 			var peopleTomorrow = PeopleForTomorrow().ToArray();
-
-			//confirm tomorrow
-			//if (!string.Equals(DateTime.Today.Day.ToString(), Settings.DateRemindedSettings))
-			//{
-				//Debug.WriteLine ("Tomorrows appointments not yet confirmed");
 				try
 				{
+					//
 					if (peopleTomorrow != null && peopleTomorrow.Length != 0)
 					{
-						/*if (!alerted){
-							await AlertHelper.Alert ("Confirming appointments", 
-								"Let's confirm appointments before starting calls");
-							alerted = true;
-						}*/
 							
 						Debug.WriteLine("Going thorugh tomorrows meetings: {0}", peopleTomorrow.Length);
-
 						for (int c = 0; c < peopleTomorrow.Length; c++)
 						{
 							var person = peopleTomorrow[c];
 							await Task.Delay(1000);
 							await TextTemplateHelper.PrepareConfirmTomorrowsMeetingsTemplateThenSendText(person);
 						}
-						//Settings.DateRemindedSettings = DateTime.Today.Day.ToString();
+
 					}else{
 						Debug.WriteLine("No meetings tomorrow");
 					}
@@ -93,19 +69,20 @@ namespace Capp2.Helpers
 				{
 					Debug.WriteLine("" + e.Message);
 				}
-			/*}
-			else {
-				Debug.WriteLine ("Tomorrows appointments already checked");
-			}*/
 			return alerted;
 		}
 
 		public static async Task CheckMeetingsTodayTomorrowConfirmSentSendIfNot()
         {
 			bool alerted = false;
-			alerted = await CheckToday(alerted);
-			await Task.Delay (3000);
-			await CheckTomorrow (alerted);
+			Debug.WriteLine ("first run? {0}", Settings.IsFirstRunSettings);
+			if (!Settings.IsFirstRunSettings) {
+				UserDialogs.Instance.ShowLoading ("Checking today's calendar to confirm meetings");
+				alerted = await CheckToday(alerted);
+				await Task.Delay (3000);
+				UserDialogs.Instance.ShowLoading ("Checking tomorrow's calendar to confirm meetings");
+				await CheckTomorrow (alerted);
+			}
         }
 
         public static void NotifyUserForTomorrowsAppointments(int hour, int seconds/*, string number = "", string message = "", string name = ""*/)

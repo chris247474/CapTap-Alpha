@@ -25,6 +25,7 @@ namespace Capp2
 		public const string CAPPTUTORIALCOLOR_LIGHTORANGE = "#FFB24A";
 		public const string DARKBLUENAVBAR = "#1976D2";
 		public const string YELLOW = "#FFC107";
+		public const string RED = "#F44336";
 
 		public const string FABNORMALCOLOR = "#FF9800";
 		public const string FABPRESSEDCOLOR = "#3F51B5";
@@ -74,6 +75,7 @@ namespace Capp2
 		public static string DONEWITHCALL = "Done";
         public static string iOSDONEWITHCALL = "iOSDone";
         public static string DONEWITHNOCALL = "DoneNoCall";
+		public static string DONEWITHSKIPCALL = "skipdone";
 
 		public const string TODAYSCALLS = "Today's Calls";
 		public const int TOMORROWMEETINGREMINDTIME = 3;
@@ -120,6 +122,8 @@ namespace Capp2
 		public const string NODUPLICATES = "";
 
 		public const string ALLPLAYLISTPARAM = "All";
+		public const string TODAYSCALLSUNDEFINED = "todayscallsundefined";
+		public const string CALLTODAY = "calltoday";
 
 		//image preprocessing values. adjust to change image OCR readability. so far 28/30 perfect reads w current values
 		public const double GAUSSIANSIGMA = 0;// 0 so far best value for OCR to read edges of font accurately

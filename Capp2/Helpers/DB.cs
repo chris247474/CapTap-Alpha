@@ -23,20 +23,20 @@ namespace Capp2
 			database.CreateTable<ContactData>();
             database.CreateTable<Playlist>();
 		}
-		public async Task<IEnumerable<ContactData>> GetItemsAsync(string playlist){
-			IEnumerable<ContactData> list = null;
-			await Task.Run(() => {
-				list = GetItems(playlist);
-			});
-			return list;
-		}
-		public IEnumerable<ContactData> GetItems (string playlist) {
+		public List<ContactData> GetItems (string playlist) {
+			Debug.WriteLine ("Calling list {0}", playlist);
 			if (playlist == "All") {
 				//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
 				list = (from x in (database.Table<ContactData> ().OrderBy (x => x.LastName))
 					select x).ToList<ContactData> ();
 				App.lastIndex = list.Count+1;
-			} else {
+			} else if(playlist == Values.TODAYSCALLS){
+				//all contacts regardless of playlist, marked for callback today
+				list = (from x in (database.Table<ContactData> ().
+					Where (c => c.OldPlaylist == Values.CALLTODAY && c.NextCall == DateTime.Today.Date).OrderBy (x => x.LastName))
+					select x).ToList<ContactData> (); 
+				App.lastIndex = list.Count+1;
+			}else {
 				try{
 					list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist == playlist).OrderBy (x => x.LastName))
 						select x).ToList<ContactData> ();
@@ -63,13 +63,6 @@ namespace Capp2
 				listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number5, false);
 			}
 
-			/*foreach(ContactData c in list){
-				c.Number = App.contactFuncs.MakeDBContactCallable (c.Number, false);
-				c.Number2 = App.contactFuncs.MakeDBContactCallable (c.Number2, false);
-				c.Number3 = App.contactFuncs.MakeDBContactCallable (c.Number3, false);
-				c.Number4 = App.contactFuncs.MakeDBContactCallable (c.Number4, false);
-				c.Number5 = App.contactFuncs.MakeDBContactCallable (c.Number5, false);
-			}*/
 			return list;
 		}
         
@@ -237,27 +230,6 @@ namespace Capp2
 			return new ChartData[]{ Called, Appointed, Presented, Purchased};
 		}
 
-        /*public async Task<List<Grouping<string, ContactData>>> GetGroupedItemsFasterAsync (string playlist){
-			List<Grouping<string, ContactData>> groupedList = new List<Grouping<string, ContactData>> ();
-			await Task.Run ( async () => {
-				groupedList = await GetGroupedItemsFaster (playlist);
-			});
-			return groupedList;
-		}
-		public async Task<List<Grouping<string, ContactData>>> GetGroupedItemsFaster (string playlist) {
-			List<Grouping<string, ContactData>> groupedData = new List<Grouping<string, ContactData>> ();
-			try{
-				groupedData =
-					(await GetItemsAsync(playlist))//.OrderBy(p => p.LastName)
-						.GroupBy(p => p.LastName[0].ToString())
-						.Select(p => new Grouping<string, ContactData>(p))
-						.ToList();
-				return groupedData;
-			}catch(Exception){
-				UserDialogs.Instance.ErrorToast ("Error", "Couldn't load call list");
-				return null;
-			}
-		}*/
 		public List<Grouping<string, ContactData>> GetGroupedItems (string playlist) {
 			try{
 				if (playlist == Values.ALLPLAYLISTPARAM) {
@@ -267,9 +239,12 @@ namespace Capp2
 					App.lastIndex = list.Count+1;
 				}else if(playlist == Values.TODAYSCALLS){
 					//all contacts regardless of playlist, marked for callback today
-					list = (from x in (database.Table<ContactData> ().Where (c => c.NextCall == DateTime.Now.Date).OrderBy (x => x.LastName))
+					list = (from x in (database.Table<ContactData> ().
+						Where (c => c.OldPlaylist == Values.CALLTODAY && c.NextCall == DateTime.Today.Date).OrderBy (x => x.LastName))
 						select x).ToList<ContactData> ();
 					App.lastIndex = list.Count+1;
+
+
 				} else {
 					try{
 						list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist == playlist).OrderBy (x => x.LastName))
@@ -283,16 +258,14 @@ namespace Capp2
 				}
 
 				var listarr = list.ToArray();
-
 				for(int c = 0;c < listarr.Length;c++){
-					//list.ElementAt (c).Number = App.contactFuncs.MakeDBContactCallable(list.ElementAt (c).Number, false);
 					listarr[c].Number = App.contactFuncs.MakeDBContactCallable(listarr[c].Number, false);
 					var firstinitial = listarr[c].FirstName.ToCharArray()[0];
 					var secondinitial = listarr[c].LastName.ToCharArray()[0];
 					listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
 
 				}
-
+				App.Database.UpdateAll(listarr.AsEnumerable());
 
 				var groupedData =
 					list.OrderBy(p => p.LastName)
@@ -306,12 +279,26 @@ namespace Capp2
 				return null;
 			}
 		}
-		/*public Playlist GetItem (int id)
+		public Playlist GetPlaylist (string name)
 		{
 			lock (locker) {
-				return database.Table<ContactData> ().FirstOrDefault (x => x.ID == id);
+				return database.Table<Playlist> ().FirstOrDefault (x => x.PlaylistName == name);
 			}
-		}*/
+		}
+
+		public void MarkForTodaysCalls(ContactData contact, bool yescall, DateTime date){
+			if (yescall) {
+				contact.OldPlaylist = Values.TODAYSCALLSUNDEFINED;
+				//App.CapPage.refresh ();//doesnt work for some reason
+			} else {
+				contact.NextCall = date.Date;
+				contact.OldPlaylist = Values.CALLTODAY;
+				App.Database.UpdateItem (contact);
+				Debug.WriteLine ("Will follow up {0} on {1}. date.Date param: {2}. OldPlaylist is {3}", 
+					contact.Name, contact.NextCall, date.Date, contact.OldPlaylist);
+			}
+		}
+
 		public int DeleteItem(int id)
 		{
 			lock (locker) {
@@ -349,9 +336,22 @@ namespace Capp2
 		{
 			try{
 				item.Name = item.FirstName + " " + item.LastName;
-				Debug.WriteLine("Updated {0}: image: {1}", 
-					item.Name, item.PicStringBase64);
+				Debug.WriteLine("Updated {0}, IsSelected: {1}", 
+					item.Name, item.IsSelected);
 					
+				lock (locker) {
+					return database.Update(item);
+				}
+			}catch(Exception){
+				return 0;
+			}
+		}
+		public int UpdateItem (Playlist item) 
+		{
+			try{
+				Debug.WriteLine("Updating Namelist {0}", 
+					item.PlaylistName);
+
 				lock (locker) {
 					return database.Update(item);
 				}
@@ -364,6 +364,7 @@ namespace Capp2
 				var itemsArr = items.ToArray ();
 				for(int c = 0;c < itemsArr.Length;c++){
 					itemsArr[c].Name = itemsArr[c].FirstName + " " + itemsArr[c].LastName;
+					Debug.WriteLine("Updating {0}", itemsArr[c].Name);
 				}
 				lock (locker) {
 					return database.UpdateAll(itemsArr.AsEnumerable ());

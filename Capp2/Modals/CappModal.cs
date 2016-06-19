@@ -35,7 +35,8 @@ namespace Capp2
 			CreateLayouts (isToolTipHolder);
 
 			//for some reason, all the contacts are initially shown w the same name. this will 'refresh' the list
-			ReBuildGroupedSearchableListView(playlist, groupedlist, stack, ListViewCachingStrategy.RetainElement);
+			ReBuildGroupedSearchableListView(playlist, groupedlist, stack, 
+				ListViewCachingStrategy.RecycleElement);//Retain
 			SubscribeToMessagingCenter ();
 		}
 
@@ -133,7 +134,7 @@ namespace Capp2
 			//searchBar.Unfocused += (object sender, FocusEventArgs e) => {
 			//};
 			searchBar.Focused += (object sender, FocusEventArgs e) => {
-				ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, ListViewCachingStrategy.RecycleElement);
+				//ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, ListViewCachingStrategy.RecycleElement);
 			};
 
 			listView = CappBuilder.CreateGroupedListView (this, groupedlist, new CappModalViewCell (playlist), new Command (() => {
@@ -156,8 +157,8 @@ namespace Capp2
 			App.UsingSearch = true;
 			if (string.IsNullOrWhiteSpace(filter))
 			{
-				ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, ListViewCachingStrategy.RetainElement);
-				//listView.ItemsSource = groupedlist;
+				ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, 
+					ListViewCachingStrategy.RecycleElement);//Retain
 			}
 			else {
 				listView.BeginRefresh();
@@ -166,10 +167,7 @@ namespace Capp2
 				listView.GroupDisplayBinding = new Xamarin.Forms.Binding(".");
 				listView.GroupShortNameBinding = new Xamarin.Forms.Binding(".");
 				listView.GroupHeaderTemplate = null;
-				listView.ItemsSource = //groupedlist.Where(o => o.Any(p => p.Name.ToLower().Contains(filter.ToLower())));
-					/*groupedlist.Select(group => group.Where(x => x.Name.ToLower().Contains(filter.ToLower())
-					|| x.Number.ToLower().Contains(filter.ToLower())));*/
-					Util.FilterNameNumberOrg(this.list, filter);
+				listView.ItemsSource = Util.FilterNameNumberOrg(this.list, filter);
 
 				listView.EndRefresh();
 			}
@@ -210,11 +208,11 @@ namespace Capp2
 		}*/
 
 		public async Task ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList,
-			StackLayout stack, ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RetainElement)
+			StackLayout stack, ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement)
 		{
-			if (cachestrat == ListViewCachingStrategy.RetainElement) {
+			//if (cachestrat == ListViewCachingStrategy.RetainElement) {
 				searchBar.Unfocus ();
-			}
+			//}
 
 			try {
 				this.IsBusy = true;
@@ -239,7 +237,6 @@ namespace Capp2
 		void CreateListView(ListViewCachingStrategy cachestrat, List<Grouping<string, ContactData>> groupedList){
 			listView = new ListView(cachestrat)
 			{
-				RowHeight = 60,
 				BackgroundColor = Color.Transparent,
 				ItemsSource = groupedList,
 				SeparatorColor = Color.Transparent,
@@ -258,6 +255,7 @@ namespace Capp2
 			};
 			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
 				listView.HasUnevenRows = false;
+				listView.RowHeight = 70;
 			}
 		}
 	}
@@ -272,6 +270,7 @@ namespace Capp2
 		CircleImage ContactPic = null;
 
 		public CappModalViewCell(string playlist){
+			//this.Height = 80;
 			CreateUIElements ();
 			View = CreateView (playlist);
 		}
@@ -288,6 +287,7 @@ namespace Capp2
 				},
 				new StackLayout{
 					HorizontalOptions = LayoutOptions.End,
+					VerticalOptions = LayoutOptions.Center,
 					Children = {checkbox}
 				}
 			);
@@ -324,7 +324,8 @@ namespace Capp2
 			nameLabel.SetBinding(Label.TextProperty, "Name");//"Name" links directly to the ContactData.Name property
 
 			checkbox = new CheckBox{ 
-				HorizontalOptions = LayoutOptions.Center
+				HorizontalOptions = LayoutOptions.Center,
+				VerticalOptions = LayoutOptions.Center
 			};
 			checkbox.IsEnabled = true;
 			checkbox.IsVisible = true;
@@ -341,6 +342,16 @@ namespace Capp2
 
 
 		}
+		/*protected override void OnBindingContextChanged ()
+		{
+			base.OnBindingContextChanged ();
+			Debug.WriteLine ("OnBindingContextChanged");
+
+			var item = BindingContext as ContactData;
+			this.Height = 80;
+			ContactPic.HeightRequest = 72;
+			this.ForceUpdateSize ();
+		}*/
 	}
 }
 

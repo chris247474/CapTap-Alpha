@@ -7,6 +7,7 @@ using Acr.UserDialogs;
 using XLabs.Forms.Controls;
 using Capp2.Helpers;
 using System.Collections.Generic;
+using FFImageLoading.Forms;
 
 namespace Capp2
 {
@@ -28,7 +29,23 @@ namespace Capp2
 			return initials;
 		}
 		public static void AddInitialsToContactListItem(RelativeLayout layout, Label initials, 
-			double leftSpacingPercentage, CircleImage ContactPic)
+			double leftSpacingPercentage, CircleImage ContactPic, double initialsoffsetfromtoppercent = 0.62)
+		{
+			Debug.WriteLine ("AddInitialsToContactListItem called");
+			if (layout == null || initials == null) {
+				throw new ArgumentNullException ("AddInitialsToCAPPList(RelativeLayout, Label, CircleImage) - null param not allowed");
+			}
+
+			layout.Children.Add(
+				initials,
+				xConstraint: Constraint.RelativeToParent(parent => (parent.Width*leftSpacingPercentage)+(leftSpacingPercentage+(ContactPic.Width *0.2)*0.5)),
+				yConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.5*initialsoffsetfromtoppercent),
+				widthConstraint: Constraint.RelativeToParent(parent => (ContactPic.Width*0.8)),
+				heightConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.5)
+			); 
+		}
+		public static void AddInitialsToContactListItem(RelativeLayout layout, Label initials, 
+			double leftSpacingPercentage, CachedImage ContactPic)
 		{
 			if (layout == null || initials == null) {
 				throw new ArgumentNullException ("AddInitialsToCAPPList(RelativeLayout, Label, CircleImage) - null param not allowed");
@@ -37,7 +54,7 @@ namespace Capp2
 			layout.Children.Add(
 				initials,
 				xConstraint: Constraint.RelativeToParent(parent => (parent.Width*leftSpacingPercentage)+(leftSpacingPercentage+(ContactPic.Width *0.2)*0.5)),
-				yConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.5*0.62),
+				yConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.35*0.62),
 				widthConstraint: Constraint.RelativeToParent(parent => (ContactPic.Width*0.8)),
 				heightConstraint: Constraint.RelativeToParent(parent => ContactPic.Height*0.5)
 			); 

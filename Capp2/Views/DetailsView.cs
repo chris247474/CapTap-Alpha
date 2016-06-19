@@ -17,7 +17,8 @@ namespace Capp2
 			name = new Label () {
 				Text = contact.Name,
 				FontSize = 20,
-				FontFamily = Device.OnPlatform("HelveticaNeue-Bold","sans-serif-black",null),
+				//FontFamily = Device.OnPlatform("HelveticaNeue-Bold","sans-serif-black",null),
+				FontAttributes = FontAttributes.Bold,
 				HorizontalTextAlignment = TextAlignment.Center,
 				TextColor = Color.Black
 			};
@@ -26,7 +27,7 @@ namespace Capp2
 			var namelist = new Label () {
 				Text = contact.Playlist,
 				FontSize = 15,
-				FontFamily = Device.OnPlatform("HelveticaNeue-Light","sans-serif-light",null),
+				//FontFamily = Device.OnPlatform("HelveticaNeue-Light","sans-serif-light",null),
 				HorizontalTextAlignment = TextAlignment.Center,
 				TextColor = Color.FromHex("#666")
 			};
@@ -35,7 +36,7 @@ namespace Capp2
 			var numbers = new Label () {
 				Text = CallHelper.GetNumbers(contact),
 				FontSize = 15,
-				FontFamily = Device.OnPlatform("HelveticaNeue-Light","sans-serif-light",null),
+				//FontFamily = Device.OnPlatform(/*"HelveticaNeue-Light"*/"SF-UI","sans-serif-light",null),
 				HorizontalTextAlignment = TextAlignment.Center,
 				TextColor = Color.FromHex("#666")
 			};
@@ -43,7 +44,7 @@ namespace Capp2
 			info = new Label () {
 				Text = GetCallInfo(contact),
 				FontSize = 14,
-				FontFamily = Device.OnPlatform("HelveticaNeue","sans-serif",null),
+				//FontFamily = Device.OnPlatform(/*"HelveticaNeue-Light"*/"SF-UI","sans-serif-light",null),
 				HorizontalTextAlignment = TextAlignment.Center,
 				TextColor = Color.Black
 			};
@@ -75,32 +76,37 @@ namespace Capp2
 		string GetCallInfo(ContactData contact){
 			string infotext = "\n";
 			if (contact.Called.Date > DateTime.MinValue) {
-				infotext/*info.Text*/ = infotext/*info.Text*/ + string.Format ("We called {0} last {1}", contact.Name, 
-					contact.Called.ToString ("U", CultureInfo.CurrentCulture));
+				infotext = infotext  + string.Format ("We called {0} last {1}", contact.Name, 
+					contact.Called.ToString ("MMMM dd, yyyy"));//"U", CultureInfo.CurrentCulture));
 
 				if (contact.Appointed.Date > DateTime.MinValue) {
-					infotext/*info.Text*/ = infotext/*info.Text*/ + string.Format ("\nbooked {0} for a presentation last {1}", contact.FirstName, 
-						contact.Appointed.ToString ("U", CultureInfo.CurrentCulture));
+					infotext = infotext  + string.Format ("\nbooked {0} for a presentation last {1}", contact.FirstName, 
+						contact.Appointed.ToString ("MMMM dd, yyyy"));
 
 					if (contact.Presented.Date > DateTime.MinValue) {
-						infotext/*info.Text*/ = infotext/*info.Text*/ + string.Format ("\nand showed up {0}", 
-							contact.Presented.ToString ("U", CultureInfo.CurrentCulture));
+						infotext = infotext  + string.Format ("\nand showed up {0}", 
+							contact.Presented.ToString ("MMMM dd, yyyy"));
 
 						if (contact.Purchased.Date > DateTime.MinValue) {
-							infotext/*info.Text*/ = infotext/*info.Text*/ + string.Format ("\nthen signed up/bought products {0}",
-								contact.Purchased.ToString ("U", CultureInfo.CurrentCulture));
+							infotext  = infotext  + string.Format ("\nthen signed up/bought products {0}",
+								contact.Purchased.ToString ("MMMM dd, yyyy"));
 						} else {
-							infotext/*info.Text*/ += "\nand hasn't signed up/bought products";
+							infotext  += "\nand hasn't signed up/bought products";
 						}
 					} else {
-						infotext/*info.Text*/ += "\nand hasn't shown up yet";
+						infotext  += "\nand hasn't shown up yet";
 					}
 				} else {
-					infotext/*info.Text*/ += string.Format ("\n{0} hasn't been booked before", contact.FirstName);
+					infotext  += string.Format ("\n{0} hasn't been booked before", 
+						contact.FirstName);
+					if (contact.IsSetForNextCall) {
+						infotext  += string.Format (", but said we should call back on {0}", 
+							contact.NextCall.ToString ("MMMM dd, yyyy"));
+					}
 				}
 
 			} else {
-				infotext/*info.Text*/ += string.Format ("{0} hasn't been called yet", contact.Name);
+				infotext  += string.Format ("{0} hasn't been called yet", contact.Name);
 			}
 
 			return infotext;

@@ -11,10 +11,10 @@ namespace Capp2.iOS.Helpers
 {
     class NativeDialer : IDialer
     {
-        public async Task<bool> Dial(string number)//needs async or shows error
-        {
-            return UIKit.UIApplication.SharedApplication.OpenUrl(
-                new NSUrl("tel:" + number));
-        }
+		public async Task<bool> Dial(string number)//needs async or shows error
+		{
+			return UIKit.UIApplication.SharedApplication.OpenUrl(
+				new NSUrl("tel:" + number));
+		}
     }
 }

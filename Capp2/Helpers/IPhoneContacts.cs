@@ -8,7 +8,7 @@ namespace Capp2
 	{
 		Task<List<ContactData>> GetProfilePicPerPerson (List<ContactData> contacts);
 		bool SaveContactToDevice (string firstName, string lastName, string phone, string aff);
-		Task<bool> SendSMS (string number, string message, string name, string ConfirmOrBOM, 
+		Task<bool> SendSMS (string number, string message, string name, string ConfirmOrBOM, bool AutoCall =  false, 
 			string TodayOrTomorrow = null);
 		Task SendSMS (string number);
 		Task Share (string message);

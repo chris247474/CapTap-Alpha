@@ -14,6 +14,9 @@ namespace Capp2
 
 		[Column("Icon")]
 		public string Icon { get; set; } = "people.png";
+
+		[Column("LastIndexCalled")] 
+		public int LastIndexCalled{ get; set;} = 0;
 	}
 }
 

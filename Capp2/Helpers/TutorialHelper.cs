@@ -199,6 +199,7 @@ namespace Capp2
 				layout.Children.Remove(fab);
 				ReadyForAutoCallTipDone = true;
 
+				//CallHelper.AutoCall(page.playlist);
 				page.AutoCall();
 			}));
 
@@ -419,7 +420,7 @@ namespace Capp2
 		}
 		public static async Task ShowTip_HowToGoBackToPlaylistPage(ContentPage page, string text, Color background){
 			
-			UserDialogs.Instance.ShowLoading ("Loading...", MaskType.Clear);
+			//UserDialogs.Instance.ShowLoading ("Loading...", MaskType.Clear);
 
 			layout = ((RelativeLayout)page.Content);
 
@@ -472,7 +473,7 @@ namespace Capp2
 			//for some reason, app consistently freezes within this function, unsure if its related to this code
 			//just to make it less obvious to the user until i find a solution
 			await Task.Delay (600);
-			UserDialogs.Instance.HideLoading ();
+			//UserDialogs.Instance.HideLoading ();
 
 			UIAnimationHelper.StartPressMeEffectOnView (img, 1.6);
 		}

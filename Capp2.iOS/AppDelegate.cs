@@ -16,6 +16,7 @@ using System.Linq;
 using FireSharp.Interfaces;
 using FireSharp.Config;
 using FireSharp;
+using FFImageLoading.Forms.Touch;
 
 namespace Capp2.iOS
 {
@@ -82,6 +83,9 @@ namespace Capp2.iOS
             }
 
             global::Xamarin.Forms.Forms.Init();
+
+			//FFImageLoading
+			CachedImageRenderer.Init();
 
 			//FABForms
 			new FAB.iOS.FloatingActionButtonRenderer();

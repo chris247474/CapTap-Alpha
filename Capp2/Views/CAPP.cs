@@ -12,6 +12,7 @@ using XLabs.Forms.Controls;
 using System.ComponentModel;
 using FAB.Forms;
 using Capp2.Helpers;
+using System.Globalization;
 
 namespace Capp2
 {
@@ -21,26 +22,25 @@ namespace Capp2
 		string[] import;
 		bool calling, AutoCallContinue;
 		CameraViewModel cameraOps = null;
-		int contactsCount = 0, AutoCallCounter;
+		int contactsCount = 0;
 		Label lblContactsCount = null;
-		Button cmdAutocall;
+		//Button cmdAutocall;
 		public ToolbarItem EditTBI, DeleteTBI, MoveToTBI, AddTBI;
 		string title;
 		StackLayout stack = new StackLayout(), AutoCallStack = new StackLayout();
         List<Grouping<string, ContactData>> PreLoadedGroupedList;
 		SearchBar searchBar;
 		List<ContactData> AutoCallList;
-		IEnumerable<ContactData> PreloadedList;
+		List<ContactData> PreloadedList;
 		ScrollView scroller = new ScrollView();
-		//ListView listViewRetain = new ListView(), 
-		//ListView listViewRecycle = new ListView();
+		int AutoCallCounter;
 
 		public CAPP (string playlistChosen, bool showtip = true)
 		{
 			Init (playlistChosen);
 
 			SubscribeToMessagingCenterListeners ();
-			SubscribeForEditingListener ();
+			//SubscribeForEditingListener ();
 
 			CreateUIElements ();
 
@@ -139,7 +139,8 @@ namespace Capp2
 			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "", 
 				new Command (async () =>
 				{
-					AutoCall();
+					//CallHelper.AutoCall(this.playlist);
+						AutoCall();
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 		}
 
@@ -188,10 +189,10 @@ namespace Capp2
 			};
 			searchBar.Focused += (object sender, FocusEventArgs e) => {
 				Debug.WriteLine("SearchBar focused");
-				ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RecycleElement);
+				//ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RecycleElement);
 			};
 			lblContactsCount = new Label{
-				Text = App.Database.GetItems (playlist).Count().ToString()+" Contacts",
+				Text = App.Database.GetItems (playlist).Count.ToString()+" Contacts",
 				FontAttributes = FontAttributes.Bold,
 				VerticalOptions = LayoutOptions.Center,
 				HorizontalTextAlignment = TextAlignment.Center,
@@ -200,19 +201,15 @@ namespace Capp2
 			lblContactsCount.GestureRecognizers.Add (new TapGestureRecognizer{ Command = new Command (() => {
 				UIAnimationHelper.ZoomUnZoomElement(lblContactsCount);
 			}) });
-			cmdAutocall = new Button { Text = "START CALLING", BackgroundColor = Color.Green, TextColor = Color.Black, FontAttributes = FontAttributes.Bold };
-			cmdAutocall.Clicked += (sender, e) => {
-				UIAnimationHelper.ShrinkUnshrinkElement(cmdAutocall);
-				AutoCall();
-			};
-			cmdAutocall.BackgroundColor = Color.Green;
 
 			CreateTBIs ();
 
-			CreateListView (ListViewCachingStrategy.RetainElement);
+			CreateListView (ListViewCachingStrategy.RecycleElement);//Retain
 		}
 
 		public async Task AutoCall(){
+			PrepareForAutoCall ();
+
 			if (App.Database.GetItems (playlist).Count () == 0) {
 				AlertHelper.Alert (string.Format ("{0} has no contacts to call", playlist), "");
 			} else {
@@ -220,9 +217,11 @@ namespace Capp2
 					App.SettingsHelper.BOMLocationSettings = await Util.GetUserInputSingleLinePromptDialogue ("You haven't entered a meetup place in your meetup templates (go to Settings)", 
 						"Enter a default meetup location, then try again", "<meetup here>");
 
-					DoAutoCall ();
+					//DoAutoCall ();
+					CheckToResumeCallingIfPlaylistCalledBeforeThenCall(playlist);
 				} else {
-					DoAutoCall ();
+					//DoAutoCall ();
+					CheckToResumeCallingIfPlaylistCalledBeforeThenCall(playlist);
 				}
 			}
 		}
@@ -251,13 +250,13 @@ namespace Capp2
 				TutorialHelper.ShowExtraTips (this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
 			}
 		}
-		void CreateListView(ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RetainElement){
+		void CreateListView(ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement){
 
-			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(App.Database.GetGroupedItems (playlist));
+			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(
+				/*App.Database.GetGroupedItems (playlist)*/this.PreLoadedGroupedList);
 
 			listView = new ListView (cachestrat)
 			{
-				RowHeight = 60,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = Color.Transparent,
 				ItemsSource = PreLoadedGroupedList,
@@ -283,10 +282,8 @@ namespace Capp2
 			};
 			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
 				listView.HasUnevenRows = false;
-				//listView.RowHeight = -1;
-			}/*else if(cachestrat == ListViewCachingStrategy.RetainElement){
-				listView.RowHeight = 60;
-			}*/
+				listView.RowHeight = 70;
+			}
 			listView.Focused += (object sender, FocusEventArgs e) => {
 				scroller.ScrollToAsync(0, listView.Y, true);
 			};
@@ -305,19 +302,15 @@ namespace Capp2
 					((ListView)sender).SelectedItem = null; 
 				}
 			};
-
-			//return listView;
-			//this.Content.InputTransparent = false;
 		}
 
 		void CreateTBIs(){
-			//import = Util.ImportChoices(playlist);
 			AddTBI = new ToolbarItem("Add", "", async () =>
 				{
 					TutorialHelper.RemoveHowToAddContactsTipIfNeeded(this);
 					await AddContacts();
 				});
-			if (Device.OS == TargetPlatform.iOS) {
+			if (!string.Equals(this.playlist, Values.TODAYSCALLS)) {
 				this.ToolbarItems.Add(AddTBI);
 			}
 
@@ -346,7 +339,7 @@ namespace Capp2
 							}
 							Debug.WriteLine("ABOUT TO SAVE {0} CONTACTS", saveList.Count);
 							App.Database.UpdateAll(saveList.AsEnumerable());
-							App.Database.DeselectAll(saveList, this);
+							await App.Database.DeselectAll(saveList, this);
 							refresh();
 
 							UserDialogs.Instance.ShowSuccess("Moved!", 2000);
@@ -359,7 +352,7 @@ namespace Capp2
 
 					UpdateUI_EnableAutoCallingAfterEditing();
 				});
-			DeleteTBI = new ToolbarItem("Delete", "", () =>
+			DeleteTBI = new ToolbarItem("Delete", "", async () =>
 				{
 					var enumerableList = App.Database.GetItems (this.playlist);
 					var contactsArr = enumerableList.ToArray ();
@@ -367,12 +360,13 @@ namespace Capp2
 
 					for(int c = 0;c < contactsArr.Length;c++){
 						if(contactsArr[c].IsSelected){
+							Debug.WriteLine("Deleting {0} from {1}", contactsArr[c].Name, contactsArr[c].Playlist);
 							contactsArr[c].Playlist = Values.ALLPLAYLISTPARAM;
 							saveList.Add (contactsArr[c]);
 						}
 					}
 					App.Database.UpdateAll (saveList.AsEnumerable ());
-					App.Database.DeselectAll (saveList, this);
+					await App.Database.DeselectAll (saveList, this);
 					refresh();
 				});
 			EditTBI = new ToolbarItem("Edit", "", () =>
@@ -383,26 +377,29 @@ namespace Capp2
 						UpdateUI_EnableAutoCallingAfterEditing();
 					}
 				});
-			this.ToolbarItems.Add (EditTBI);
+			if (!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals(this.playlist, Values.TODAYSCALLS)) {
+				this.ToolbarItems.Add (EditTBI);
+			}
 		}
 
 		async Task UpdateUI_DisableAutoCallingBeforeEditing(){
-			cmdAutocall.IsEnabled = false;
-			cmdAutocall.BackgroundColor = Color.Gray;
+			//cmdAutocall.IsEnabled = false;
+			//cmdAutocall.BackgroundColor = Color.Gray;
 			App.IsEditing = true;
 			EditTBI.Text = "Done";
 			//EditTBI.Icon = "";
 			this.Title = "Moving to namelist";
 			Debug.WriteLine ("EDITING");
 			MessagingCenter.Send(this, Values.ISEDITING);
-			if (Device.OS == TargetPlatform.iOS) ToolbarItems.Remove (AddTBI);
+			/*if (Device.OS == TargetPlatform.iOS)*/ ToolbarItems.Remove (AddTBI);
 			ToolbarItems.Insert(0, MoveToTBI);
-			if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Insert (1, DeleteTBI);
+			if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) 
+				ToolbarItems.Insert (1, DeleteTBI);
 		}
 
 		async Task UpdateUI_EnableAutoCallingAfterEditing(){
-			cmdAutocall.IsEnabled = true;
-			cmdAutocall.BackgroundColor = Color.Green;
+			//cmdAutocall.IsEnabled = true;
+			//cmdAutocall.BackgroundColor = Color.Green;
 			EditTBI.Text = "Edit";
 			this.Title = title;
 			App.IsEditing = false;
@@ -410,7 +407,7 @@ namespace Capp2
 			App.Database.DeselectAll (App.Database.GetItems(this.playlist), this);
 			if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Remove (DeleteTBI);
 			ToolbarItems.Remove (MoveToTBI);
-			if(Device.OS == TargetPlatform.iOS) ToolbarItems.Insert (0, AddTBI);
+			/*if(Device.OS == TargetPlatform.iOS)*/ ToolbarItems.Insert (0, AddTBI);
 		}
 
 		void ClearSearchBar(){
@@ -440,33 +437,58 @@ namespace Capp2
 			}
 		}
 
-
-
 		public void SetupNotAutoCalling(){
-			cmdAutocall.Text = "START CALLING";
 			calling = false;
 			AutoCallContinue = false;
-            App.AutoCallStatus = false;
-            cmdAutocall.BackgroundColor = Color.Green;
 
+			UpdateContactLastCalled (playlist);
 			CallHelper.ShowUserYesCallTime (this, true);
 		}
 
+		public void UpdateContactLastCalled(string playlist){
+			var playlistItem = CallHelper.GetPlaylistItemThenNullCheck (playlist);
+
+			Debug.WriteLine ("assigning {0} as last index called, previous listindexcalled is {1}", 
+				AutoCallCounter - 1, playlistItem.LastIndexCalled);
+
+			if (AutoCallCounter < AutoCallList.Count) {
+				playlistItem.LastIndexCalled = AutoCallCounter - 1;
+			} else {
+				playlistItem.LastIndexCalled = 0;
+			}
+			App.Database.UpdateItem (playlistItem);
+		}
+
 		public void SetupAutoCalling(){
-			cmdAutocall.Text = "STOP CALLING";
 			calling = true;
-            App.AutoCallStatus = true;
-            cmdAutocall.BackgroundColor = Color.Red;
+		}
+
+		public async Task CheckToResumeCallingIfPlaylistCalledBeforeThenCall(string playlist){
+			if (CallHelper.CanResume (playlist)) {
+				var resume = await UserDialogs.Instance.ConfirmAsync ("Resume calling from where we left off?", 
+					"We've called this list before", "Resume", "Start Over");
+				if (resume) {
+					//call from last index
+					var lastindexcalled = CallHelper.GetPlaylistItemThenNullCheck (playlist).LastIndexCalled;
+					Debug.WriteLine ("Setting AutoCallCounter from {0} to {1}", AutoCallCounter, lastindexcalled);
+					AutoCallCounter = lastindexcalled;
+
+					DoAutoCall ();
+				} else {
+					//start from first number in list
+					DoAutoCall ();
+				}
+			} else {
+				//list hasn't been called before, start from first number
+				Debug.WriteLine("List {0} hasn't been called before, startin from index 0", playlist);
+				DoAutoCall ();
+			}
 		}
 
 		public void SubscribeToMessagingCenterListeners(){
-			
-
 			MessagingCenter.Subscribe<string>(this, Values.READYFOREXTRATIPS, async (args) =>{ 
 				TutorialHelper.ReadyForExtraTips = true;
-
 			});
-
 			MessagingCenter.Subscribe<string>(this, Values.DONEADDINGCONTACT, async (args) =>{ 
 				if(App.InTutorialMode && TutorialHelper.HowToAddContactsDone && !TutorialHelper.ReadyForAutoCallTipDone){
 					if(App.Database.GetItems(playlist).Count() > 0){
@@ -478,57 +500,62 @@ namespace Capp2
 					}
 				}
 			});
-
-			MessagingCenter.Subscribe<string>(this, Values.DONEWITHCALL, (args) =>{ 
+			MessagingCenter.Subscribe<string>(this, Values.DONEWITHCALL, async (args) =>{ 
 				try{
 					NavigationHelper.ClearModals(this);
 				}catch(Exception e){
 					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
 				}
-
 				Debug.WriteLine ("CALL FINISHED");
-				AutoCallContinue = true;
+				this.AutoCallContinue = true;
 				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
 				StartContinueAutoCall ();
 			});
-			MessagingCenter.Subscribe<TextTemplatePage>(this, Values.DONEWITHCALL, (args) =>{ 
+			MessagingCenter.Subscribe<CAPP>(this, Values.DONEWITHSKIPCALL, async (args) =>{ 
 				try{
 					NavigationHelper.ClearModals(this);
-				}catch(Exception e){
-					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
-				}
-
-				Debug.WriteLine ("CALL FINISHED");
-				AutoCallContinue = true;
-				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
-				StartContinueAutoCall ();
-			});
-			MessagingCenter.Subscribe<string>(this, Values.iOSDONEWITHCALL, (args) => {//if on iOS, DONEWITHCALL will be sent after Message viewcontroller presents SMS dialogue and receives "Send" command from user
-				Debug.WriteLine("CALL FINISHED iOSDONEWITHCALL RECEIVED");
-				try{
-					NavigationHelper.ClearModals(this);
-				
-	                AutoCallContinue = true;
-	                Debug.WriteLine("CONTINUING TO NEXT NUMBER");
-	                StartContinueAutoCall();
-				}catch(Exception e){
-					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
-				}
-            });
-            MessagingCenter.Subscribe<DatePage>(this, Values.DONEWITHNOCALL, (args) =>{ 
-				try{
-
-					Navigation.PopModalAsync ();
-
-					Debug.WriteLine ("NO-CALL FINISHED");
-					AutoCallContinue = true;
-					Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
-					StartContinueAutoCall ();
 				}catch(Exception e){
 					Debug.WriteLine("DONEWITHNOCALL error: {0}",e.Message);
 				}
+				Debug.WriteLine ("SKIP-CALL FINISHED");
+				this.AutoCallContinue = true;
+				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
+				this.StartContinueAutoCall ();
 			});
-			MessagingCenter.Subscribe<CAPP> (this, Values.ISEDITING, (args) => { 
+			MessagingCenter.Subscribe<TextTemplatePage>(this, Values.DONEWITHCALL, async (args) =>{ 
+				try{
+					NavigationHelper.ClearModals(this);
+				}catch(Exception e){
+					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
+				}
+				Debug.WriteLine ("CALL FINISHED");
+				this.AutoCallContinue = true;
+				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
+				 this.StartContinueAutoCall ();
+			});
+			MessagingCenter.Subscribe<string>(this, Values.iOSDONEWITHCALL, async (args) => {//if on iOS, DONEWITHCALL will be sent after Message viewcontroller presents SMS dialogue and receives "Send" command from user
+				Debug.WriteLine("CALL FINISHED iOSDONEWITHCALL RECEIVED");
+				try{
+					NavigationHelper.ClearModals(this);
+				}catch(Exception e){
+					Debug.WriteLine("Popping Date and Template modals crashed: {0}", e.Message);
+				}
+				this.AutoCallContinue = true;
+				Debug.WriteLine("CONTINUING TO NEXT NUMBER");
+				 this.StartContinueAutoCall();
+            });
+            MessagingCenter.Subscribe<DatePage>(this, Values.DONEWITHNOCALL, async (args) =>{ 
+				try{
+					NavigationHelper.ClearModals(this);
+				}catch(Exception e){
+					Debug.WriteLine("DONEWITHNOCALL error: {0}",e.Message);
+				}
+				Debug.WriteLine ("NO-CALL FINISHED");
+				this.AutoCallContinue = true;
+				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
+				 this.StartContinueAutoCall ();
+			});
+			/*MessagingCenter.Subscribe<CAPP> (this, Values.ISEDITING, (args) => { 
 				Debug.WriteLine ("ISEDITING MESSAGE RECEIVED");
 				listView.ItemTemplate = new DataTemplate(() => {
 					return new ContactViewCell (this);
@@ -539,36 +566,28 @@ namespace Capp2
 				listView.ItemTemplate = new DataTemplate(() => {
 					return new ContactViewCell (this);
 				});
-			});
-
+			});*/
 			MessagingCenter.Subscribe<string>(this, Values.DONEWAUTOCALLTIP, (args) =>{ 
 				TutorialHelper.ShowTip_HowToGoBackToPlaylistPage(this, "Let's start by making a new namelist\nTap 'Namelists' up here", 
 					Color.FromHex(Values.CAPPTUTORIALCOLOR_Blue));
-				
 			});
 		}
 
 		protected override void OnDisappearing ()
 		{
 			base.OnDisappearing ();
-			//remove tutorial view
-		}
-
-		public void SubscribeForEditingListener(){
-			
 		}
 
 		public async Task ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList,
 			ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement)
 		{
-			if (cachestrat == ListViewCachingStrategy.RetainElement) {
+			//if (cachestrat == ListViewCachingStrategy.RetainElement) {
 				searchBar.Unfocus ();
-			}
+			//}
 
             try {
                 this.IsBusy = true;
-				//(scroller.Content as StackLayout).Children.Last()
-				(scroller.Content as StackLayout).Children.Remove(listView);//RemoveAt(5);//use last instead?
+				(scroller.Content as StackLayout).Children.Remove(listView);
 
 				CreateListView(cachestrat);
 
@@ -584,9 +603,7 @@ namespace Capp2
 		{
 			PreLoadedGroupedList = App.Database.GetGroupedItems(playlist);
 			listView.ItemsSource = PreLoadedGroupedList;
-			//listViewRetain = CreateListView (ListViewCachingStrategy.RetainElement);
-			//listViewRecycle = CreateListView (ListViewCachingStrategy.RecycleElement);
-			contactsCount = App.Database.GetItems (playlist).Count ();
+			contactsCount = App.Database.GetItems (playlist).Count;
 			lblContactsCount.Text = contactsCount.ToString()+" Contacts";
 		}
 
@@ -596,7 +613,8 @@ namespace Capp2
 			App.UsingSearch = true;
             if (string.IsNullOrWhiteSpace(filter))
             {
-				ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RetainElement);
+				ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, 
+					ListViewCachingStrategy.RecycleElement);//Retain
             }
             else {
 				Debug.WriteLine ("Searching");
@@ -609,81 +627,13 @@ namespace Capp2
 				listView.ItemsSource = Util.FilterNameNumberOrg(PreloadedList, filter);
                 
                 listView.EndRefresh();
-				
            }
 			App.UsingSearch = false;
-
-			/*App.UsingSearch = true;
-			listView.BeginRefresh ();
-			if(string.IsNullOrWhiteSpace(filter)){
-				ReBuildGroupedSearchableListView(playlist, groupedList, ListViewCachingStrategy.RetainElement);
-				//listView.ItemsSource = groupedList;
-			}else{
-				//returns GROUPING that contains matching contact along w all other contacts in that group
-				listView.ItemsSource = groupedList.Where(o => o.Any(p => p.Name.ToLower().Contains(filter.ToLower()))).ToList();
-			}
-			App.UsingSearch = false;
-			listView.EndRefresh ();*/
         }
-
-		/*async Task<string> HandleMutlipleNumbers(ContactData contact){
-			List<string> list = new List<string> ();
-
-			if (!string.IsNullOrWhiteSpace (contact.Number2)) {
-				list.Add (contact.Number);
-				list.Add (contact.Number2);
-				if (!string.IsNullOrWhiteSpace (contact.Number3)) {
-					list.Add (contact.Number3);
-				}
-				if (!string.IsNullOrWhiteSpace (contact.Number4)) {
-					list.Add (contact.Number4);
-				}
-				if (!string.IsNullOrWhiteSpace (contact.Number5)) {
-					list.Add (contact.Number5);
-				}
-
-				return await this.DisplayActionSheet ("Which number do we call?", null, null,
-					list.ToArray ()
-				);
-			} 
-			return contact.Number;
-		}
-
-		public async Task CallContact(ContactData contact, bool autocall){
-			//to time call cycle of user
-			if (!CallHelper.IsTimerRunning ()) {
-				CallHelper.StartTimer ();
-				Debug.WriteLine ("Timer not running, calling start timer");
-			}
-
-			Debug.WriteLine ("Calling " + contact.Name + " autocall: " + autocall.ToString ());
-			var dialer = DependencyService.Get<IDialer> ();
-			if (dialer != null) {
-				if (await dialer.Dial (await HandleMutlipleNumbers (contact))) {
-					contact.Called = DateTime.Now;
-					App.Database.UpdateItem (contact);
-					Debug.WriteLine ("Delaying 4s");
-					await Task.Delay (Values.CALLTOTEXTDELAY);
-					Navigation.PushModalAsync (new DatePage (Values.APPOINTED, contact, autocall));
-				} 
-			} else
-				throw new Exception ("dialer return null in CAPP.call()");
-		}*/
-
-		/*public async Task call(ContactData contact, bool autocall){
-			if (string.Equals (App.SettingsHelper.BOMLocationSettings, "<meetup here>")) {
-				App.SettingsHelper.BOMLocationSettings = await Util.GetUserInputSingleLinePromptDialogue ("You haven't entered a meetup place in your meetup templates (go to Settings)", 
-					"Enter a default meetup location, then try again", "<meetup here>");
-
-				CallContact (contact, autocall);
-			} else {
-				CallContact (contact, autocall);
-			}
-		}*/
 
 		public void autoCall(string playlist){
 			try{
-				PrepareForAutoCall ();
+				//PrepareForAutoCall ();
 				StartContinueAutoCall ();
 			}catch(Exception e){
 				Debug.WriteLine ("PrepareForAutoCall() error: {0}", e.Message);
@@ -693,29 +643,51 @@ namespace Capp2
 		void PrepareForAutoCall(){
 			AutoCallCounter = 0;
 			AutoCallContinue = true;
-			AutoCallList = App.Database.GetItems(playlist).ToList<ContactData> ();
+			AutoCallList = App.Database.GetItems(playlist);
         }
-		void StartContinueAutoCall(){
+		async Task StartContinueAutoCall(){
 			if(AutoCallCounter >= AutoCallList.Count){
 				SetupNotAutoCalling ();
-				
 				Debug.WriteLine ("Autocalling done");
-
 				NavigationHelper.ClearModals (this);
-				
 				MessagingCenter.Send ("", Values.READYFOREXTRATIPS);
 			}
 			if(AutoCallContinue && (AutoCallCounter < AutoCallList.Count)){
+				var contactToCall = AutoCallList.ElementAt (AutoCallCounter);
 				Debug.WriteLine ("ITERATION "+AutoCallCounter+" IN AUTOCALL, "+AutoCallList.Count+" Numbers in list");
 				AutoCallContinue = false;
 				Debug.WriteLine ("CONTINUE SET TO FALSE, WAITING FOR DONEWITHCALL MESSAGE");
-				CallHelper.call (AutoCallList.ElementAt (AutoCallCounter), true);
-				Debug.WriteLine ("AutoCallCounter after call is "+AutoCallCounter);
-				AutoCallCounter++;
+				
+				//if next call not set and not yet appointed, then call
+				if (!contactToCall.IsAppointed && (!contactToCall.IsSetForNextCall || contactToCall.ShouldCallToday)) { 
+					Debug.WriteLine ("{0} hasnt been appointed and hasn't been marked for a follow up call", contactToCall.Name);
+					await CallHelper.call (contactToCall, true);
+
+					AutoCallCounter++;	
+					Debug.WriteLine ("AutoCallCounter after call is "+AutoCallCounter);	
+				} else {
+					string message = string.Empty;
+					if (contactToCall.IsAppointed) {
+						//await this.DisplayAlert ("Skipping...", , "OK");
+						message = string.Format ("{0} was appointed for {1}\n", contactToCall.FirstName,
+							contactToCall.Appointed.ToString ("MMMM dd, yyyy"));
+					}
+					if (contactToCall.IsSetForNextCall) {
+						message += string.Format ("{0} is scheduled for call on {1}",
+							contactToCall.FirstName, contactToCall.NextCall.ToString ("MMMM dd, yyyy"));
+						
+					}
+					await this.DisplayAlert ("Skipping...", message, "OK");
+
+					AutoCallCounter++;	
+					Debug.WriteLine ("AutoCallCounter after call is "+AutoCallCounter);
+					MessagingCenter.Send(this, Values.DONEWITHSKIPCALL);
+				}
 			}
 			Debug.WriteLine ("EXITING WHILE CONTINUE");
 		}
 	}
+
 	public class Grouping<S, T> : ObservableCollection<T>
 	{
 		private readonly S _key;
@@ -741,7 +713,6 @@ namespace Capp2
 	{ 
 		public HeaderCell() 
 		{
-			this.Height = 27; 
 			var title = new Label 
 			{ 
 				BackgroundColor = Color.Transparent,
@@ -756,14 +727,15 @@ namespace Capp2
 			{ 
 				BackgroundColor = Color.FromHex("E9E9E9"),
 				HorizontalOptions = LayoutOptions.FillAndExpand, 
-				//HeightRequest = this.RenderHeight*0.5, 
-				//BackgroundColor = Color.FromRgb(52, 152, 218), 
-				Padding = 5, 
+				VerticalOptions = LayoutOptions.Center,
+				Padding = new Thickness(5, 0), 
 				Orientation = StackOrientation.Horizontal, 
 				Children = { title } 
 			}; 
 			this.View.BackgroundColor = Color.White;
 			this.View.Opacity = 0.5;
+			//title.HeightRequest = this.Height / 2;
+			//this.Height = title.Height*1.5;
 		} 
 	}
 

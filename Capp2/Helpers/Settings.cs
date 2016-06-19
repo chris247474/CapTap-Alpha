@@ -37,6 +37,23 @@ namespace Capp2.Helpers
 			AppSettings.AddOrUpdateValue<bool>(IsPremiumKey, value);
 		}
 	}
+
+	#region IsFirstRun
+	private const string IsFirstRunKey = "IsFirstRun";
+	private static bool IsFirstRunDefault = true;
+	#endregion
+
+	public static bool IsFirstRunSettings
+	{
+		get
+		{
+			return AppSettings.GetValueOrDefault<bool>(IsFirstRunKey, IsFirstRunDefault);
+		}
+		set
+		{
+			AppSettings.AddOrUpdateValue<bool>(IsFirstRunKey, value);
+		}
+	}
 	
 	#region TutorialSettings
 	private const string TutorialKey = "tutorialshown";

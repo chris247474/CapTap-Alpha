@@ -178,7 +178,8 @@ namespace Capp2.iOS.Helpers
 			}
             return false;
         }
-		public async Task<bool> SendSMS(string number, string message, string name, string ConfirmOrBOM, string TodayOrTomorrow = null)
+		public async Task<bool> SendSMS(string number, string message, string name, 
+			string ConfirmOrBOM, bool AutoCall = false, string TodayOrTomorrow = null)
         {
             var notifier = new iOSReminderService();
             try
@@ -206,8 +207,8 @@ namespace Capp2.iOS.Helpers
                         new MFMessageComposeViewController();
 
                     messageController.Finished += (sender, e) => {
-						System.Console.WriteLine("iOS Messages opened. AutoCallStatus: {0}", App.AutoCallStatus.ToString());
-                        if (App.AutoCallStatus)
+						//System.Console.WriteLine("iOS Messages opened. AutoCallStatus: {0}", App.AutoCallStatus.ToString());
+						if (AutoCall)
                         {
 							System.Console.WriteLine("AutoCallStatus true. Sending iOSDONEWITHCALL message to CAPP");
 							MessagingCenter.Send("", Values.iOSDONEWITHCALL);//Android allows programmatically sending an SMS, but iOS requires user to press Send via UI

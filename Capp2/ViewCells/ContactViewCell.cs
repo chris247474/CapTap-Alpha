@@ -5,6 +5,9 @@ using XLabs.Forms.Controls;
 using System.Collections.Generic;
 using System.Linq;
 using Acr.UserDialogs;
+using FFImageLoading.Forms;
+using FFImageLoading.Work;
+using FFImageLoading.Transformations;
 
 namespace Capp2
 {
@@ -13,19 +16,24 @@ namespace Capp2
 		public ContactData personCalled{ set; get;}
 		TapGestureRecognizer tapGestureRecognizer;
 		Label nameLabel, firstnameLabel, lastnameLabel;
-		Label playlistLabel;
+		Label playlistLabel, initials;
 		Image phone;
 		CheckBox checkbox;
 		CircleImage circleImage;
+		//CachedImage circleImage;
+		string playlist;
 		RelativeLayout layout = new RelativeLayout();
 
 		public ContactViewCell (CAPP page)
 		{
-			this.Height = RenderHeight*1.9;
+			
+			//this.Height = 80;
+
+			this.playlist = page.playlist;
 
 			nameLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
-				VerticalOptions = LayoutOptions.StartAndExpand,
+				HorizontalOptions = LayoutOptions.Start,
 				HorizontalTextAlignment = TextAlignment.Start,
 			};
 			nameLabel.SetBinding(Label.TextProperty, "Name");
@@ -37,8 +45,8 @@ namespace Capp2
 
 			circleImage = new CircleImage{
 				HorizontalOptions = LayoutOptions.Fill,
-				Aspect = Aspect.AspectFill,
-				BackgroundColor = Color.Transparent,//
+				Aspect = Aspect.AspectFit,
+				BackgroundColor = Color.Transparent,
 			};
 			circleImage.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
@@ -52,18 +60,19 @@ namespace Capp2
 
 			checkbox = new CheckBox{ 
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.Center,
 			};
             checkbox.IsEnabled = true;
             checkbox.IsVisible = true;
             
 			checkbox.SetBinding (CheckBox.CheckedProperty, "IsSelected");
 			checkbox.CheckedChanged += (sender, e) => {
-				personCalled = (sender as CheckBox).Parent.Parent.Parent.BindingContext as ContactData;
+				personCalled = (sender as CheckBox).Parent.Parent/*.Parent*/.BindingContext as ContactData;
 				Debug.WriteLine (personCalled.Name+"' selected value is "+personCalled.IsSelected.ToString ());
+				Debug.WriteLine("checkbox value is {0}", checkbox.Checked);
 				App.Database.UpdateItem(personCalled);
 
-				var person = (from x in (App.Database.GetItems (Values.ALLPLAYLISTPARAM).Where(x => x.Name == personCalled.Name))
+				var person = (from x in (App.Database.GetItems (Values.ALLPLAYLISTPARAM).Where(x => x.Name == personCalled.Name && x.Playlist == personCalled.Playlist))
 					select x);
 				Debug.WriteLine (person.ElementAtOrDefault (0).Name+"' selected value is "+person.ElementAtOrDefault (0).IsSelected.ToString ()); 
 			};
@@ -79,7 +88,7 @@ namespace Capp2
 			tapGestureRecognizer = new TapGestureRecognizer ();
 			tapGestureRecognizer.Tapped += async (s, e) => {
 				UIAnimationHelper.ZoomUnZoomElement(phone);
-				personCalled = (s as Image).Parent.Parent.Parent.BindingContext as ContactData;
+				personCalled = (s as Image).Parent./*Parent.*/Parent.BindingContext as ContactData;
 				CallHelper.call(personCalled, false);
 			};
 			phone.GestureRecognizers.Add (tapGestureRecognizer);
@@ -125,39 +134,65 @@ namespace Capp2
 				page.Navigation.PushModalAsync(new DatePage(Values.PURCHASED, personCalled, false));
 			};
 
-			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
+			View = CreateLayout(page.playlist);//createLayoutView(page.playlist);
 
-			layout.Children.Add(
-				createView (page.playlist),
-				xConstraint: Constraint.Constant(0),
-				yConstraint: Constraint.Constant(0),
-				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
-				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
-			); 
-
-			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
-
-			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage);
-
-			View = layout;
+			SubscribeToEditingListeners ();
 
 			// add context actions to the cell
 			ContextActions.Add(nextAction);
 			ContextActions.Add (appointedAction);
 			ContextActions.Add (presentedAction);
 			ContextActions.Add (purchasedAction);
-
 		}
 		protected override void OnBindingContextChanged ()
 		{
 			base.OnBindingContextChanged ();
+			Debug.WriteLine ("OnBindingContextChanged");
 
 			var item = BindingContext as ContactData;
 			if (item != null) {
 				nameLabel.Text = item.Name;
 				playlistLabel.Text = item.Playlist;
 				circleImage.Source = item.PicStringBase64;
+				//circleImage.HeightRequest = 72;
+				initials.Text = item.Initials;
+
+				//this.Height = 80;
+				//this.ForceUpdateSize ();
 			}
+
+		}
+		void SwitchToEditingOrNotEditingMode(){
+			Debug.WriteLine ("In SwitchToEditOrNotEditingMode()");
+			if (App.IsEditing) {
+				Debug.WriteLine ("Editing in CustomViewCell - OnBindingContextChanged");
+				layout.Children/*.RemoveAt (layout.Children.Count - 1);*/.Remove (phone);
+				AddCheckboxToLayout ();
+			} else {
+				Debug.WriteLine ("Not editing in CustomViewCell - OnBindingContextChanged");
+				//layout.Children.RemoveAt (layout.Children.Count - 1);
+				layout.Children.Remove (checkbox);
+				AddPhoneToLayout ();
+			}
+		}
+		public RelativeLayout CreateLayout(string playlist){
+			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
+
+			/*layout.Children.Add(
+				createLayoutView (playlist),
+				xConstraint: Constraint.Constant(0),
+				yConstraint: Constraint.Constant(0),
+				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
+				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
+			); */
+
+			createLayoutView (playlist);
+
+			initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
+
+			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage, 0.45);
+
+			return layout;
 		}
 		public View createView (string playlist)
 		{
@@ -247,7 +282,100 @@ namespace Capp2
 				}
 			}
 		}
+		RelativeLayout CreateEditingLayout(){
+			Debug.WriteLine ("In CreateEditingLayout");
+			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
+			layout.Padding = new Thickness (15, 5, 5, 15);
 
+			layout.Children.Add(
+				circleImage,
+				Constraint.RelativeToParent(parent => parent.Width*0.039),
+				Constraint.Constant(0),
+				Constraint.RelativeToParent((parent => parent.Width*0.15)),
+				Constraint.RelativeToParent((parent => parent.Height))
+			); 
+
+			layout.Children.Add(nameLabel,
+				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.4)),
+				Constraint.RelativeToParent((parent => parent.Height*0.12))
+			);
+			layout.Children.Add(playlistLabel,
+				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.4)),
+				Constraint.RelativeToParent((parent => parent.Height*0.22+nameLabel.Height))
+			);
+
+			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
+
+			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage);
+
+			AddCheckboxToLayout ();
+
+			return layout;
+		}
+		void AddCheckboxToLayout(){
+			layout.Children.Add(checkbox,
+				Constraint.RelativeToParent((parent => parent.Width*0.85)),
+				Constraint.RelativeToParent((parent => parent.Height*0.3))
+			);
+		}
+		void AddPhoneToLayout(){
+			layout.Children.Add(phone,
+				Constraint.RelativeToParent((parent => parent.Width*0.85)),
+				Constraint.RelativeToParent((parent => parent.Height*0.3))
+			);
+		}
+		RelativeLayout CreateNotEditingLayout(){
+			Debug.WriteLine ("In CreateNotEditingLayout");
+			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
+			layout.Padding = new Thickness (15, 5, 5, 15);
+
+			layout.Children.Add(
+				circleImage,
+				Constraint.RelativeToParent(parent => parent.Width*0.039),
+				Constraint.Constant(0),
+				Constraint.RelativeToParent((parent => parent.Width*0.15)),
+				Constraint.RelativeToParent((parent => parent.Height))
+			); 
+
+			layout.Children.Add(nameLabel,
+				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.4)),
+				Constraint.RelativeToParent((parent => parent.Height*0.12))
+			);
+			layout.Children.Add(playlistLabel,
+				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.4)),
+				Constraint.RelativeToParent((parent => parent.Height*0.22+nameLabel.Height))
+			);
+
+			//var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
+
+			//UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage, 0.25);
+
+			AddPhoneToLayout ();
+
+			return layout;
+		}
+		public View createLayoutView (string playlist)
+		{
+			Debug.WriteLine ("In createLayoutView");
+			if (App.IsEditing) {
+				Debug.WriteLine ("Is Editing");
+				return CreateEditingLayout ();
+			} else {
+				Debug.WriteLine ("Is not editing");
+				return CreateNotEditingLayout ();
+			}
+		}
+
+		void SubscribeToEditingListeners(){
+			MessagingCenter.Subscribe<CAPP> (this, Values.ISEDITING, (args) => { 
+				Debug.WriteLine ("ContactViewCell - ISEDITING MESSAGE RECEIVED");
+				SwitchToEditingOrNotEditingMode ();
+			});
+			MessagingCenter.Subscribe<CAPP> (this, Values.DONEEDITING, (args) => { 
+				Debug.WriteLine ("ContactViewCell - DONEEDITING MESSAGE RECEIVED");
+				SwitchToEditingOrNotEditingMode ();
+			});
+		}
 	}
 }
 

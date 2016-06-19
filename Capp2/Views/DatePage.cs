@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Capp2.Helpers;
 using Acr.UserDialogs;
 using System.Globalization;
+using FAB.Forms;
 
 namespace Capp2
 {
@@ -18,9 +19,13 @@ namespace Capp2
 		bool AutoCall;
 		string Name;
 		SettingsViewModel settings = new SettingsViewModel ();
+		FloatingActionButton fab;
+		double UnfocusedPosition = 0;
+		StackLayout stack;
 
 		public DatePage (string whichCapp, ContactData personCalled, bool autocall)
 		{
+			var content = (this.Content as RelativeLayout);
 			BackgroundColor = Color.White;
 			AutoCall = autocall;
 			this.SetBinding (ContentPage.TitleProperty, "Name");
@@ -44,19 +49,21 @@ namespace Capp2
 				Format = "D",
 				VerticalOptions = LayoutOptions.CenterAndExpand,
 			};
-			datePicker.Unfocused += (dateSender, de) => {
+
+			datePicker.Unfocused += async (dateSender, de) => {
 				if(!yescall && timePicker.IsEnabled == false){
-					SetAppointmentHandler (whichCapp, personCalled);
+					App.Database.MarkForTodaysCalls(personCalled, false, datePicker.Date);
+					App.CapPage.refresh();
+					SetAppointmentHandler(whichCapp, personCalled);
 				}
 				else if(yescall){
 					timePicker.IsEnabled = true;
-					timePicker.Unfocused += (sender,e) =>
+					timePicker.Unfocused += async (sender,e) =>
 					{
 						SetAppointmentHandler (whichCapp, personCalled);
 					};
 				}
 			};
-
 
 			var cancelButton = new Button { 
 				Text = personCalled.Name+" hasn't said yes yet" 
@@ -71,6 +78,7 @@ namespace Capp2
 					yescall = false;
 					cancelButton.Text = "I mean I booked "+personCalled.Name;
 					DisableTimePicker (1);
+
 				}else {
 					yescall = true;
 					lbl.Text = "When did we book "+personCalled.Name+"?";
@@ -78,17 +86,36 @@ namespace Capp2
 				}
 			};
 
-			Content = new StackLayout {
-				VerticalOptions = LayoutOptions.CenterAndExpand,
+			stack = new StackLayout {
+				VerticalOptions = LayoutOptions.Center,
 				Padding = new Thickness(20),
 				Children = {
+					UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
+					UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
+					UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
+					UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
 					lbl, new StackLayout{
-						VerticalOptions = LayoutOptions.CenterAndExpand,
+						VerticalOptions = LayoutOptions.Center,
 						Children = { datePicker, timePicker,}
-					}, cancelButton
+					}, cancelButton,
+					UIBuilder.CreateEmptyStackSpace(),
 				}
 			};
 
+			fab = UIBuilder.CreateFAB ("", FabSize.Normal, Color.FromHex (Values.RED), 
+				Color.FromHex (Values.GOOGLEBLUE));
+
+			Content = UIBuilder.AddFABToViewWrapRelativeLayout(stack, fab, "", new Command(() => {
+				NavigationHelper.ClearModals(this);
+				App.CapPage.SetupNotAutoCalling();
+			}));
+
+			content = this.Content as RelativeLayout;
+			datePicker.Focused += (object sender, FocusEventArgs e) => {
+				Debug.WriteLine("fab at {0}, {1}", fab.X, fab.Y);
+			};
+
+			UnfocusedPosition = fab.Y;
 		}
 		string LabelForPartOfCall(string whichcapp, ContactData personCalled){
 			switch (whichcapp) {
@@ -120,6 +147,7 @@ namespace Capp2
                             App.Database.UpdateItem(personCalled);
 
                             await this.Navigation.PopModalAsync();
+							
                             break;
                         case Values.APPOINTED:
 							personCalled.Appointed = datePicker.Date.AddHours(timePicker.Time.Hours).AddMinutes(timePicker.Time.Minutes);
@@ -130,6 +158,9 @@ namespace Capp2
 								personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, 
 								datePicker.Date.AddHours(timePicker.Time.Hours));
                             Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
+
+							App.Database.MarkForTodaysCalls (personCalled, true, DateTime.MaxValue);
+							App.CapPage.refresh();	
 
                             App.Database.UpdateItem(personCalled);
 
@@ -163,13 +194,12 @@ namespace Capp2
                     }
                 }
                 else {//if no call
+					Debug.WriteLine("recieved No Call. checking for autocall status to send DONEWITHNOCALL message");
                     if (AutoCall)
                     {
                         MessagingCenter.Send(this, Values.DONEWITHNOCALL);
                     }
                     else {
-                        personCalled.NextCall = datePicker.Date;
-                        App.Database.UpdateItem(personCalled);
 						NavigationHelper.ClearModals(this);
                     }
                 }

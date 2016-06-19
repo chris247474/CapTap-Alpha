@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Plugin.Calendars.Abstractions;
 using System.Threading.Tasks;
+using Capp2.Helpers;
 
 namespace Capp2
 {
@@ -94,16 +95,17 @@ namespace Capp2
 				VerticalOptions = LayoutOptions.Start,
 			};
 			listView.ItemSelected += (sender, e) => {
-				//UserDialogs.Instance.ShowLoading("So many contacts...");
-
 				// has been set to null, do not 'process' tapped event
 				if (e.SelectedItem == null)
 					return;
 				
 				this.playlistSelected = (Playlist)e.SelectedItem;
 
-				Navigation.PushAsync(new CAPP(playlistSelected.PlaylistName));
-				//UserDialogs.Instance.HideLoading();
+				//if(Settings.IsFirstRunSettings){
+				//	Navigation.PushAsync(App.CapPage);
+				//}else{
+					Navigation.PushAsync(new CAPP(playlistSelected.PlaylistName));
+				//}
 
 				// de-select the row
 				((ListView)sender).SelectedItem = null;
@@ -157,7 +159,7 @@ namespace Capp2
 			playlistLabel.HorizontalTextAlignment = TextAlignment.Start;
 			playlistLabel.HorizontalOptions = LayoutOptions.StartAndExpand;
 			playlistLabel.HeightRequest = playlistLabel.Height * 2;
-			playlistLabel.FontFamily = Device.OnPlatform ("SFCompact", "sans-serif-black", null);
+			//playlistLabel.FontFamily = Device.OnPlatform ("SFCompact", "sans-serif-black", null);
 			playlistLabel.FontSize = playlistLabel.FontSize * 1.2;
 			playlistLabel.TextColor = Color.FromHex ("#797979");
 

@@ -268,7 +268,6 @@
     <AndroidResource Include="Resources\drawable\icon.png" />
     <AndroidResource Include="Resources\drawable\Phone.png" />
     <AndroidResource Include="Resources\drawable\bwtest.bmp" />
-    <AndroidResource Include="Resources\raw\Playlist4.db3" />
     <AndroidResource Include="Resources\values\Styles.xml" />
     <AndroidResource Include="Resources\drawable\SplashScreen.xml" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_add_white_24dp.png" />

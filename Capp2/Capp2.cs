@@ -29,7 +29,7 @@ namespace Capp2
 		public static bool IsEditing{ get; set;}
 		public static NavigationPage NavPage;
 		public static StartPage MasterDetailPage;
-        public static bool AutoCallStatus { get; set; }
+       // public static bool AutoCallStatus { get; set; }
         public static CAPP CapPage { get; set; }
 		public static Color StartColor;
 		public static Color EndColor;
@@ -44,6 +44,16 @@ namespace Capp2
 		public static bool ImageImportingDone = false;
 		public static bool MadeForNuskin = false;
 		public static string[] ProfileBackground;
+		public ResourceDictionary Resources = new ResourceDictionary ();
+
+		public static DB Database {
+			get { 
+				if (database == null) {
+					database = new DB ();
+				}
+				return database; 
+			}
+		}
 
 		public App ()
 		{			
@@ -54,9 +64,10 @@ namespace Capp2
 		public async Task PrepareAppData(){
 			AppJustLaunched = true;
 			IsEditing = false;
-            AutoCallStatus = false;
 			contactFuncs = new Util ();
 			DefaultNamelist = Settings.DefaultNamelistSettings;
+			//CapPage = new CAPP (Values.ALLPLAYLISTPARAM, true);
+			//AssignResources ();//?
 
 			ProfileBackground = new string[]{ 
 				"profile-orange.png",
@@ -74,6 +85,12 @@ namespace Capp2
 			CheckForMeetingsTodayTomorrowThenSendSMSToConfirm ();
 		}
 
+		void AssignResources(){
+			Resources.Add ("MainFont", new Font{
+				//FontFamily = "SF-UI"
+			});
+		}
+
 		public void SetInstallDateForStatsPageReference(){
 			if (Settings.InstallDateSettings == DateTime.MinValue) {
 				Settings.InstallDateSettings = DateTime.Today.Date;
@@ -88,11 +105,12 @@ namespace Capp2
 				//returns true, then device calendar has at least one calendar account
 				if (await App.contactFuncs.DeviceCalendarExistsAndInit())
 				{
-					await Task.Delay(10000);
-					await CalendarService.CheckMeetingsTodayTomorrowConfirmSentSendIfNot();
-
+					await Task.Delay(500);
+					Debug.WriteLine("checking meetings today");
+					CalendarService.CheckMeetingsTodayTomorrowConfirmSentSendIfNot();
 				}
 			} catch(Exception e){ Debug.WriteLine("Calendar error {0}", e.Message);}
+			Settings.IsFirstRunSettings = false;
 		}
 		void SetupGradientBackground(){
 			if(Device.OS == TargetPlatform.iOS)
@@ -102,14 +120,7 @@ namespace Capp2
 			StartColor = Color.White;//FromHex (Values.GOOGLEBLUE);//BACKGROUNDPURPLEGRADIENT); 
 			EndColor = Color.White;//FromHex (Values.BACKGROUNDDARKPURPLEGRADIENT);
 		}
-		public static DB Database {
-			get { 
-				if (database == null) {
-					database = new DB ();
-				}
-				return database; 
-			}
-		}
+
 
 		protected override void OnStart ()
 		{

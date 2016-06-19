@@ -27,7 +27,8 @@ namespace Capp2
 			Settings.BOMTemplateSettings = string.Format ("Hi {0}, {1}", person.FirstName, Settings.BOMTemplateSettings);
 			Settings.BOMTemplateSettings = PlaceLocationAndDatesIntoTemplateText (Settings.BOMTemplateSettings, person);
 
-			await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, Settings.BOMTemplateSettings, person.Name, Values.BOM);
+			await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, Settings.BOMTemplateSettings, 
+				person.Name, Values.BOM, AutoCall);
 			Settings.BOMTemplateSettings = DefaultTemplateText;
 
 			if (AutoCall) {
@@ -73,7 +74,7 @@ namespace Capp2
 					PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
 
 				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
-					messageToSend, person.Name, Values.CONFIRM, Values.TOMORROW);
+					messageToSend, person.Name, Values.CONFIRM, false, Values.TOMORROW);
 
 				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
 				Settings.MeetingConfirmSettings = DefaultTemplateText;
@@ -98,7 +99,7 @@ namespace Capp2
 					PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
 
 				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
-					messageToSend, person.Name, Values.CONFIRM, Values.TODAY);
+					messageToSend, person.Name, Values.CONFIRM, false, Values.TODAY);
 
 				Settings.MeetingTodayConfirmSettings = Settings.MeetingTodayConfirmDefault;
 

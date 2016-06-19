@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Collections;
 using XLabs.Forms.Controls;
 using System.Threading.Tasks;
+using Acr.UserDialogs;
+using FFImageLoading.Forms;
+using FFImageLoading.Work;
+using FFImageLoading.Transformations;
 
 namespace Capp2
 {
@@ -17,8 +21,9 @@ namespace Capp2
 		Label numberLabel, number2Label, number3Label, number4Label, number5Label, firstNameLabel, lastNameLabel, affLabel, playlistLabel;
 		Entry numberEntry, number2Entry, number3Entry, number4Entry, number5Entry, firstNameEntry, lastNameEntry, affEntry;
 		Picker playlistPicker;
-		Image phoneImg = new Image(), messageImg = new Image(), backgroundImage = new Image(),
+		Image phoneImg = new Image(), messageImg = new Image(),
 			dome = new Image();
+		CachedImage backgroundImage = new CachedImage ();
 		CircleImage ContactPic = new CircleImage ();
 		BoxView shader;
 		DetailsView details;
@@ -29,7 +34,10 @@ namespace Capp2
 		{
 			NavigationPage.SetHasNavigationBar (this, true);
 
-			InitUI (contact);
+			ShowPage (contact, page);
+		}
+		async void ShowPage(ContactData contact, CAPP page){
+			await InitUI (contact);
 
 			CreateLayouts (contact);
 
@@ -39,8 +47,9 @@ namespace Capp2
 				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE), "Checkmark.png");
 
 			UIAnimationHelper.FlyDown (relativeLayout);
-		}
 
+
+		}
 		void CreateLayouts(ContactData contact){
 			relativeLayout = new RelativeLayout ();
 
@@ -156,19 +165,28 @@ namespace Capp2
 			};
 
 			this.Content = relativeLayout;
-		}
 
-		void InitUI(ContactData contact){
+
+		}
+		async Task InitUI(ContactData contact){
 			BindingContext = contact;
 
-			backgroundImage = new Image () {
-				//Source = ContactPic.Source,
+			backgroundImage = new CachedImage () {
+				/*FinishCommand = new Command(()=>{
+					backgroundImage.FadeTo (0.8, 1000, Easing.Linear);
+				}),*/
+				//FadeAnimationEnabled = true,
+				DownsampleToViewSize = true,
+				LoadingPriority = LoadingPriority.Highest,
+				CacheDuration = TimeSpan.FromDays(30),
 				Aspect = Aspect.AspectFill,
-				IsOpaque = true,
+				//IsOpaque = true,
 				Opacity = 0.8,
-				//BackgroundColor = Color.FromHex(Values.GOOGLEBLUE),
+				Transformations = new System.Collections.Generic.List<ITransformation>() {
+					new BlurredTransformation(1)
+				},
 			};
-			backgroundImage.SetBinding(Image.SourceProperty, new Xamarin.Forms.Binding{Path = "LargePic"});
+			backgroundImage.SetBinding(CachedImage.SourceProperty, new Xamarin.Forms.Binding{Path = "LargePic"});
 
 			dome = new Image () {
 				Aspect = Aspect.AspectFill,
@@ -278,40 +296,10 @@ namespace Capp2
 				}
 			};
 			CreateEditContactLayout (contact);
-			/*MessageCallStack = new StackLayout {
-				Orientation = StackOrientation.Horizontal,
-				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.Start,
-				Children = {
-					new StackLayout{
-						HorizontalOptions = LayoutOptions.FillAndExpand,
-						VerticalOptions = LayoutOptions.Start,
-						Children = {
-							phoneImg
-						}
-					},
-					new StackLayout{
-						HorizontalOptions = LayoutOptions.Center,
-						Children = {
-							new Label{
-								WidthRequest = phoneImg.Width
-							}
-						}
-					},
-					new StackLayout{
-						HorizontalOptions = LayoutOptions.FillAndExpand,
-						VerticalOptions = LayoutOptions.Start,
-						Children = {
-							messageImg
-						}
-					},
-				}
-			};*/
 			MainStack = new StackLayout{
 				Orientation = StackOrientation.Vertical,
 				BackgroundColor = Color.Transparent,
 				Children = {
-					//MessageCallStack,
 					DetailStack
 				}
 			};
@@ -359,6 +347,7 @@ namespace Capp2
 		}
 
 		async Task<bool> EditContact(CAPP page, ContactData contact){
+			UserDialogs.Instance.ShowLoading ("Saving changes...");
 			Debug.WriteLine ("In EditContact");
 			firstNameEntry.Text = firstNameEntry.Text.Trim();
 			lastNameEntry.Text = lastNameEntry.Text.Trim();
@@ -381,22 +370,17 @@ namespace Capp2
 					contact.LastName = lastNameEntry.Text;
 					contact.Aff = affEntry.Text;
 					contact.Number = numberEntry.Text;
-					//contact.Playlist default value is assigned in Database.GetItems(playlist)
 
 					Debug.WriteLine ("udpated ID is:" + contact.ID);
 					Debug.WriteLine ("current db index is:" + App.lastIndex);
-
-					//firstNameEntry.Text = "";
-					//lastNameEntry.Text = "";
-
 					App.Database.UpdateItem (contact);
 					page.refresh ();
 
-					//this.Navigation.PopAsync();
-					//AlertHelper.Alert ("Changes saved!", "");
+					UserDialogs.Instance.HideLoading ();
 					return true;
 				}
 			}
+			UserDialogs.Instance.HideLoading ();
 			return false;
 		}
 
