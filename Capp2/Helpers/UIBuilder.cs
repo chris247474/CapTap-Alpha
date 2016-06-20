@@ -623,13 +623,10 @@ namespace Capp2
 		public static StackLayout CreateTextTemplateSetting(Binding binding, SettingsViewModel settings, string title, string icon){
 			Editor TemplateEntry = new Editor ();
 			StackLayout TemplateStack = new StackLayout ();
-			//TemplateStack.BindingContext = settings;
-			//TemplateEntry.BindingContext = settings;
 			bool EntryShown = false;
 
 			TemplateEntry.SetBinding <SettingsViewModel>(Editor.TextProperty, pref => pref.DailyEmailTemplateSettings);
 			TemplateEntry.HorizontalOptions = LayoutOptions.Center;
-			//TemplateEntry.Text = settings.DailyEmailTemplateSettings;
 
 			TemplateStack = new StackLayout{
 				Orientation = StackOrientation.Vertical,
@@ -643,7 +640,6 @@ namespace Capp2
 									TemplateEntry.Focus ();
 									TemplateStack.Children.Insert (1, TemplateEntry);
 									EntryShown = true;
-									//TemplateEntry.Text = settings.DailyEmailTemplateSettings;
 									Debug.WriteLine (TemplateEntry.Text);
 								}else{
 									TemplateStack.Children.Remove (TemplateEntry);

@@ -17,7 +17,6 @@ namespace Capp2
 
 		public TemplateSettingsPage ()
 		{
-			//WarnUserNotToDeleteMeetingAndTimePlaceholders ();
 			var scroller = createUI ();
 			AdHelper.AddGreenURLOrangeTitleBannerToStack (scroller.Content as StackLayout);
 			Content = scroller;
@@ -46,9 +45,11 @@ namespace Capp2
 			SMSEntry.Completed += (sender, e) => {
 				CheckIfUserChangedMeetingAndTimeStringTags(SMSEntry.Text, false);
 			};
+			SMSEntry.HorizontalOptions = LayoutOptions.Center;
 
 			LocEntry = new Editor ();
 			LocEntry.SetBinding (Editor.TextProperty, new Xamarin.Forms.Binding(){Path="BOMLocationSettings"});
+			LocEntry.HorizontalOptions = LayoutOptions.Center;
 
 			DailyEmailEntry = new Editor ();
 			DailyEmailEntry.SetBinding<SettingsViewModel> (Editor.TextProperty, vm => vm.DailyEmailTemplateSettings);
@@ -122,6 +123,7 @@ namespace Capp2
 							Orientation = StackOrientation.Vertical,
 							HorizontalOptions = LayoutOptions.Fill,
 							VerticalOptions = LayoutOptions.FillAndExpand, 
+							Padding = new Thickness(5),
 							Children = {
 								SettingsList2, SettingsList1,// DailyEmailTemplate
 								UIBuilder.CreateTextTemplateSetting(

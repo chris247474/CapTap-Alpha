@@ -13,6 +13,8 @@ using Plugin.Contacts.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using Contacts;
+using ContactsUI;
 
 [assembly: Dependency(typeof(PhoneContacts))]
 namespace Capp2.iOS.Helpers
@@ -25,6 +27,65 @@ namespace Capp2.iOS.Helpers
 		public PhoneContacts(){
 			Console.WriteLine ("Storing all contacts in iOS memory");
 			contacts = abb.GetPeople ();
+		}
+
+		public async Task PresentNativeAddContactView(){
+			//throw new NotImplementedException ("PresentNativeAddContactView still under construction");
+			// Create a new Mutable Contact (read/write)
+			// and attach it to the editor
+			var store = new CNContactStore ();
+			var mutableContact = new CNMutableContact ();
+			var contactData = new ContactData ();
+			var editor = CNContactViewController.FromNewContact (mutableContact);
+			var addNewContactDelegate = new CNViewControllerDelegate ();
+
+			// Configure editor
+			editor.ContactStore = store;
+			editor.AllowsActions = true;
+			editor.AllowsEditing = true;
+			editor.Delegate = addNewContactDelegate;
+
+			// Display picker
+			var vc = UIApplication.SharedApplication.KeyWindow.RootViewController;//ParentViewController as UINavigationController;
+			if (vc.PresentedViewController != null)
+			{
+				vc = vc.PresentedViewController;
+				Console.WriteLine ("presentedviewcontroller retrieved");
+
+			}
+			vc.PresentViewController (editor, true, null);//.PushViewController (editor, true);
+		}
+
+		public ContactData CNMutableContactToContactData(CNMutableContact contact, string playlist){
+			if(IsCNMutableContactUsable(contact)){
+				return ConvertToContactData (contact, playlist);
+			}
+			return null;
+		}
+
+		public ContactData ConvertToContactData(CNMutableContact contact, string playlist){
+			return new ContactData{ 
+				FirstName = contact.GivenName,
+				LastName = contact.FamilyName,
+				Number = contact.PhoneNumbers.FirstOrDefault().Value.StringValue,//convert to ContactDataViewModel
+				//Number2 = listpArr[1].Number,
+				//Number3 = listpArr[2].Number,
+				//Number4 = listpArr[3].Number,
+				//Number5 = listpArr[4].Number,
+				Playlist = playlist,
+				Aff = contact.OrganizationName
+			};
+
+			//make numbers callable
+		}
+
+		bool IsCNMutableContactUsable(CNMutableContact contact){
+			if (contact.PhoneNumbers.Count () > 0 && !string.IsNullOrWhiteSpace (contact.FamilyName)
+				&& !string.IsNullOrWhiteSpace(contact.GivenName)) 
+			{
+				return true;
+			}
+			return false;
 		}
 
 		public async Task Share (string message)

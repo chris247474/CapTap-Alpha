@@ -4,6 +4,9 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const string ADDCONTACT = "addcontact";
+		public const string EDITCONTACT = "";
+
 		public const string WARM = "Warm";
 		public const string COLD = "Cold";
 		public const string SEMIWARM = "Semi Warm";

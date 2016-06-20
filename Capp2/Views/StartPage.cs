@@ -108,12 +108,6 @@ namespace Capp2
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(SendYesCallSettings);
-						/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
-						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
-*/
 						DependencyService.Get<IPhoneContacts>().Share(
 							StatsHelper.GetYesCallMessage()
 						);
@@ -123,54 +117,31 @@ namespace Capp2
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(DailyEmailSettings); 
-						/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
-						UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);
-*/
-						DependencyService.Get<IEmailService>().SendEmail(Settings.DailyEmailTemplateSettings);
+						DependencyService.Get<IEmailService>().SendEmail(string.Empty, Settings.DailyEmailTemplateSettings);
 					}
 				)});
 			DefaultNamelistSettings = UIBuilder.CreateSetting ("FinishFlag.png", "\tStarting Namelist", 
 				new TapGestureRecognizer{Command = new Command(async () =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(DefaultNamelistSettings); 
-						/*UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings);
-						UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
-						UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);
-*/
 						await Util.ChooseNewDefaultNamelist(App.Database.GetPlaylistNames());
 					}
 				)});
 			TemplateSettings = UIBuilder.CreateSetting ("SpeechBubble.png", "\tText Templates", 
 				new TapGestureRecognizer {Command = new Command (() => {
 					UIAnimationHelper.ZoomUnZoomElement(TemplateSettings);
-					/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
-					UIAnimationHelper.ShrinkUnshrinkElement(FeedbackSettings);
-					UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
-					UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
-					UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);
-*/
 					App.NavPage.Navigation.PushModalAsync (new TemplateSettingsPage ());
 				}
 				)});
 			FeedbackSettings = UIBuilder.CreateSetting ("Feedback.png", "\tContact Team CapTap", 
 				new TapGestureRecognizer {Command = new Command (() => {
 					UIAnimationHelper.ZoomUnZoomElement(FeedbackSettings);
-					/*UIAnimationHelper.ShrinkUnshrinkElement(StatsSettings); 
-					UIAnimationHelper.ShrinkUnshrinkElement(TemplateSettings);
-					UIAnimationHelper.ShrinkUnshrinkElement(DefaultNamelistSettings);
-					UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailSettings); 
-					UIAnimationHelper.ShrinkUnshrinkElement(SendYesCallSettings);
-*/
+
 					if (Device.OS == TargetPlatform.Android){
 						//Device.OpenUri (new Uri ("mailto:captapuserfeedback@gmail.com"));
 					}
 					else if (Device.OS == TargetPlatform.iOS) {
-						DependencyService.Get<IEmailService> ().SendEmail ();
+						DependencyService.Get<IEmailService> ().SendEmail ("captapuserfeedback@gmail.com");
 					}})});
 		}
 	}

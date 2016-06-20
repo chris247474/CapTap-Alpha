@@ -54,7 +54,6 @@ namespace Capp2
         }
 
 		void Init(string playlistChosen){
-			
 			App.CapPage = this;
 			PreLoadedGroupedList = App.Database.GetGroupedItems(playlistChosen);
 			PreloadedList = App.Database.GetItems (playlistChosen);
@@ -140,7 +139,7 @@ namespace Capp2
 				new Command (async () =>
 				{
 					//CallHelper.AutoCall(this.playlist);
-						AutoCall();
+					AutoCall();
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 		}
 
@@ -150,7 +149,8 @@ namespace Capp2
 			try{
 				if (importResult == Values.IMPORTCHOICEMANUAL)
 				{
-					await Navigation.PushModalAsync(new AddContactPage(this));
+					//await Navigation.PushModalAsync(new AddContactPage(this));
+					await Navigation.PushAsync(new AddEditContactNativePage());
 				}
 				else if (importResult == Values.IMPORTCHOICEGDRIVE)
 				{
@@ -208,6 +208,10 @@ namespace Capp2
 		}
 
 		public async Task AutoCall(){
+			if (App.IsEditing) {
+				await UpdateUI_EnableAutoCallingAfterEditing ();
+			}
+
 			PrepareForAutoCall ();
 
 			if (App.Database.GetItems (playlist).Count () == 0) {

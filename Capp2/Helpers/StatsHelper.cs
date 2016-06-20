@@ -206,6 +206,7 @@ namespace Capp2
 				Text = "Show Percentage",  
 			};
 			Label totalLabel = new Label{ 
+				TextColor = Color.FromHex(Values.MaterialDesignOrange),
 				Text = string.Format("Total Calls: {0}", 
 					App.Database.GetCalledContacts (Values.ALLPLAYLISTPARAM).Count),
 				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),

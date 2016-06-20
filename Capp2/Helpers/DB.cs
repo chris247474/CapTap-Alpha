@@ -317,6 +317,7 @@ namespace Capp2
 				return 0;
 			}
 		}
+
 		public int SaveAll (IEnumerable<ContactData> items) 
 		{
 			try{

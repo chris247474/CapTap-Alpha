@@ -36,7 +36,7 @@ namespace Capp2
 						}), "Stats"),
 
 						StatsHelper.CreatePieChart (piedata, 
-							"CAPP", "Values", "CAPP Ratio"),
+							"CAPP", "Values", "Call Ratio"),
 						
 						/*UIBuilder.CreateEmptyStackSpace(),
 						StatsHelper.CreateSplineChart(StatsHelper.CreateChartData(
@@ -95,12 +95,6 @@ namespace Capp2
 			};
 
 			AdHelper.AddGreenURLOrangeTitleBannerToStack (stack);
-		}
-
-		StackLayout CreateView(){
-			return new StackLayout{
-				Children = {}
-			};
 		}
 	}
 }

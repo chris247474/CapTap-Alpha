@@ -232,6 +232,8 @@
     <BundleResource Include="Resources\Images\Checkbox\unchecked_checkbox-filled%403x.png" />
     <BundleResource Include="Resources\Images\Checkbox\unchecked_checkbox%403x.png" />
     <BundleResource Include="Resources\Images\Checkbox\checked_checkbox%403x.png" />
+    <Compile Include="Delegates\CNViewControllerDelegate.cs" />
+    <Compile Include="CustomRenderers\AddContactUIViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -484,6 +486,7 @@
   <ItemGroup>
     <Folder Include="CustomRenderers\" />
     <Folder Include="Resources\Tutorials\" />
+    <Folder Include="Delegates\" />
   </ItemGroup>
   <ItemGroup>
     <XamarinComponentReference Include="googleiosmobileads">

@@ -12,6 +12,8 @@ namespace Capp2
 			string TodayOrTomorrow = null);
 		Task SendSMS (string number);
 		Task Share (string message);
+
+		Task PresentNativeAddContactView ();
 	}
 }
 

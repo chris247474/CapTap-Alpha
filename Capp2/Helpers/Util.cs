@@ -601,7 +601,7 @@ namespace Capp2
 			return match;
 		}*/
 
-		public bool duplicateContactVMExists(ContactViewModel contact, List<ContactViewModel> currentContacts){
+		/*public bool duplicateContactVMExists(ContactViewModel contact, List<ContactViewModel> currentContacts){
 			bool match = false;
 			foreach(ContactViewModel i in currentContacts){
 				if ((contact.Contact.FirstName == i.Contact.FirstName) && (contact.Contact.LastName == i.Contact.LastName)) {
@@ -609,7 +609,7 @@ namespace Capp2
 				}
 			}
 			return match;
-		}
+		}*/
 		public async Task<bool> loadDeviceContactsIntoDBSingleTransaction(bool timeExecution){
 			Debug.WriteLine ("In loadDeviceContactsIntoDBSingleTransaction");
 			Stopwatch stopwatch = null;
@@ -762,14 +762,13 @@ namespace Capp2
 			return true;
 		}
 
-		public List<ContactViewModel> loadContactsIntoViewModel(List<ContactData> contacts){
+		/*public List<ContactViewModel> loadContactsIntoViewModel(List<ContactData> contacts){
 			List<ContactViewModel> temp = new List<ContactViewModel>();
 			foreach(ContactData c in contacts){
-				temp.Add (new ContactViewModel(c.FirstName, c.LastName, c.Number, c.Aff, c.Playlist/*, 
-					new CAPPDates{Called = c.Called, Appointed = c.Appointed, Presented = c.Presented, Purchased = c.Purchased}*/));
+				temp.Add (new ContactViewModel(c.FirstName, c.LastName, c.Number, c.Aff, c.Playlist));
 			}
 			return temp;
-		}
+		}*/
 
 		public async Task<IQueryable<Contact>> getDeviceContacts(){
 			IQueryable<Contact> list = null;

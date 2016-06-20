@@ -42,9 +42,9 @@ namespace Capp2
 		public static bool AppJustLaunched;
 		public static SettingsViewModel SettingsHelper = new SettingsViewModel ();
 		public static bool ImageImportingDone = false;
-		public static bool MadeForNuskin = false;
 		public static string[] ProfileBackground;
 		public ResourceDictionary Resources = new ResourceDictionary ();
+		public static ContactData CurrentContact = null;
 
 		public static DB Database {
 			get { 

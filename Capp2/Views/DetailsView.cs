@@ -80,7 +80,7 @@ namespace Capp2
 					contact.Called.ToString ("MMMM dd, yyyy"));//"U", CultureInfo.CurrentCulture));
 
 				if (contact.Appointed.Date > DateTime.MinValue) {
-					infotext = infotext  + string.Format ("\nbooked {0} for a presentation last {1}", contact.FirstName, 
+					infotext = infotext  + string.Format ("\nbooked {0} for a meeting last {1}", contact.FirstName, 
 						contact.Appointed.ToString ("MMMM dd, yyyy"));
 
 					if (contact.Presented.Date > DateTime.MinValue) {
@@ -88,10 +88,10 @@ namespace Capp2
 							contact.Presented.ToString ("MMMM dd, yyyy"));
 
 						if (contact.Purchased.Date > DateTime.MinValue) {
-							infotext  = infotext  + string.Format ("\nthen signed up/bought products {0}",
+							infotext  = infotext  + string.Format ("\nthen purchased {0}",
 								contact.Purchased.ToString ("MMMM dd, yyyy"));
 						} else {
-							infotext  += "\nand hasn't signed up/bought products";
+							infotext  += "\nand hasn't purchased";
 						}
 					} else {
 						infotext  += "\nand hasn't shown up yet";

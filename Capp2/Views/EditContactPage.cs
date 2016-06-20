@@ -29,6 +29,7 @@ namespace Capp2
 		DetailsView details;
 		RelativeLayout relativeLayout = new RelativeLayout ();
 		bool viewmode = true;
+		ToolbarItem EditTBI;
 
 		public EditContactPage (ContactData contact, CAPP page)  
 		{
@@ -44,13 +45,13 @@ namespace Capp2
 			this.Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "Edit.png", 
 				new Command(() => {
 					SwitchEditViewMode(page, contact);
+					//Navigation.PushAsync(new AddEditContactNativePage(contact));
 				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE), "Checkmark.png");
 
 			UIAnimationHelper.FlyDown (relativeLayout);
-
-
 		}
 		void CreateLayouts(ContactData contact){
+			
 			relativeLayout = new RelativeLayout ();
 
 			relativeLayout.Children.Add (
@@ -165,11 +166,17 @@ namespace Capp2
 			};
 
 			this.Content = relativeLayout;
-
-
 		}
+
 		async Task InitUI(ContactData contact){
 			BindingContext = contact;
+
+			EditTBI = new ToolbarItem("More", "", async () =>
+				{
+					await Navigation.PushAsync(new AddEditContactNativePage(contact));
+				});
+			
+			this.ToolbarItems.Add (EditTBI);
 
 			backgroundImage = new CachedImage () {
 				/*FinishCommand = new Command(()=>{
@@ -326,15 +333,6 @@ namespace Capp2
 
 			} else {
 				Debug.WriteLine ("EditContactPage in edit mode");
-
-				await ContactPic.FadeTo (0, 100);
-				ContactPic.Source = contact.LargePic;
-				ContactPic.FadeTo (1, 200);
-				relativeLayout.TranslateTo (relativeLayout.X, layoutyposition, 800, Easing.SinInOut);
-				MainStack.TranslateTo (MainStack.X, (MainStack.Y-(MainStack.Height*0.37))/16, 400, Easing.SinInOut);
-				phoneImg.FadeTo (1, 100);
-				messageImg.FadeTo (1, 100);
-
 				if (await EditContact (page, contact)) {
 					viewmode = true;
 					DetailStack.Children.Remove (details);
@@ -342,6 +340,14 @@ namespace Capp2
 					DetailStack.Children.Add (details);
 					MainStack.Children.Remove (EditContactStack);
 					MainStack.Children.Add (DetailStack);
+
+					await ContactPic.FadeTo (0, 100);
+					ContactPic.Source = contact.LargePic;
+					ContactPic.FadeTo (1, 200);
+					relativeLayout.TranslateTo (relativeLayout.X, layoutyposition, 800, Easing.SinInOut);
+					MainStack.TranslateTo (MainStack.X, (MainStack.Y-(MainStack.Height*0.37))/16, 400, Easing.SinInOut);
+					phoneImg.FadeTo (1, 100);
+					messageImg.FadeTo (1, 100);
 				}
 			}
 		}

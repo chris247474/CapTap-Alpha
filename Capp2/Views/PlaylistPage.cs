@@ -28,7 +28,8 @@ namespace Capp2
 
             searchBar = new SearchBar {
 				BackgroundColor = Color.Transparent,
-                Placeholder = "Search",
+				PlaceholderColor = Color.FromHex(Values.GOOGLEBLUE),
+                Placeholder = "Search for a namelist",
                 VerticalOptions = LayoutOptions.FillAndExpand,
                 HorizontalOptions = LayoutOptions.FillAndExpand
             };

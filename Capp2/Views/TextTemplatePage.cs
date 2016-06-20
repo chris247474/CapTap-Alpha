@@ -35,7 +35,6 @@ namespace Capp2
 			BindingContext = new SettingsViewModel();
 			
 			SMSEntry = new Editor ();
-			//(BindingContext as SettingsViewModel).BOMTemplateSettings = string.Format ("Hi {0}, {1}", person.FirstName, (BindingContext as SettingsViewModel).BOMTemplateSettings);
 			SMSEntry.SetBinding<SettingsViewModel> (Editor.TextProperty, vm => vm.BOMTemplateSettings);
 
 			cmdSMS = new Button {Text = "Send"};
