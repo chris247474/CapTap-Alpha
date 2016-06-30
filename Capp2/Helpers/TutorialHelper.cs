@@ -36,8 +36,8 @@ namespace Capp2
 			layout = ((RelativeLayout)page.Content);
 
 			var TipView = UIBuilder./*CreateCarouselView(
-						new List<VideoChooserItem>()*/
-			CreateTutorialVideoPickerView (new VideoChooserItem[] {
+						new List<VideoChooserItem>()
+			*/CreateTutorialVideoPickerView (new VideoChooserItem[]{
 				new VideoChooserItem {
 					ImagePath = "HowToCappScreenshot.png",
 					LabelText = "How do I mark appointments?",
@@ -117,9 +117,10 @@ namespace Capp2
 					await AlertHelper.Alert ("That's pretty much it!", 
 						"If you forget, you can replay this tutorial in the Settings page at anytime. We'll return you to the main namelist now :)");
 					UserDialogs.Instance.ShowLoading ();
-					App.NavPage = new NavigationPage (new PlaylistPage ());
-					App.MasterDetailPage.Detail = App.NavPage;
-					App.NavPage.Navigation.PushAsync (new CAPP (Values.ALLPLAYLISTPARAM));
+					//App.NavPage = new NavigationPage (new PlaylistPage ());
+					//App.MasterDetailPage.Detail = App.NavPage;
+					//App.NavPage.Navigation.PushAsync (new CAPP (Values.ALLPLAYLISTPARAM));
+					NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist();
 					UserDialogs.Instance.HideLoading ();
 				}), true, true);
 
@@ -490,8 +491,8 @@ namespace Capp2
 
 			AutoCallInfoLabel = UIBuilder.CreateTutorialLabel (
 				"Introducing AUTOCALL\n\nDouble your daily yes calls.\n\nNo more dialling. " +
-				"No more typing every text. \nNo more papers to lose.\nNo losing track of your sched\n\n" +
-				"CapTap does it all for you",
+				"No more typing every text. \nNo more papers to lose.\nNo losing track of your sched\n\n"/* +
+				"CapTap does it all for you"*/,
 				NamedSize.Small, FontAttributes.Bold, LineBreakMode.WordWrap,
 				new Command(() => {
 					UIAnimationHelper.ShrinkUnshrinkElement(AutoCallInfoLabel);
@@ -621,7 +622,7 @@ namespace Capp2
 			continuePositionX = DoneLabel.X;
 			continuePositionY = DoneLabel.Y;
 
-			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "", new Command(() => {}));
+			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "", new Command(() => {Debug.WriteLine("Welcome fab tapped");}));
 			layout = ((RelativeLayout)page.Content);
 
 			UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, AutoCallInfoLabel,

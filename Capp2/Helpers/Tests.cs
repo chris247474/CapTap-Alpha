@@ -44,7 +44,7 @@ namespace Capp2
 					temp.Add (new ContactData{
 						LastName = lastname[c],
 						FirstName = firstname[c],
-						Name = firstname[c]+" "+lastname[c],
+						//Name = firstname[c]+" "+lastname[c],
 						Number = number[c]
 					});
 				}
@@ -124,7 +124,7 @@ namespace Capp2
 			}
 		public static void testCalendarForTomorrow(){
 			//check events tomorrow
-			IList<CalendarEvent> meetingsTomorrow = CalendarService.GetAppointmentsTomorrow ();
+			IList<CalendarEvent> meetingsTomorrow = /*CalendarService*/App.CalendarHelper.GetAppointmentsTomorrow ();
 			List<ContactData> peopleTomorrow = new List<ContactData> ();
 			if (meetingsTomorrow == null) {
 				Debug.WriteLine ("NO MEETINGS TOMORROW");

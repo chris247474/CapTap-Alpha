@@ -80,7 +80,9 @@ namespace Capp2
 						for(int c = 0;c < selectedItems.Length;c++){
 							selectedItems[c].Playlist = this.playlistToAddTo;//Add to Capp playlist where we came from
 						}
-						App.Database.SaveAll(selectedItems);//save as new contacts to preserve other namelists that we're copying from
+
+						//save as new contacts to preserve other namelists that we're copying from?
+						App.Database.SaveAll(selectedItems);
 
 						await App.Database.DeselectAll(this.list, this);//uncheck checkmarks
 
@@ -210,9 +212,8 @@ namespace Capp2
 		public async Task ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList,
 			StackLayout stack, ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement)
 		{
-			//if (cachestrat == ListViewCachingStrategy.RetainElement) {
-				searchBar.Unfocus ();
-			//}
+			searchBar.Unfocus ();
+			//var listViewPosition = stack.Children.IndexOf (listView); 
 
 			try {
 				this.IsBusy = true;
@@ -278,7 +279,32 @@ namespace Capp2
 		View CreateView(string playlist){
 			var layout = new RelativeLayout ();
 
-			var content = UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
+			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
+			layout.Padding = new Thickness (15, 5, 5, 15);
+
+			layout.Children.Add(
+				ContactPic,
+				Constraint.RelativeToParent(parent => parent.Width*0.039),
+				Constraint.Constant(0),
+				Constraint.RelativeToParent((parent => parent.Width*0.15)),
+				Constraint.RelativeToParent((parent => parent.Height))
+			); 
+
+			layout.Children.Add(nameLabel,
+				Constraint.RelativeToParent((parent => parent.X + ContactPic.Width*1.5)),
+				Constraint.RelativeToParent((parent => parent.Height*0.25))
+			);
+
+			layout.Children.Add(checkbox,
+				Constraint.RelativeToParent((parent => parent.Width*0.85)),
+				Constraint.RelativeToParent((parent => parent.Height*0.3))
+			);
+
+			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
+
+			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, ContactPic, 0.45);
+
+			/*var content = UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
 				
 				new StackLayout{
 					Orientation = StackOrientation.Horizontal,
@@ -302,7 +328,7 @@ namespace Capp2
 				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
 			);
 
-			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.042, ContactPic);
+			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.042, ContactPic);*/
 
 			return layout;
 		}
@@ -317,7 +343,7 @@ namespace Capp2
 			ContactPic.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
 			nameLabel = new Label{
-				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				FontSize = 15,//Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				HorizontalTextAlignment = TextAlignment.Start,
 			};
@@ -332,7 +358,7 @@ namespace Capp2
 
 			checkbox.SetBinding (CheckBox.CheckedProperty, "IsSelected");
 			checkbox.CheckedChanged += (sender, e) => {
-				personCalled = (sender as CheckBox).Parent.Parent.Parent.BindingContext as ContactData;
+				personCalled = (sender as CheckBox).Parent.Parent/*.Parent*/.BindingContext as ContactData;
 				if(personCalled.IsSelected){
 					MessagingCenter.Send("", Values.UNFOCUSPLAYLISTPAGESEARCHBAR);
 				}

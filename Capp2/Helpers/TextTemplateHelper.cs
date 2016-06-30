@@ -62,7 +62,7 @@ namespace Capp2
 
 		public static async Task PrepareConfirmTomorrowsMeetingsTemplateThenSendText(ContactData person){
 			if (!person.IsConfirmedTomorrow) {
-				var DefaultTemplateText = Settings.MeetingConfirmDefault;
+				//var DefaultTemplateText = Settings.MeetingConfirmDefault;
 				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
 
 				string messageToSend = Settings.MeetingConfirmDefault;
@@ -72,16 +72,17 @@ namespace Capp2
 
 				messageToSend = 
 					PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
+				Debug.WriteLine ("inserting values into message: {0}", messageToSend);
 
 				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
 					messageToSend, person.Name, Values.CONFIRM, false, Values.TOMORROW);
 
-				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
+				/*Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
 				Settings.MeetingConfirmSettings = DefaultTemplateText;
 				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
 				Settings.MeetingConfirmSettings = Settings.DailyEmailTemplateDefault;
-				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
-				messageToSend = "";
+				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);*/
+				messageToSend = string.Empty;
 
 				person.IsConfirmedTomorrow = true;
 				App.Database.UpdateItem (person);
@@ -90,6 +91,7 @@ namespace Capp2
 
 		public static async Task PrepareConfirmTodaysMeetingsTemplateThenSendText(ContactData person){
 			if (!person.IsConfirmedToday) {
+				Debug.WriteLine ("Confirm Today default: {0}", Settings.MeetingTodayConfirmDefault);
 				var messageToSend = Settings.MeetingTodayConfirmDefault;
 
 				messageToSend = string.Format ("Hi {0}, {1}", person.FirstName,  
@@ -97,11 +99,15 @@ namespace Capp2
 
 				messageToSend = 
 					PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
+				Debug.WriteLine ("inserting values into message: {0}", messageToSend);
 
 				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
 					messageToSend, person.Name, Values.CONFIRM, false, Values.TODAY);
 
-				Settings.MeetingTodayConfirmSettings = Settings.MeetingTodayConfirmDefault;
+				messageToSend = string.Empty;
+				Debug.WriteLine ("Reset messageToSend: {0}", messageToSend);
+
+				//Settings.MeetingTodayConfirmSettings = Settings.MeetingTodayConfirmDefault;
 
 				person.IsConfirmedToday = true;
 				App.Database.UpdateItem (person);

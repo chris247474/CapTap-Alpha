@@ -4,6 +4,7 @@ using Plugin.Calendars.Abstractions;
 using System.Diagnostics;
 using System.ComponentModel;
 using Xamarin.Forms;
+using System.Runtime.CompilerServices;
 
 namespace Capp2
 {
@@ -14,13 +15,13 @@ namespace Capp2
 		public int ID { get; set; }
 
 		[Column("Name"), NotNull]
-		public string Name { get; set; }
+		public string Name { get; set;}
 
 		[Column("FirstName"), NotNull]
 		public string FirstName { get; set; }
 
 		[Column("LastName"), NotNull]
-		public string LastName { get; set; }
+		public string LastName { get; set;}
 
 		[Column("Affiliation")]
 		public string Aff { get; set; }
@@ -92,6 +93,39 @@ namespace Capp2
 
 		public bool ShouldCallToday{
 			get{ return (NextCall.Date == DateTime.Today.Date) ? true : false; }
+		}
+
+		bool _usesDefaultImage;
+		public bool HasDefaultImage_Large{
+			get{ 
+				_usesDefaultImage = false;
+				/*for (int c = 0; c < App.ProfileBackground.Length; c++) {
+					if (string.Equals (LargePic, App.ProfileBackground [c])) {
+						Debug.WriteLine ("LargePic: {0}, placeholder {1}: {2}", LargePic, c, App.ProfileBackground[c]);
+						_usesDefaultImage = true;
+					}
+				}*/
+				if(LargePic.Contains("profile-")){
+					_usesDefaultImage = true;
+				}
+				return _usesDefaultImage;
+			}
+		}
+
+		public bool HasDefaultImage_Small{
+			get{ 
+				_usesDefaultImage = false;
+				/*for (int c = 0; c < App.ProfileBackground.Length; c++) {
+					if (string.Equals (PicStringBase64, App.ProfileBackground [c])) {
+						Debug.WriteLine ("SmallPic: {0}, placeholder {1}: {2}", PicStringBase64, c, App.ProfileBackground[c]);
+						_usesDefaultImage = true;
+					}
+				}*/
+				if(PicStringBase64.Contains("profile-")){
+					_usesDefaultImage = true;
+				}
+				return _usesDefaultImage;
+			}
 		}
 	}
 }

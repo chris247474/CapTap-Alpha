@@ -31,13 +31,14 @@ namespace Capp2
 		public static StartPage MasterDetailPage;
        // public static bool AutoCallStatus { get; set; }
         public static CAPP CapPage { get; set; }
+		public static EditContactPage EditPage{ get; set;}
 		public static Color StartColor;
 		public static Color EndColor;
 		public static string Width;
 		public static string Height;
 		public static bool OnAppStart, InTutorialMode = false, UsingSearch = false;
 		public static TimeSpan SingleCallTimeEllapsed;
-		public static string DefaultNamelist;
+		public static string DefaultNamelist, CurrentNamelist;
 		public static int DeviceImageCtr{ get; set;}
 		public static bool AppJustLaunched;
 		public static SettingsViewModel SettingsHelper = new SettingsViewModel ();
@@ -45,6 +46,7 @@ namespace Capp2
 		public static string[] ProfileBackground;
 		public ResourceDictionary Resources = new ResourceDictionary ();
 		public static ContactData CurrentContact = null;
+		public static CalendarService CalendarHelper = new CalendarService();
 
 		public static DB Database {
 			get { 
@@ -81,8 +83,15 @@ namespace Capp2
 
 			SetupGradientBackground ();
 
+			SetAsPremium (true);
+
 			await contactFuncs.loadDeviceContactsIntoDBSingleTransaction (false);
 			CheckForMeetingsTodayTomorrowThenSendSMSToConfirm ();
+		}
+
+		void SetAsPremium(bool isPremium){
+			//if not premium, ads will be shown
+			Settings.IsPremiumSettings = isPremium;
 		}
 
 		void AssignResources(){
@@ -107,7 +116,7 @@ namespace Capp2
 				{
 					await Task.Delay(500);
 					Debug.WriteLine("checking meetings today");
-					CalendarService.CheckMeetingsTodayTomorrowConfirmSentSendIfNot();
+					/*CalendarService*/App.CalendarHelper.CheckMeetingsTodayTomorrowConfirmSentSendIfNot();
 				}
 			} catch(Exception e){ Debug.WriteLine("Calendar error {0}", e.Message);}
 			Settings.IsFirstRunSettings = false;

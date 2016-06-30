@@ -199,8 +199,8 @@ namespace Capp2
 		public async Task<bool> DeviceCalendarExistsAndInit(){
 			//check if calendar app has at least one calendar account
 			try{
-				await CalendarService.InitCalendar ();
-				Debug.WriteLine ("CALENDAR ACCOUNT: "+ CalendarService.PrimaryCalendar.Name);
+				await /*CalendarService*/App.CalendarHelper.InitCalendar ();
+				Debug.WriteLine ("CALENDAR ACCOUNT: "+ /*CalendarService*/App.CalendarHelper.PrimaryCalendar.Name);
 				return true;//continue with program
 			}catch(Exception){
 				UserDialogs.Instance.ErrorToast ("Calendar error", "Please make sure your Calendar app has at least one account in it", 4000);
@@ -214,7 +214,7 @@ namespace Capp2
 		}
 
 		public string RemoveMatchingString(string input, Regex special){
-			return special.Replace (input, "");
+			return special.Replace (input, "").Replace(" ", string.Empty);
 		}
 
 		public string MakeDBContactCallable(string number, bool debug){
@@ -233,12 +233,22 @@ namespace Capp2
 
 				if (callableMatch.Success) {
 					if(debug) Debug.WriteLine ("Made number callable - 0" + callableMatch.Groups [0].Value);
-					return "0" + callableMatch.Groups [0].Value;
+					return ("0" + callableMatch.Groups [0].Value);
 				} else {
 					//add anyway
 					return callableNumber;
 				}
 			}
+		}
+
+		public string RemoveWhiteSpaces(string s){
+			if (!string.IsNullOrWhiteSpace (s)) {
+				var arr = s.Split(new char[] { ' ', '\t' });
+				for (int c = 0; c < arr.Length; c++) {
+					s += arr [c];
+				}
+			}
+			return s;
 		}
 
 		public List<ContactData> MakeDBContactListCallable(List<ContactData> list, bool debug){
@@ -384,7 +394,7 @@ namespace Capp2
 						Debug.WriteLine ("ERROR SAVING CONTACT - SKIPPING: "+error);
 					}
 				}
-				saveMultipleContactToDB (false, saveList, playlist);
+				saveMultipleContactToDB (false, saveList, playlist, true);
 			}
 
 			UserDialogs.Instance.HideLoading ();
@@ -523,7 +533,8 @@ namespace Capp2
 				return true;
 			}
 		}*/
-		public bool saveMultipleContactToDB(bool duplicatesAllowed, List<ContactData> contactsToStore, string playlist){
+		public bool saveMultipleContactToDB(bool duplicatesAllowed, List<ContactData> contactsToStore, string playlist
+			, bool savingFromPicture = false){
 			var DBListArr = App.Database.GetItems (playlist).ToArray ();
 			var listArr = contactsToStore.ToArray ();
 			List<ContactData> saveList = new List<ContactData>();
@@ -534,10 +545,10 @@ namespace Capp2
 						saveList.Add (listArr[x]);
 					}
 				}
-				App.Database.SaveAll (saveList.AsEnumerable ());
+				App.Database.SaveAll (saveList.AsEnumerable (), savingFromPicture);
 				return true;
 			} else {
-				App.Database.SaveAll (contactsToStore.AsEnumerable ());
+				App.Database.SaveAll (contactsToStore.AsEnumerable (), savingFromPicture);
 				return true;
 			}
 		}
@@ -641,55 +652,64 @@ namespace Capp2
 						
 						try{
 							contact = new ContactData {
+								Name = listArr[c].FirstName + " " + listArr[c].LastName,
 								FirstName = listArr[c].FirstName,
 								LastName = listArr[c].LastName,
-								Number = listpArr[0].Number,
-								Number2 = listpArr[1].Number,
-								Number3 = listpArr[2].Number,
-								Number4 = listpArr[3].Number,
-								Number5 = listpArr[4].Number,
+								Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,//, false),
+								Number2 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[1].Number,//, false),
+								Number3 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[2].Number,// false),
+								Number4 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[3].Number,// false),
+								Number5 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[4].Number, //false),
 								Playlist = Values.ALLPLAYLISTPARAM,
-								Aff = aff
+								Aff = aff,
+								//initials
 							};
+
+							//Debug.WriteLine ("loadDeviceContactsIntoDBSingleTransaction: {0}'s number is {1}", 
+							//	contact.Name, contact.Number);
 						}catch(Exception){
 							try{
 								contact = new ContactData {
+									Name = listArr[c].FirstName + " " + listArr[c].LastName,
 									FirstName = listArr[c].FirstName,
 									LastName = listArr[c].LastName,
-									Number = listpArr[0].Number,
-									Number2 = listpArr[1].Number,
-									Number3 = listpArr[2].Number,
-									Number4 = listpArr[3].Number,
+									Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,// false),
+									Number2 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[1].Number,// false),
+									Number3 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[2].Number,// false),
+									Number4 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[3].Number,// false),
 									Playlist = Values.ALLPLAYLISTPARAM,
 									Aff = aff
 								};
 							}catch(Exception){
 								try{
 									contact = new ContactData {
+										Name = listArr[c].FirstName + " " + listArr[c].LastName,
 										FirstName = listArr[c].FirstName,
 										LastName = listArr[c].LastName,
-										Number = listpArr[0].Number,
-										Number2 = listpArr[1].Number,
-										Number3 = listpArr[2].Number,
+										Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,// false),
+										Number2 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[1].Number,// false),
+										Number3 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[2].Number,// false),
 										Playlist = Values.ALLPLAYLISTPARAM,
 										Aff = aff
 									};
 								}catch(Exception){
 									try{
 										contact = new ContactData {
+											Name = listArr[c].FirstName + " " + listArr[c].LastName,
 											FirstName = listArr[c].FirstName,
 											LastName = listArr[c].LastName,
-											Number = listpArr[0].Number,
-											Number2 = listpArr[1].Number,
+											Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,// false),
+											Number2 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[1].Number,// false),
 											Playlist = Values.ALLPLAYLISTPARAM,
 											Aff = aff
 										};
 									}catch(Exception){
 										try{
 											contact = new ContactData {
+												Name = listArr[c].FirstName + " " + listArr[c].LastName,
 												FirstName = listArr[c].FirstName,
 												LastName = listArr[c].LastName,
-												Number = listpArr[0].Number,
+												Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,// false),
 												Playlist = Values.ALLPLAYLISTPARAM,
 												Aff = aff
 											};
@@ -782,6 +802,7 @@ namespace Capp2
 
 				list = CrossContacts.Current.Contacts
 					.Where(c => !string.IsNullOrWhiteSpace(c.LastName) && c.Phones.Count > 0).OrderBy(c => c.DisplayName);
+
 			}
 			return list;
 		}

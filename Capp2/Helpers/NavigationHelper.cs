@@ -21,6 +21,12 @@ namespace Capp2
 				page.Navigation.PopModalAsync();
 			}
 		}
+
+		public static void PopNavToRootThenOpenToCAPPInPlaylist(string playlist = Values.ALLPLAYLISTPARAM){
+			App.NavPage = new NavigationPage (new PlaylistPage ());
+			App.MasterDetailPage.Detail = App.NavPage;
+			App.NavPage.Navigation.PushAsync (new CAPP (playlist));
+		}
 	}
 }
 

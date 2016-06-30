@@ -4,6 +4,14 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const string FORMATSEPARATOR =  ";";
+
+		public const string DONEADDINGCONTACT = "doneaddingcontact";
+
+		public const string DONEWITHCONFIRMTEXT = "donewconfirmtext";
+		public const string DONECONFIRMINGTODAYSMEETINGS = "donewtodaysmeetings";
+		public const string DONECONFIRMINGTOMORROWSMEETINGS = "donewtomorrowsmeetings";
+
 		public const string ADDCONTACT = "addcontact";
 		public const string EDITCONTACT = "";
 
@@ -17,7 +25,7 @@ namespace Capp2
 		public const string UNFOCUSPLAYLISTPAGESEARCHBAR = "unfocussearchbar";
 
 		public const string READYFOREXTRATIPS = "readyforextratips";
-		public const string DONEADDINGCONTACT = "doneaddingcontact";
+		public const string DONEADDINGCONTACTNATIVE = "doneaddingcontact";
 		public const string DONEWAUTOCALLTIP = "donewautocalltip";
 
 		public const string CAPPTUTORIALCOLOR_Green = "#004D26";//"#388E3C";

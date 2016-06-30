@@ -24,7 +24,6 @@ namespace Capp2
 		CameraViewModel cameraOps = null;
 		int contactsCount = 0;
 		Label lblContactsCount = null;
-		//Button cmdAutocall;
 		public ToolbarItem EditTBI, DeleteTBI, MoveToTBI, AddTBI;
 		string title;
 		StackLayout stack = new StackLayout(), AutoCallStack = new StackLayout();
@@ -34,13 +33,13 @@ namespace Capp2
 		List<ContactData> PreloadedList;
 		ScrollView scroller = new ScrollView();
 		int AutoCallCounter;
+		public bool AutoCalling;
 
 		public CAPP (string playlistChosen, bool showtip = true)
 		{
 			Init (playlistChosen);
 
 			SubscribeToMessagingCenterListeners ();
-			//SubscribeForEditingListener ();
 
 			CreateUIElements ();
 
@@ -55,6 +54,7 @@ namespace Capp2
 
 		void Init(string playlistChosen){
 			App.CapPage = this;
+			App.CurrentNamelist = playlistChosen;
 			PreLoadedGroupedList = App.Database.GetGroupedItems(playlistChosen);
 			PreloadedList = App.Database.GetItems (playlistChosen);
 			title = playlistChosen + " Contacts";
@@ -182,6 +182,7 @@ namespace Capp2
 				Placeholder = "Search for a name or number",
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
+				FontSize = 15
 				//CancelButtonColor = Color.FromHex(Values.GOOGLEBLUE),
 			};
 			searchBar.TextChanged += (sender, e) => {
@@ -585,9 +586,8 @@ namespace Capp2
 		public async Task ReBuildGroupedSearchableListView(string playlist, List<Grouping<string, ContactData>> groupedList,
 			ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement)
 		{
-			//if (cachestrat == ListViewCachingStrategy.RetainElement) {
-				searchBar.Unfocus ();
-			//}
+			searchBar.Unfocus ();
+			var listViewPosition = (scroller.Content as StackLayout).Children.IndexOf (listView); 
 
             try {
                 this.IsBusy = true;
@@ -595,7 +595,8 @@ namespace Capp2
 
 				CreateListView(cachestrat);
 
-				(scroller.Content as StackLayout).Children.Insert((scroller.Content as StackLayout).Children.Count - 1, listView);
+				(scroller.Content as StackLayout).Children.Insert(/*(scroller.Content as StackLayout).Children.Count - 1*/
+					listViewPosition, listView);
                 this.IsBusy = false;
             }
             catch (Exception e) {
@@ -607,7 +608,8 @@ namespace Capp2
 		{
 			PreLoadedGroupedList = App.Database.GetGroupedItems(playlist);
 			listView.ItemsSource = PreLoadedGroupedList;
-			contactsCount = App.Database.GetItems (playlist).Count;
+			PreloadedList = App.Database.GetItems (playlist);
+			contactsCount = PreloadedList.Count;
 			lblContactsCount.Text = contactsCount.ToString()+" Contacts";
 		}
 
@@ -645,12 +647,14 @@ namespace Capp2
 			}
 		}
 		void PrepareForAutoCall(){
+			AutoCalling = true;
 			AutoCallCounter = 0;
 			AutoCallContinue = true;
 			AutoCallList = App.Database.GetItems(playlist);
         }
 		async Task StartContinueAutoCall(){
 			if(AutoCallCounter >= AutoCallList.Count){
+				AutoCalling = false;
 				SetupNotAutoCalling ();
 				Debug.WriteLine ("Autocalling done");
 				NavigationHelper.ClearModals (this);

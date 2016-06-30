@@ -34,7 +34,7 @@ namespace Capp2
 			};
 			MainLabel = new Label{
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
-				Text = "Text Templates",
+				Text = "Message Templates",
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				HorizontalTextAlignment = TextAlignment.Start,
 				VerticalTextAlignment = TextAlignment.Center
@@ -59,7 +59,7 @@ namespace Capp2
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 
-					UIBuilder.CreateSetting ("", "Daily Email Template", 
+					UIBuilder.CreateSetting ("", "Daily Email", 
 						new TapGestureRecognizer {Command = new Command (() => 
 							{
 								UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailTemplate);
@@ -74,7 +74,7 @@ namespace Capp2
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 					
-					UIBuilder.CreateSetting ("", "BOM Text Template", 
+					UIBuilder.CreateSetting ("", "Confirm Message", 
 						new TapGestureRecognizer {Command = new Command (() => 
 						{
 								UIAnimationHelper.ShrinkUnshrinkElement(SettingsList1);
@@ -88,7 +88,7 @@ namespace Capp2
 				Orientation = StackOrientation.Vertical,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Children = {
-					UIBuilder.CreateSetting ("", "Meeting Place Text Template", 
+					UIBuilder.CreateSetting ("", "Usual Meetup Area", 
 						new TapGestureRecognizer {Command = new Command (() => 
 							{
 								UIAnimationHelper.ShrinkUnshrinkElement(SettingsList2);

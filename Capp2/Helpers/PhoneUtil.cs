@@ -49,6 +49,23 @@ namespace Capp2
 			}
 			return newNumber.ToString();
 		}
+
+		public static string ToNumber_Custom(string number)
+		{
+			if (string.IsNullOrWhiteSpace(number))
+				return null;
+
+			number = number.ToLower ();
+
+			var newNumber = new StringBuilder();
+			foreach (char c in number)
+			{
+				if ("0123456789".Contains(c))
+					newNumber.Append(c);
+			}
+			Debug.WriteLine ("PhoneUtil.ToNumber() returning {0}", newNumber.ToString());
+			return newNumber.ToString();
+		}
 	}
 }
 

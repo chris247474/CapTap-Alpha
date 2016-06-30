@@ -80,7 +80,8 @@ namespace Capp2
 				BackgroundColor = Color.Transparent,
 				Placeholder = placeholder,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
-				VerticalOptions = LayoutOptions.FillAndExpand
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				FontSize = 15,
 			};
 			searchBar.TextChanged += (sender, e) => {searchCommand.Execute(null);};
 

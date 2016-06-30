@@ -100,7 +100,7 @@ namespace Capp2
 					Text = title,
 					TextColor = TitleColor,
 					TextAlignment = textalign,
-					Font = Font.SystemFontOfSize(20, FontAttributes.Bold),
+					Font = Font.SystemFontOfSize(18, FontAttributes.Bold),
 					BorderWidth = legendtitleborderwidth,
 					BackgroundColor = Color.Transparent,
 				},

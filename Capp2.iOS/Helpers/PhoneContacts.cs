@@ -211,7 +211,7 @@ namespace Capp2.iOS.Helpers
 			}
 			return string.Empty;
 		}
-        public bool SaveContactToDevice(string firstName, string lastName, string phone, string aff)
+		public bool SaveContactToDevice(string firstName, string lastName, string phone, string aff)
         {
             try {
                 ABAddressBook ab = new ABAddressBook();
@@ -239,25 +239,48 @@ namespace Capp2.iOS.Helpers
 			}
             return false;
         }
+		public bool SaveContactToDevice(string firstName, string lastName, 
+			List<CNLabeledValue<CNPhoneNumber>> Phones, string aff, bool alert = true)
+		{
+			try {
+				ABAddressBook ab = new ABAddressBook();
+				ABPerson p = new ABPerson();
+
+				p.FirstName = firstName;
+				p.LastName = lastName;
+				p.Organization = aff;
+				//p.GetImage(ABPersonImageFormat.Thumbnail).
+
+				ABMutableMultiValue<string> phones = new ABMutableStringMultiValue();
+				foreach(CNLabeledValue<CNPhoneNumber> number in Phones){
+					phones.Add(number.Value.StringValue, ABPersonPhoneLabel.Mobile);
+				}
+
+				p.SetPhones(phones);
+
+				ab.Add(p);
+				ab.Save();
+
+				if(alert) UserDialogs.Instance.ShowSuccess("Contact saved: " + firstName + " " + lastName, 2000);
+
+				return true;
+			} catch (Exception e) {
+				System.Console.WriteLine("[iOS.PhoneContacts] Couldn't save contact: {0} {1}, {2}", firstName, lastName, e.Message);
+				if(alert) UserDialogs.Instance.ShowError("Failed to save contact: "+ firstName + " " + lastName + ". Pls try again.", 2000);
+			}
+			return false;
+		}
 		public async Task<bool> SendSMS(string number, string message, string name, 
 			string ConfirmOrBOM, bool AutoCall = false, string TodayOrTomorrow = null)
         {
             var notifier = new iOSReminderService();
             try
             {
-				Console.WriteLine ("Start SendSMS");
-
-                //inputs initial text
-                var window = UIApplication.SharedApplication.KeyWindow;
-				Console.WriteLine ("window retrieved");
-
 				var vc = UIApplication.SharedApplication.KeyWindow.RootViewController;
-				Console.WriteLine ("rootviewcontroller retrieved");//returns null when called in App
 
                 while (vc.PresentedViewController != null)
                 {
                     vc = vc.PresentedViewController;
-					Console.WriteLine ("presentedviewcontroller retrieved");
 
                 }
                 if (MFMessageComposeViewController.CanSendText)
@@ -268,7 +291,7 @@ namespace Capp2.iOS.Helpers
                         new MFMessageComposeViewController();
 
                     messageController.Finished += (sender, e) => {
-						//System.Console.WriteLine("iOS Messages opened. AutoCallStatus: {0}", App.AutoCallStatus.ToString());
+						Console.WriteLine("sms sent: {0}", messageController.Body);
 						if (AutoCall)
                         {
 							System.Console.WriteLine("AutoCallStatus true. Sending iOSDONEWITHCALL message to CAPP");
@@ -285,16 +308,15 @@ namespace Capp2.iOS.Helpers
 							//AlertHelper.Alert(App.Current.MainPage, "Text Sent!", "Sent BOM Meetup Text to "+name, "OK");
                         }
                         else {
+							MessagingCenter.Send("", Values.DONEWITHCONFIRMTEXT);
                             if (string.Equals(TodayOrTomorrow, Values.TODAY))
                             {
                                 notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for later", "Confirming " + name);
 								//AlertHelper.Alert(App.CapPage, "Confirming " + name,  "Texted " + name + " for today's meeting", "OK");
-
 							}
                             else {
                                 notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
 								//AlertHelper.Alert(App.CapPage, "Confirming " + name,  "Texted " + name + " for tomorrow's meeting", "OK");
-
 							}
                         }
                         messageController.DismissViewController(true, null);

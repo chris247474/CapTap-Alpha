@@ -15,14 +15,14 @@ namespace Capp2
 			BindingContext = contact;
 
 			name = new Label () {
-				Text = contact.Name,
+				//Text = contact.Name,
 				FontSize = 20,
 				//FontFamily = Device.OnPlatform("HelveticaNeue-Bold","sans-serif-black",null),
 				FontAttributes = FontAttributes.Bold,
 				HorizontalTextAlignment = TextAlignment.Center,
 				TextColor = Color.Black
 			};
-			//name.SetBinding (Label.TextProperty, "Name");
+			name.SetBinding (Label.TextProperty, new Binding(){Path = "Name"});
 
 			var namelist = new Label () {
 				Text = contact.Playlist,
@@ -48,7 +48,7 @@ namespace Capp2
 				HorizontalTextAlignment = TextAlignment.Center,
 				TextColor = Color.Black
 			};
-			info.GestureRecognizers.Add(new TapGestureRecognizer{Command = new Command(()=>{
+			/*info.GestureRecognizers.Add(new TapGestureRecognizer{Command = new Command(()=>{
 				if(infoSwapped){
 					info.Text = GetCallInfo(contact);
 					infoSwapped = false;
@@ -56,7 +56,7 @@ namespace Capp2
 					info.Text = GetGeneralInfo(contact);
 					infoSwapped = true;
 				}
-			})});
+			})});*/
 
 
 			var stack = new StackLayout () {

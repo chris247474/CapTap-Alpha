@@ -219,13 +219,27 @@ namespace Capp2
 			Debug.WriteLine ("Calling " + contact.Name + " autocall: " + autocall.ToString ());
 			var dialer = DependencyService.Get<IDialer> ();
 			if (dialer != null) {
-				if (await dialer.Dial (await HandleMutlipleNumbers (contact))) {
-					contact.Called = DateTime.Now;
-					App.Database.UpdateItem (contact);
-					Debug.WriteLine ("Delaying 4s");
-					await Task.Delay (Values.CALLTOTEXTDELAY);
-					App.NavPage.Navigation.PushModalAsync (new DatePage (Values.APPOINTED, contact, autocall));
-				} 
+				var numberToCall = await HandleMutlipleNumbers (contact);
+				if (!string.IsNullOrWhiteSpace (numberToCall)) {
+
+					Debug.WriteLine ("{0} has spaces? {1}", numberToCall, numberToCall.Contains(" "));
+					Debug.WriteLine ("{0} char length is {1}", numberToCall, numberToCall.Length);
+					numberToCall = PhoneUtil.ToNumber_Custom (numberToCall);
+					Debug.WriteLine ("About to call {0}", numberToCall);
+
+					if (await dialer.Dial (numberToCall)) {
+						Debug.WriteLine ("Call finished");
+						contact.Called = DateTime.Now;
+						App.Database.UpdateItem (contact);
+						Debug.WriteLine ("Delaying 4s");
+						await Task.Delay (Values.CALLTOTEXTDELAY);
+						App.NavPage.Navigation.PushModalAsync (new DatePage (Values.APPOINTED, contact, autocall));
+					} else {
+						Debug.WriteLine ("Couldn't call {0", contact.Name);
+					}
+				} else {
+					Debug.WriteLine ("{0} has no valid contact numbers", contact.Name);
+				}
 			} else
 				throw new Exception ("dialer return null in CAPP.call()");
 		}
@@ -244,6 +258,7 @@ namespace Capp2
 
 		public static async Task<string> HandleMutlipleNumbers(ContactData contact){
 			List<string> list = new List<string> ();
+			Debug.WriteLine ("In HandleMutlipleNumbers");
 
 			if (!string.IsNullOrWhiteSpace (contact.Number2)) {
 				list.Add (contact.Number);
@@ -258,10 +273,12 @@ namespace Capp2
 					list.Add (contact.Number5);
 				}
 
-				return await UserDialogs.Instance.ActionSheetAsync ("Which number do we call?", null, null,
-					list.ToArray ()
-				);
-			} 
+				return (await UserDialogs.Instance.ActionSheetAsync ("Which number do we call?", null, null,
+					list.ToArray ()));
+			} else {
+				Debug.WriteLine ("Number 2 is null or white space");
+			}
+			Debug.WriteLine ("HandeMultipleNumbers returning {0}", contact.Number);
 			return contact.Number;
 		}
 	}

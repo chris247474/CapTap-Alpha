@@ -55,12 +55,13 @@ namespace Capp2
 				var secondinitial = listarr[c].LastName.ToCharArray()[0];
 				listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
 
-
 				listarr[c].Number = App.contactFuncs.MakeDBContactCallable (listarr[c].Number, false);
 				listarr[c].Number2 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number2, false);
 				listarr[c].Number3 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number3, false);
 				listarr[c].Number4 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number4, false);
 				listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number5, false);
+
+				Debug.WriteLine ("{0}'s number is {1}", listarr[c].Name, listarr[c].Number);
 			}
 
 			return list;
@@ -260,10 +261,18 @@ namespace Capp2
 				var listarr = list.ToArray();
 				for(int c = 0;c < listarr.Length;c++){
 					listarr[c].Number = App.contactFuncs.MakeDBContactCallable(listarr[c].Number, false);
+					listarr[c].Number2 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number2, false);
+					listarr[c].Number3 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number3, false);
+					listarr[c].Number4 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number4, false);
+					listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number5, false);
 					var firstinitial = listarr[c].FirstName.ToCharArray()[0];
 					var secondinitial = listarr[c].LastName.ToCharArray()[0];
-					listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
-
+					if(listarr[c].HasDefaultImage_Small){
+						Debug.WriteLine("{0} has default image");
+						listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
+					}else{
+						listarr[c].Initials = string.Empty;
+					}
 				}
 				App.Database.UpdateAll(listarr.AsEnumerable());
 
@@ -318,12 +327,14 @@ namespace Capp2
 			}
 		}
 
-		public int SaveAll (IEnumerable<ContactData> items) 
+		public int SaveAll (IEnumerable<ContactData> items, bool savingFromPicture  = false) 
 		{
 			try{
 				var itemsArr = items.ToArray ();
-				for(int c = 0;c < itemsArr.Length;c++){
-					itemsArr[c].Name = itemsArr[c].FirstName + " " + itemsArr[c].LastName;
+				if(savingFromPicture){
+					for(int c = 0;c < itemsArr.Length;c++){
+						itemsArr[c].Name = itemsArr[c].FirstName + " " + itemsArr[c].LastName;
+					}
 				}
 				lock (locker) {
 					return database.InsertAll(itemsArr.AsEnumerable ());
@@ -337,8 +348,8 @@ namespace Capp2
 		{
 			try{
 				item.Name = item.FirstName + " " + item.LastName;
-				Debug.WriteLine("Updated {0}, IsSelected: {1}", 
-					item.Name, item.IsSelected);
+				Debug.WriteLine("Update Item {0}", 
+					item.Name);
 					
 				lock (locker) {
 					return database.Update(item);
@@ -362,13 +373,12 @@ namespace Capp2
 		}
 		public int UpdateAll(IEnumerable<ContactData> items){
 			try{
-				var itemsArr = items.ToArray ();
+				/*var itemsArr = items.ToArray ();
 				for(int c = 0;c < itemsArr.Length;c++){
-					itemsArr[c].Name = itemsArr[c].FirstName + " " + itemsArr[c].LastName;
-					Debug.WriteLine("Updating {0}", itemsArr[c].Name);
-				}
+					Debug.WriteLine("Updating {0} to playlist {1}", itemsArr[c].Name, itemsArr[c].Playlist);
+				}*/
 				lock (locker) {
-					return database.UpdateAll(itemsArr.AsEnumerable ());
+					return database.UpdateAll(/*itemsArr.AsEnumerable ()*/items);
 				}
 			}catch(Exception e){
 				Debug.WriteLine ("DB UpdateAll error "+e.Message);

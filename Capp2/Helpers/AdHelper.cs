@@ -9,6 +9,7 @@ namespace Capp2
 	{
 		public static bool IsUserPremiumAccount(){
 			return Settings.IsPremiumSettings;
+			//return true;
 		}
 
 		public static async Task AddGreenURLOrangeTitleBannerToStack(StackLayout stack, int BannerHeight = 50, 

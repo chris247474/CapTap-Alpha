@@ -34,7 +34,7 @@ namespace Capp2
 		public EditContactPage (ContactData contact, CAPP page)  
 		{
 			NavigationPage.SetHasNavigationBar (this, true);
-
+			App.EditPage = this;
 			ShowPage (contact, page);
 		}
 		async void ShowPage(ContactData contact, CAPP page){
@@ -44,8 +44,8 @@ namespace Capp2
 
 			this.Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "Edit.png", 
 				new Command(() => {
-					SwitchEditViewMode(page, contact);
-					//Navigation.PushAsync(new AddEditContactNativePage(contact));
+					//SwitchEditViewMode(page, contact);
+					Navigation.PushAsync(new AddEditContactNativePage(contact));
 				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE), "Checkmark.png");
 
 			UIAnimationHelper.FlyDown (relativeLayout);
@@ -105,16 +105,19 @@ namespace Capp2
 					return parent.Width * .5;
 				})
 			);
-			bool drawinitials = false;
+			/*bool drawinitials = false;
 			for (int c = 0; c < App.ProfileBackground.Length; c++) {
 				if (string.Equals (contact.LargePic, App.ProfileBackground [c])) {
 					Debug.WriteLine ("LargePic: {0}, placeholder {1}: {2}", contact.LargePic, c, App.ProfileBackground[c]);
 					drawinitials = true;
 				}
-			}
-			Debug.WriteLine ("draw initials: {0}", drawinitials);
-			if (drawinitials) {
+			}*/
+
+			if (contact.HasDefaultImage_Large) {
 				UIBuilder.PlaceInitialsTextOnImage (relativeLayout, details.name.FontSize, ContactPic, contact);
+				Debug.WriteLine ("{0} has default image large", contact.Name);
+			} else {
+				Debug.WriteLine ("{0} has custom image large", contact.Name);
 			}
 
 			relativeLayout.Children.Add (

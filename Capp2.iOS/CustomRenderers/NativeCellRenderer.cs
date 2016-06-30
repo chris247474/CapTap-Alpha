@@ -5,9 +5,9 @@ using UIKit;
 using Xamarin.Forms;
 using Capp2;
 using Capp2.iOS;
-using CoreGraphics;
 using System.Reflection;
 using ObjCRuntime;
+using CoreGraphics;
 
 [assembly: ExportRenderer (typeof(NativeCell), typeof(NativeCellRenderer))]
 namespace Capp2.iOS
@@ -25,6 +25,7 @@ namespace Capp2.iOS
 			CGRect rect = new CGRect(0, 0, 1, 1);
 			CGSize size = rect.Size;
 			UIGraphics.BeginImageContext(size);
+			UIGraphics.BeginImageContext(rect.Size);
 			CGContext currentContext = UIGraphics.GetCurrentContext();
 			currentContext.SetFillColor(Color.FromHex(Values.YELLOW).ToCGColor());
 			currentContext.FillRect(rect);

@@ -127,7 +127,7 @@ namespace Capp2
 						await Util.ChooseNewDefaultNamelist(App.Database.GetPlaylistNames());
 					}
 				)});
-			TemplateSettings = UIBuilder.CreateSetting ("SpeechBubble.png", "\tText Templates", 
+			TemplateSettings = UIBuilder.CreateSetting ("SpeechBubble.png", "\tMessage Templates", 
 				new TapGestureRecognizer {Command = new Command (() => {
 					UIAnimationHelper.ZoomUnZoomElement(TemplateSettings);
 					App.NavPage.Navigation.PushModalAsync (new TemplateSettingsPage ());

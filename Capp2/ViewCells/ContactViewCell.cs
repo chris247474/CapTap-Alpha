@@ -32,7 +32,7 @@ namespace Capp2
 			this.playlist = page.playlist;
 
 			nameLabel = new Label{
-				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				FontSize = 15,//Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				HorizontalOptions = LayoutOptions.Start,
 				HorizontalTextAlignment = TextAlignment.Start,
 			};
@@ -44,14 +44,14 @@ namespace Capp2
 			lastnameLabel.SetBinding (Label.TextProperty, "LastName");
 
 			circleImage = new CircleImage{
-				HorizontalOptions = LayoutOptions.Fill,
+				HorizontalOptions = LayoutOptions.Start,
 				Aspect = Aspect.AspectFit,
 				BackgroundColor = Color.Transparent,
 			};
 			circleImage.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
 			playlistLabel = new Label{
-				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)), 
+				FontSize = 12,//Device.GetNamedSize (NamedSize.Small, typeof(Label)), 
 				TextColor = Color.Green,
 				VerticalOptions = LayoutOptions.Start,
 				HorizontalTextAlignment = TextAlignment.Start,
@@ -178,18 +178,9 @@ namespace Capp2
 		public RelativeLayout CreateLayout(string playlist){
 			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
 
-			/*layout.Children.Add(
-				createLayoutView (playlist),
-				xConstraint: Constraint.Constant(0),
-				yConstraint: Constraint.Constant(0),
-				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
-				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
-			); */
-
 			createLayoutView (playlist);
 
 			initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
-
 			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage, 0.45);
 
 			return layout;
@@ -296,11 +287,11 @@ namespace Capp2
 			); 
 
 			layout.Children.Add(nameLabel,
-				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.4)),
-				Constraint.RelativeToParent((parent => parent.Height*0.12))
+				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.5)),
+				Constraint.RelativeToParent((parent => parent.Height*0.18))
 			);
 			layout.Children.Add(playlistLabel,
-				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.4)),
+				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.5)),
 				Constraint.RelativeToParent((parent => parent.Height*0.22+nameLabel.Height))
 			);
 
@@ -338,17 +329,13 @@ namespace Capp2
 			); 
 
 			layout.Children.Add(nameLabel,
-				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.4)),
-				Constraint.RelativeToParent((parent => parent.Height*0.12))
+				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.5)),
+				Constraint.RelativeToParent((parent => parent.Height*0.18))
 			);
 			layout.Children.Add(playlistLabel,
-				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.4)),
+				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.5)),
 				Constraint.RelativeToParent((parent => parent.Height*0.22+nameLabel.Height))
 			);
-
-			//var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
-
-			//UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage, 0.25);
 
 			AddPhoneToLayout ();
 

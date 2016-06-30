@@ -107,7 +107,10 @@ namespace Capp2
 
 			Content = UIBuilder.AddFABToViewWrapRelativeLayout(stack, fab, "", new Command(() => {
 				NavigationHelper.ClearModals(this);
-				App.CapPage.SetupNotAutoCalling();
+				if(App.CapPage.AutoCalling){
+					App.CapPage.SetupNotAutoCalling();
+				}
+				MessagingCenter.Send("", Values.READYFOREXTRATIPS);
 			}));
 
 			content = this.Content as RelativeLayout;
@@ -142,7 +145,7 @@ namespace Capp2
                     {
                         case Values.NEXT:
                             Debug.WriteLine("ABOUT TO RESCHED: NEXTMEETINGID " + personCalled.NextMeetingID);
-							await CalendarService.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours(timePicker.Time.Hours));
+							await /*CalendarService*/App.CalendarHelper.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours(timePicker.Time.Hours));
 
                             App.Database.UpdateItem(personCalled);
 
@@ -154,7 +157,10 @@ namespace Capp2
 							
 							ResolveCAPP(personCalled, Values.APPOINTED);
 
-                            personCalled.NextMeetingID = await CalendarService.CreateAppointment(personCalled.NextMeetingID, 
+							//if was appointed and confirmed before resched, reset IsConfirmedToday/IsConfirmedTomorrow to false
+
+							personCalled.NextMeetingID = await /*CalendarService*/App.CalendarHelper.CreateAppointment(
+								personCalled.NextMeetingID, 
 								personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, 
 								datePicker.Date.AddHours(timePicker.Time.Hours));
                             Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
@@ -215,7 +221,7 @@ namespace Capp2
 		public void ResolveCAPP(ContactData personCalled, string cappstrings){
 			switch (cappstrings) {
 			case Values.APPOINTED:
-				if(personCalled.Called == DateTime.MinValue){
+				if (personCalled.Called == DateTime.MinValue) {
 					personCalled.Called = DateTime.Now;
 				}
 				break;
@@ -273,7 +279,7 @@ namespace Capp2
 				VerticalOptions = LayoutOptions.CenterAndExpand
 			};
 			datePicker2.DateSelected += async (dateSender, de) => {
-				await CalendarService.ReschedAppointment (personCalled.NextMeetingID, personCalled.Name, Values.FOLLOWUP, datePicker2.Date.AddHours (Values._5PMBOM));
+				await /*CalendarService*/App.CalendarHelper.ReschedAppointment (personCalled.NextMeetingID, personCalled.Name, Values.FOLLOWUP, datePicker2.Date.AddHours (Values._5PMBOM));
 
 				App.Database.UpdateItem (personCalled);
 

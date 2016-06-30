@@ -274,11 +274,16 @@ namespace Capp2
 			return string.Empty;
 		}
 
-		public static FloatingActionButton CreateFAB(string icon, FabSize size, Color NormalColor, Color PressedColor)
+		public static FloatingActionButton CreateFAB(string icon, FabSize size, Color NormalColor, Color PressedColor
+		)
 		{
 			FloatingActionButton normalFab = new FloatingActionButton();
-			normalFab.Clicked += (sender, e) => {
-				UIAnimationHelper.ZoomUnZoomElement (normalFab);
+			normalFab.Clicked += async (sender, e) => {
+				SystemSoundService.Play(SystemSounds.Tap);
+				await UIAnimationHelper.ZoomUnZoomElement(normalFab, 1.3, 500);
+				//if(FabTapped != null){
+				//	FabTapped.Execute(null);
+				//}
 			};
 			normalFab.Size = size;
 			normalFab.Source = icon; 
@@ -286,6 +291,8 @@ namespace Capp2
 			normalFab.NormalColor = NormalColor;
 			normalFab.Opacity = 0.9;
 			normalFab.PressedColor = PressedColor;
+
+			//normalFab.SetBinding(FloatingActionButton.SourceProperty, 
 
 			return normalFab;
 		}
@@ -347,29 +354,18 @@ namespace Capp2
 				parentlayout.Children.Add (
 					img,
 					Constraint.RelativeToView (child, (parent, view) => {
-						return view.X + (view.Width*0.31);
+						return view.X + (view.Width*0.25);//0.31
 					}),
 					Constraint.RelativeToView (child, (parent, view) => {
-						return view.Y + (view.Height*0.31);
+						return view.Y + (view.Height*0.25);//0.31
+					}),
+					Constraint.RelativeToView (child, (parent, view) => {
+						return view.Width*0.5;
+					}),
+					Constraint.RelativeToView (child, (parent, view) => {
+						return view.Height*0.5;
 					})
 				);
-				/*if (Device.OS == TargetPlatform.iOS) {
-					parentlayout.Children.Add (
-						img,
-						Constraint.RelativeToView (child, (parent, view) => {
-							return view.X + (view.Width*0.25);//0.31
-						}),
-						Constraint.RelativeToView (child, (parent, view) => {
-							return view.Y + (view.Height*0.25);//0.31
-						}),
-						Constraint.RelativeToView (child, (parent, view) => {
-							return view.Width*0.5;
-						}),
-						Constraint.RelativeToView (child, (parent, view) => {
-							return view.Height*0.5;
-						})
-					);
-				}*/
 			} else {
 				parentlayout.Children.Add(  
 					child,
@@ -379,7 +375,7 @@ namespace Capp2
 			}
 			child.SizeChanged += (sender, args) => { parentlayout.ForceLayout(); }; 
 			child.SetBinding (FloatingActionButton.CommandProperty, new Binding (){ Source = FabTapped });
-			
+
 			return parentlayout;
 		}
 
@@ -464,8 +460,8 @@ namespace Capp2
 			img = CreateTappableImage (icon, 
 				LayoutOptions.Fill, Aspect.AspectFit, new Command(()=>{
 					Debug.WriteLine("icon tapped");
-					UIAnimationHelper.ShrinkUnshrinkElement (normalFab, 100);
-					UIAnimationHelper.ShrinkUnshrinkElement (img, 100);
+					UIAnimationHelper.ShrinkUnshrinkElement (normalFab, 200);
+					UIAnimationHelper.ShrinkUnshrinkElement (img, 200);
 
 					if(!string.IsNullOrWhiteSpace(PressedIcon)){
 						tempicon = SwapIconsOnPressIfNeeded(normalFab, img, icon, PressedIcon, tempicon);
@@ -478,15 +474,17 @@ namespace Capp2
 			normalFab.Clicked += (sender, e) => {
 				Debug.WriteLine("Clicked");
 				UIAnimationHelper.ZoomUnZoomElement (normalFab);
+				SystemSoundService.Play(SystemSounds.Tap);
 
 				if(!string.IsNullOrWhiteSpace(PressedIcon)){
 					tempicon = SwapIconsOnPressIfNeeded(normalFab, img, icon, PressedIcon, tempicon);
 				}
 
 				Debug.WriteLine("FabTapped");
+
+				FabTapped.Execute(null);
 			};
 
-			//normalFab.Source = FileImageSource.FromFile("Plus.png");
 			normalFab.Size = FabSize.Normal;
 			normalFab.HasShadow = true;
 			normalFab.NormalColor = NormalColor;
@@ -507,23 +505,23 @@ namespace Capp2
 				);
 			}
 			normalFab.SizeChanged += (sender, args) => { layout.ForceLayout(); };
-			normalFab.SetBinding (FloatingActionButton.CommandProperty, new Binding(){Source = FabTapped});
+			//normalFab.SetBinding (FloatingActionButton.CommandProperty, new Binding(){Source = FabTapped});
 
 			if (Device.OS == TargetPlatform.iOS) {
 				layout.Children.Add (
 					img,
 					Constraint.RelativeToView (normalFab, (parent, view) => {
-						return view.X + (view.Width*0.31);//0.25
+						return view.X + (view.Width*0.25);//0.31
 					}),
 					Constraint.RelativeToView (normalFab, (parent, view) => {
-						return view.Y + (view.Height*0.31);//0.25
-					})//,
-					/*Constraint.RelativeToView (normalFab, (parent, view) => {
+						return view.Y + (view.Height*0.25);//0.31
+					}),
+					Constraint.RelativeToView (normalFab, (parent, view) => {
 						return view.Width*0.5;
 					}),
 					Constraint.RelativeToView (normalFab, (parent, view) => {
 						return view.Height*0.5;
-					})*/
+					})
 				);
 			}
 
