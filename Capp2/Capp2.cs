@@ -61,6 +61,7 @@ namespace Capp2
 		{			
 			PrepareAppData ();
 			MainPage = new StartPage ();
+				//new TabbedStartPage ();
 		}
 
 		public async Task PrepareAppData(){

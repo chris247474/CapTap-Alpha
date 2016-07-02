@@ -19,6 +19,7 @@ namespace Capp2
 		string playlistToAddTo;
 		StackLayout stack = new StackLayout(), contentstack = new StackLayout();
 		Button AddTo = new Button ();
+		ContactViewModel contactViewModel;
 
 		public CappModal (string playlist, string playlistToAddTo, List<Grouping<string, ContactData>> groupedlist, 
 			List<ContactData> list, List<ContactData> NamelistToAddTo, bool isToolTipHolder = false)
@@ -74,24 +75,35 @@ namespace Capp2
 				};
 				Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(contentstack, 
 					"Checkmark.png", new Command (async () => {
-
+						//ContactViewModel contactsViewModel;
 						//add to namelist
 						var selectedItems = App.Database.GetSelectedItems(playlist).ToArray();
 						for(int c = 0;c < selectedItems.Length;c++){
-							selectedItems[c].Playlist = this.playlistToAddTo;//Add to Capp playlist where we came from
+							//contactsViewModel = new ContactViewModel(selectedItems[c]);
+							selectedItems[c] = ContactViewModel.AddNamelist(selectedItems[c], new string[]{this.playlistToAddTo}, false);
+							//selectedItems[c].Playlist = this.playlistToAddTo;//Add to Capp playlist where we came from
 						}
 
-						//save as new contacts to preserve other namelists that we're copying from?
-						App.Database.SaveAll(selectedItems);
+						//save as new contacts to preserve other namelists that we're copying from? 
+						//App.Database.SaveAll(selectedItems);//duplicates
+						//var updateResult = await App.Database.UpdateAllAsync(selectedItems);
 
-						await App.Database.DeselectAll(this.list, this);//uncheck checkmarks
+						var updateResult = await App.Database.DeselectAll(selectedItems.AsEnumerable(), 
+							this, false);//uncheck checkmarks
+						NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist(this.playlistToAddTo, 1000);
 
-						await AlertHelper.Alert(this, "Copied!",
-							string.Format("Moved {0} contacts from {1} to {2}", selectedItems.Length, playlist, playlistToAddTo)
-						);
+						if(updateResult != 0){
+							await AlertHelper.Alert(this, "Copied!",
+								string.Format("Moved {0} contacts from {1} to {2}", selectedItems.Length, playlist, playlistToAddTo)
+							);
+						}else{
+							Debug.WriteLine("result of update operation is {0}", updateResult);
+							await AlertHelper.Alert(this, "Oops!",
+								"Something went wrong. Please try again");
+						}
 
 						MessagingCenter.Send("", Values.DONEADDINGCONTACT);
-						Navigation.PopModalAsync();
+						await Navigation.PopModalAsync();
 
 					}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 			}

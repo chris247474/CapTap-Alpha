@@ -16,6 +16,7 @@ namespace Capp2
 		static object locker = new object ();
 		SQLite.SQLiteConnection database; 
 		List<ContactData> list;
+		ContactViewModel contactViewModel;
 
 		public DB () 
 		{
@@ -24,7 +25,7 @@ namespace Capp2
             database.CreateTable<Playlist>();
 		}
 		public List<ContactData> GetItems (string playlist) {
-			Debug.WriteLine ("Calling list {0}", playlist);
+			Debug.WriteLine ("Fetching list {0}", playlist);
 			if (playlist == "All") {
 				//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
 				list = (from x in (database.Table<ContactData> ().OrderBy (x => x.LastName))
@@ -38,7 +39,12 @@ namespace Capp2
 				App.lastIndex = list.Count+1;
 			}else {
 				try{
-					list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist == playlist).OrderBy (x => x.LastName))
+					//get list of namelists, compare to playlist param. 
+					//if equal, pass to query line directly below for x.Playlist comparison
+					var matchingNamelist = FindMatchingNamelist(playlist);
+
+					list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist.Contains(matchingNamelist)
+						/*x.Playlist == playlist*/).OrderBy (x => x.LastName))
 						select x).ToList<ContactData> ();
 					App.lastIndex = list.Count+1;
 				}catch(Exception e){
@@ -48,12 +54,20 @@ namespace Capp2
 				}
 			}
 
+			if (list == null) {
+				list = new ContactData[]{}.ToList();
+			}
 			var listarr = list.ToArray();
 
 			for(int c = 0;c < listarr.Length;c++){
 				var firstinitial = listarr[c].FirstName.ToCharArray()[0];
 				var secondinitial = listarr[c].LastName.ToCharArray()[0];
-				listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
+				if(listarr[c].HasDefaultImage_Small){
+					//Debug.WriteLine("{0} has default image");
+					listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
+				}else{
+					listarr[c].Initials = string.Empty;
+				}
 
 				listarr[c].Number = App.contactFuncs.MakeDBContactCallable (listarr[c].Number, false);
 				listarr[c].Number2 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number2, false);
@@ -61,12 +75,26 @@ namespace Capp2
 				listarr[c].Number4 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number4, false);
 				listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number5, false);
 
-				Debug.WriteLine ("{0}'s number is {1}", listarr[c].Name, listarr[c].Number);
+				//Debug.WriteLine ("{0}'s number is {1}", listarr[c].Name, listarr[c].Number);
 			}
 
 			return list;
 		}
-        
+
+		string FindMatchingNamelist(string playlist){
+			var playlists = GetPlaylistNames(); 
+			for(int c = 0;c < playlists.Length;c++){
+				if(string.Equals(playlists[c], playlist)){
+					Debug.WriteLine ("FindMatchingNamelist returning {0}", playlist);
+					return FormatNamelist(playlist);
+				}
+			}
+			return "hypomonstrososquipedalophobia";//doesnt matter what string goes here as long as it doesnt match any namelist
+		}
+		string FormatNamelist(string namelist){
+			return Values.FORMATSEPARATOR + namelist + Values.FORMATSEPARATOR;
+		}
+
 		public int GetTodaysYesCalls(){
 			var ListArr = (from x in (database.Table<ContactData> ()) select x).ToArray ();
 
@@ -233,7 +261,7 @@ namespace Capp2
 
 		public List<Grouping<string, ContactData>> GetGroupedItems (string playlist) {
 			try{
-				if (playlist == Values.ALLPLAYLISTPARAM) {
+				/*if (playlist == Values.ALLPLAYLISTPARAM) {
 					//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
 					list = (from x in (database.Table<ContactData> ().OrderBy (x => x.LastName))
 						select x).ToList<ContactData> ();
@@ -274,7 +302,9 @@ namespace Capp2
 						listarr[c].Initials = string.Empty;
 					}
 				}
-				App.Database.UpdateAll(listarr.AsEnumerable());
+				App.Database.UpdateAll(listarr.AsEnumerable());*/
+
+				list = GetItems(playlist);
 
 				var groupedData =
 					list.OrderBy(p => p.LastName)
@@ -373,12 +403,21 @@ namespace Capp2
 		}
 		public int UpdateAll(IEnumerable<ContactData> items){
 			try{
-				/*var itemsArr = items.ToArray ();
-				for(int c = 0;c < itemsArr.Length;c++){
-					Debug.WriteLine("Updating {0} to playlist {1}", itemsArr[c].Name, itemsArr[c].Playlist);
-				}*/
 				lock (locker) {
-					return database.UpdateAll(/*itemsArr.AsEnumerable ()*/items);
+					Debug.WriteLine("in UpdateAll locker");
+					return database.UpdateAll(/*itemsArr.AsEnumerable ()*/items.AsEnumerable());
+				}
+			}catch(Exception e){
+				Debug.WriteLine ("DB UpdateAll error "+e.Message);
+				return 0;
+			}
+		}
+
+		public async Task<int> UpdateAllAsync(IEnumerable<ContactData> items){
+			try{
+				lock (locker) {
+					Debug.WriteLine("in UpdateAll locker");
+					return database.UpdateAll(items);
 				}
 			}catch(Exception e){
 				Debug.WriteLine ("DB UpdateAll error "+e.Message);
@@ -480,13 +519,16 @@ namespace Capp2
             }
         }
 
-		public async Task DeselectAll(IEnumerable<ContactData> list, CAPPBase capp){
+		public async Task<int> DeselectAll(IEnumerable<ContactData> list, CAPPBase capp, bool refresh = true){
 			ContactData[] arr = list.ToArray ();
 			for(int c = 0;c < arr.Length;c++){
 				arr [c].IsSelected = false;
 			}
-			App.Database.UpdateAll (arr.AsEnumerable ());
-			capp.refresh ();
+			var updateResult = App.Database.UpdateAll (arr.AsEnumerable ());
+			if (refresh) {
+				App.CapPage.refresh ();
+			}
+			return updateResult;
 		}
 
 		public void EnableAll(IEnumerable<ContactData> list, CAPPBase capp){

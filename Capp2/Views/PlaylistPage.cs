@@ -248,7 +248,8 @@ namespace Capp2
 
                 for (int c = 0; c < contacts.Length; c++)
                 {
-                    contacts[c].Playlist = newPlaylistName;
+					contacts[c].Playlist = contacts[c].Playlist.Replace(oldPlaylistName, newPlaylistName);
+                    //contacts[c].Playlist = newPlaylistName;
                     contactsToMove.Add(contacts[c]);
                 }
 

@@ -31,7 +31,7 @@ namespace Capp2
 		public static void AddInitialsToContactListItem(RelativeLayout layout, Label initials, 
 			double leftSpacingPercentage, CircleImage ContactPic, double initialsoffsetfromtoppercent = 0.62)
 		{
-			Debug.WriteLine ("AddInitialsToContactListItem called");
+			//Debug.WriteLine ("AddInitialsToContactListItem called");
 			if (layout == null || initials == null) {
 				throw new ArgumentNullException ("AddInitialsToCAPPList(RelativeLayout, Label, CircleImage) - null param not allowed");
 			}

@@ -235,6 +235,8 @@
     <Compile Include="Delegates\CNViewControllerDelegate.cs" />
     <Compile Include="CustomRenderers\AddContactUIViewController.cs" />
     <Compile Include="Helpers\SystemSounds.cs" />
+    <BundleResource Include="Resources\placeholder-contact-male%402x.png" />
+    <BundleResource Include="Resources\placeholder-contact-male%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

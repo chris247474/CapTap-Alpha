@@ -99,6 +99,8 @@
     <Compile Include="Helpers\ISystemSounds.cs" />
     <Compile Include="Helpers\SystemSoundService.cs" />
     <Compile Include="Enums\SystemSounds.cs" />
+    <Compile Include="Views\TabbedStartPage.cs" />
+    <Compile Include="Views\SettingsPage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

@@ -24,11 +24,10 @@ namespace Capp2
 		string playlist;
 		RelativeLayout layout = new RelativeLayout();
 
-		public ContactViewCell (CAPP page)
+		//commenting in this class causes significant performance degradation in debug mode
+		public ContactViewCell (CAPP page):base()
 		{
-			
-			//this.Height = 80;
-
+			this.Height = 70;
 			this.playlist = page.playlist;
 
 			nameLabel = new Label{
@@ -147,20 +146,15 @@ namespace Capp2
 		protected override void OnBindingContextChanged ()
 		{
 			base.OnBindingContextChanged ();
-			Debug.WriteLine ("OnBindingContextChanged");
+			//Debug.WriteLine ("OnBindingContextChanged");
 
 			var item = BindingContext as ContactData;
 			if (item != null) {
 				nameLabel.Text = item.Name;
 				playlistLabel.Text = item.Playlist;
 				circleImage.Source = item.PicStringBase64;
-				//circleImage.HeightRequest = 72;
 				initials.Text = item.Initials;
-
-				//this.Height = 80;
-				//this.ForceUpdateSize ();
 			}
-
 		}
 		void SwitchToEditingOrNotEditingMode(){
 			Debug.WriteLine ("In SwitchToEditOrNotEditingMode()");
@@ -274,7 +268,7 @@ namespace Capp2
 			}
 		}
 		RelativeLayout CreateEditingLayout(){
-			Debug.WriteLine ("In CreateEditingLayout");
+			//Debug.WriteLine ("In CreateEditingLayout");
 			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
 			layout.Padding = new Thickness (15, 5, 5, 15);
 
@@ -316,7 +310,7 @@ namespace Capp2
 			);
 		}
 		RelativeLayout CreateNotEditingLayout(){
-			Debug.WriteLine ("In CreateNotEditingLayout");
+			//Debug.WriteLine ("In CreateNotEditingLayout");
 			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
 			layout.Padding = new Thickness (15, 5, 5, 15);
 
@@ -343,12 +337,12 @@ namespace Capp2
 		}
 		public View createLayoutView (string playlist)
 		{
-			Debug.WriteLine ("In createLayoutView");
+			//Debug.WriteLine ("In createLayoutView");
 			if (App.IsEditing) {
-				Debug.WriteLine ("Is Editing");
+			//	Debug.WriteLine ("Is Editing");
 				return CreateEditingLayout ();
 			} else {
-				Debug.WriteLine ("Is not editing");
+			//	Debug.WriteLine ("Is not editing");
 				return CreateNotEditingLayout ();
 			}
 		}

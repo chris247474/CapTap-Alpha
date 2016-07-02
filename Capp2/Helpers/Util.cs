@@ -660,7 +660,7 @@ namespace Capp2
 								Number3 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[2].Number,// false),
 								Number4 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[3].Number,// false),
 								Number5 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[4].Number, //false),
-								Playlist = Values.ALLPLAYLISTPARAM,
+								Playlist = Values.ALLPLAYLISTPARAM,// + Values.FORMATSEPARATOR,
 								Aff = aff,
 								//initials
 							};

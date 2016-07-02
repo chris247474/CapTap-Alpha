@@ -4,7 +4,7 @@ namespace Capp2
 {
 	public static class Values
 	{
-		public const string FORMATSEPARATOR =  ";";
+		public const string FORMATSEPARATOR =  "   ";
 
 		public const string DONEADDINGCONTACT = "doneaddingcontact";
 

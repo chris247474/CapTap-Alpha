@@ -5,6 +5,7 @@ using UIKit;
 using System.Linq;
 using Xamarin.Forms;
 using Capp2.iOS.Helpers;
+using System.Threading.Tasks;
 
 namespace Capp2.iOS
 {
@@ -12,13 +13,9 @@ namespace Capp2.iOS
 	{
 		int success;
 
-		//ContactViewModel contactHandler;
-
-		public override void DidComplete (CNContactViewController viewController, Contacts.CNContact contact)
+		public override async void DidComplete (CNContactViewController viewController, Contacts.CNContact contact)
 		{
 			Console.WriteLine ("In DidComplete");
-
-			//contactHandler = new ContactViewModel (App.CurrentContact);
 
 			try{
 				if (FieldsFilled(contact)) { 
@@ -42,19 +39,18 @@ namespace Capp2.iOS
 								Name = contact.GivenName + " " + contact.FamilyName,
 								FirstName = contact.GivenName,
 								LastName = contact.FamilyName,
-								Playlist = App.CapPage.playlist,
+								Playlist = Values.ALLPLAYLISTPARAM+ContactViewModel.FormatNamelist(App.CapPage.playlist),
 								Number = 
 									contact.PhoneNumbers[0].Value.StringValue,//contactviewmodel
 								Aff = contact.OrganizationName,
 							}
 						);
-						/*Console.WriteLine("Label number {0}", 
-							contact.PhoneNumbers[0].Label);//App.contactFuncs.MakeDBContactCallable(contact.PhoneNumbers[0].Value.StringValue, true));
-						*/Console.WriteLine("Saved number {0}", 
+						Console.WriteLine("Saved number {0}", 
 							contact.PhoneNumbers[0].Value.StringValue);
 					}
 
 					NotifyUserSavedStatus ();
+					await Task.Delay(1000);
 					App.CapPage.refresh();
 				}
 			}catch(Exception e){

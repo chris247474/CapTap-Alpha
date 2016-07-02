@@ -16,12 +16,12 @@ namespace Capp2.iOS
 		{
 			base.PushViewController(viewController, animated);
 			NavigationBar.Translucent = true;
-			//NavigationBar.SetBackgroundImage (new UIImage (), UIBarMetrics.Default);//completely see through navbar
-			//NavigationBar.TintColor = UIColor.White;
 			NavigationBar.BarTintColor = UIColor.White;
 			NavigationBar.ShadowImage = new UIImage ();
 			NavigationBar.BackgroundColor = UIColor.Clear;
 
+			//NavigationBar.SetBackgroundImage (new UIImage (), UIBarMetrics.Default);//completely see through navbar
+			//NavigationBar.TintColor = UIColor.White;
 
 			var list = new List<UIBarButtonItem>();
 

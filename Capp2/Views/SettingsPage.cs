@@ -1,56 +1,29 @@
 ﻿using System;
+
 using Xamarin.Forms;
-using System.Collections.Generic;
-using System.Linq;
 using Capp2.Helpers;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace Capp2
 {
-	public class StartPage:MasterDetailPage
+	public class SettingsPage : ContentPage
 	{
-		/*StackLayout StatsSettings = new StackLayout(), TemplateSettings = new StackLayout(), 
+
+		StackLayout StatsSettings = new StackLayout(), TemplateSettings = new StackLayout(), 
 		FeedbackSettings = new StackLayout(), DefaultNamelistSettings = new StackLayout(), 
 		DailyEmailSettings = new StackLayout(), SendYesCallSettings = new StackLayout(), HowToSettings = new StackLayout(),
-		SettingsLayout = new StackLayout();*/
+		SettingsLayout = new StackLayout();
 
-		public StartPage ()
+		public SettingsPage ()
 		{
-			App.MasterDetailPage = this;
-			this.Title = "Namelists";
+			Icon = "Hamburger-blue.png";
+			Title = "Settings";
+			BackgroundColor = Color.FromHex ("#333333");
+			Content = createUI ();
 
-			Device.OnPlatform(
-				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, 
-					EndColor = App.EndColor}){
-					//BarBackgroundColor = Color.White,
-					//BarTextColor = Color.FromHex(Values.GOOGLEBLUE),
-				}, 
-				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, EndColor = App.EndColor}){
-					BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),
-					BarTextColor = Color.White,
-				}
-			);
-
-			/*App.NavPage = new NavigationPage (new PlaylistPage{ StartColor = App.StartColor, EndColor = App.EndColor }) {
-				BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),
-				BarTextColor = Color.White,
-			};*/
-
-			App.NavPage.Navigation.PopAsync ();
-			App.NavPage.Navigation.PushAsync (new CAPP (App.DefaultNamelist));
-			this.Detail = App.NavPage;
-			this.Master = new SettingsPage ();/*new ContentPage { 
-				Icon = "Hamburger-blue.png",
-				Title = "Settings", 
-				BackgroundColor = Color.FromHex ("#333333"),
-				Content = createUI (),
-			};
-
-			AdHelper.AddGreenURLOrangeTitleBannerToStack (SettingsLayout);*/
+			AdHelper.AddGreenURLOrangeTitleBannerToStack (SettingsLayout);
 		}
 
-		/*ScrollView createUI(){
+		ScrollView createUI(){
 			CreateSettings ();
 
 			SettingsLayout = new StackLayout {
@@ -89,14 +62,15 @@ namespace Capp2
 				Content = SettingsLayout
 			};
 		}
+
 		void CreateSettings(){
 			HowToSettings = UIBuilder.CreateSetting ("help.png", "\tHelp", 
 				new TapGestureRecognizer{ Command = new Command(() => {
 					UIAnimationHelper.ZoomUnZoomElement(HowToSettings);
 					App.NavPage.Navigation.PushModalAsync(new TutorialSettingsPage());
-					//App.NavPage.Navigation.PushModalAsync(new CarouselHelper(IndicatorStyleEnum.Dots, 
-					//	Color.FromHex(Values.CAPPTUTORIALCOLOR_Orange)));
-			})});
+					/*App.NavPage.Navigation.PushModalAsync(new CarouselHelper(IndicatorStyleEnum.Dots, 
+						Color.FromHex(Values.CAPPTUTORIALCOLOR_Orange)));*/
+				})});
 			StatsSettings = UIBuilder.CreateSetting ("trending-Medium.png", "\tMy Call Stats", 
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
@@ -113,7 +87,7 @@ namespace Capp2
 						);
 					}
 				)});
-			DailyEmailSettings = UIBuilder.CreateSetting ("Message-100-yellow.png", "\tDaily Emails", 
+			DailyEmailSettings = UIBuilder.CreateSetting ("Message-100-yellow.png", "\tDaily Reports", 
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(DailyEmailSettings); 
@@ -143,7 +117,8 @@ namespace Capp2
 					else if (Device.OS == TargetPlatform.iOS) {
 						DependencyService.Get<IEmailService> ().SendEmail ("captapuserfeedback@gmail.com");
 					}})});
-		}*/
+		}
 	}
 }
+
 

@@ -6,6 +6,11 @@ namespace Capp2
 {
 	public class NativeCell : ViewCell
 	{
+		public NativeCell():base()
+		{
+			
+		}
+
 		public static readonly BindableProperty NameProperty =
 			BindableProperty.Create ("Name", typeof(string), typeof(NativeCell), "");
 

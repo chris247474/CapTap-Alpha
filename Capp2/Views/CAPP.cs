@@ -24,7 +24,7 @@ namespace Capp2
 		CameraViewModel cameraOps = null;
 		int contactsCount = 0;
 		Label lblContactsCount = null;
-		public ToolbarItem EditTBI, DeleteTBI, MoveToTBI, AddTBI;
+		public ToolbarItem EditTBI, DeleteTBI, CopyToTBI, AddTBI;
 		string title;
 		StackLayout stack = new StackLayout(), AutoCallStack = new StackLayout();
         List<Grouping<string, ContactData>> PreLoadedGroupedList;
@@ -34,6 +34,7 @@ namespace Capp2
 		ScrollView scroller = new ScrollView();
 		int AutoCallCounter;
 		public bool AutoCalling;
+		ContactViewModel contactViewModel;
 
 		public CAPP (string playlistChosen, bool showtip = true)
 		{
@@ -286,8 +287,8 @@ namespace Capp2
 				}),
 			};
 			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
-				listView.HasUnevenRows = false;
-				listView.RowHeight = 70;
+				//listView.HasUnevenRows = false;
+				//listView.RowHeight = 70;
 			}
 			listView.Focused += (object sender, FocusEventArgs e) => {
 				scroller.ScrollToAsync(0, listView.Y, true);
@@ -319,7 +320,7 @@ namespace Capp2
 				this.ToolbarItems.Add(AddTBI);
 			}
 
-			MoveToTBI = new ToolbarItem("Move To", "", async () =>
+			CopyToTBI = new ToolbarItem("Copy To", "", async () =>
 				{
 					var enumerableList = App.Database.GetItems (this.playlist);
 					var contactsArr = enumerableList.ToArray ();
@@ -335,9 +336,11 @@ namespace Capp2
 							for (int c = 0; c < contactsArr.Length; c++)
 							{
 								Debug.WriteLine("Top of {0} loop: {1}", contactsArr[c].Name, contactsArr[c].IsSelected.ToString());
+								contactViewModel = new ContactViewModel(contactsArr[c]);
 								if (contactsArr[c].IsSelected)
 								{
-									contactsArr[c].Playlist = MoveToResult;
+									//contactsArr[c].Playlist = MoveToResult;
+									contactsArr[c] = contactViewModel.AddNamelist(new string[]{MoveToResult}, false);
 									saveList.Add(contactsArr[c]);
 									Debug.WriteLine(contactsArr[c].Name + " is being moved to " + MoveToResult);
 								}
@@ -366,7 +369,9 @@ namespace Capp2
 					for(int c = 0;c < contactsArr.Length;c++){
 						if(contactsArr[c].IsSelected){
 							Debug.WriteLine("Deleting {0} from {1}", contactsArr[c].Name, contactsArr[c].Playlist);
-							contactsArr[c].Playlist = Values.ALLPLAYLISTPARAM;
+							//contactsArr[c].Playlist = Values.ALLPLAYLISTPARAM;
+							contactViewModel = new ContactViewModel(contactsArr[c]);
+							contactsArr[c] = contactViewModel.RemoveNamelist(this.playlist);
 							saveList.Add (contactsArr[c]);
 						}
 					}
@@ -397,7 +402,7 @@ namespace Capp2
 			Debug.WriteLine ("EDITING");
 			MessagingCenter.Send(this, Values.ISEDITING);
 			/*if (Device.OS == TargetPlatform.iOS)*/ ToolbarItems.Remove (AddTBI);
-			ToolbarItems.Insert(0, MoveToTBI);
+			ToolbarItems.Insert(0, CopyToTBI);
 			if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) 
 				ToolbarItems.Insert (1, DeleteTBI);
 		}
@@ -411,7 +416,7 @@ namespace Capp2
 			MessagingCenter.Send(this, Values.DONEEDITING);
 			App.Database.DeselectAll (App.Database.GetItems(this.playlist), this);
 			if(!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals (this.playlist, Values.TODAYSCALLS)) ToolbarItems.Remove (DeleteTBI);
-			ToolbarItems.Remove (MoveToTBI);
+			ToolbarItems.Remove (CopyToTBI);
 			/*if(Device.OS == TargetPlatform.iOS)*/ ToolbarItems.Insert (0, AddTBI);
 		}
 
@@ -624,12 +629,16 @@ namespace Capp2
             }
             else {
 				Debug.WriteLine ("Searching");
+
+				listView.IsGroupingEnabled = false;
+				listView.GroupDisplayBinding = new Binding(".");
+				listView.GroupShortNameBinding = new Binding(".");
+				listView.GroupHeaderTemplate = null;
+				listView.HasUnevenRows = false;
+				listView.RowHeight = 70;
+
                 listView.BeginRefresh();
 
-                listView.IsGroupingEnabled = false;
-                listView.GroupDisplayBinding = new Binding(".");
-                listView.GroupShortNameBinding = new Binding(".");
-                listView.GroupHeaderTemplate = null;
 				listView.ItemsSource = Util.FilterNameNumberOrg(PreloadedList, filter);
                 
                 listView.EndRefresh();
@@ -639,11 +648,10 @@ namespace Capp2
 
 		public void autoCall(string playlist){
 			try{
-				//PrepareForAutoCall ();
 				StartContinueAutoCall ();
 			}catch(Exception e){
 				Debug.WriteLine ("PrepareForAutoCall() error: {0}", e.Message);
-				UserDialogs.Instance.WarnToast ("Your phone may have randomly lagged. Please try again");
+				AlertHelper.Alert ("Your phone may have randomly lagged. Please try again", "");
 			}
 		}
 		void PrepareForAutoCall(){
@@ -721,6 +729,7 @@ namespace Capp2
 	{ 
 		public HeaderCell() 
 		{
+			this.Height = 20;
 			var title = new Label 
 			{ 
 				BackgroundColor = Color.Transparent,
@@ -742,8 +751,6 @@ namespace Capp2
 			}; 
 			this.View.BackgroundColor = Color.White;
 			this.View.Opacity = 0.5;
-			//title.HeightRequest = this.Height / 2;
-			//this.Height = title.Height*1.5;
 		} 
 	}
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Capp2
 {
@@ -22,10 +23,15 @@ namespace Capp2
 			}
 		}
 
-		public static void PopNavToRootThenOpenToCAPPInPlaylist(string playlist = Values.ALLPLAYLISTPARAM){
+		public static async void PopNavToRootThenOpenToCAPPInPlaylist(string playlist = Values.ALLPLAYLISTPARAM, 
+			int startdelay = 0, int middelay = 1000, int enddelay = 0
+		){
+			await Task.Delay (startdelay);
 			App.NavPage = new NavigationPage (new PlaylistPage ());
+			await Task.Delay (middelay);
 			App.MasterDetailPage.Detail = App.NavPage;
 			App.NavPage.Navigation.PushAsync (new CAPP (playlist));
+			await Task.Delay (enddelay);
 		}
 	}
 }
