@@ -10,7 +10,7 @@ using Capp2.Helpers;
 
 namespace Capp2
 {
-	public class PlaylistPage:GradientContentPage
+	public class PlaylistPage:ContentPage//GradientContentPage
 	{
 		public ListView listView{ get; set;}
 		public Playlist playlistSelected;

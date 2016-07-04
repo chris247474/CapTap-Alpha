@@ -4,7 +4,7 @@ using Xamarin.Forms;
 
 namespace Capp2
 {
-	public class CAPPBase:GradientContentPage, INotifyPropertyChanged
+	public class CAPPBase:/*GradientContentPage,*/ContentPage, INotifyPropertyChanged
 	{
 		public ListView listView{ get; set;}
 		public string playlist;

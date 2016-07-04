@@ -83,28 +83,87 @@ namespace Capp2.iOS
 			editor.Delegate = new CNViewControllerDelegate ();
 			Console.WriteLine ("done configuring CNContactViewController");
 
-			// Display picker
-			var nav = 
-				UIApplication.SharedApplication.KeyWindow.RootViewController.ChildViewControllers.First().
-				ChildViewControllers.Last().ChildViewControllers.First();
-			var navcontrol = nav as UINavigationController;
-
-			MessagingCenter.Subscribe<CNViewControllerDelegate>(this, Values.DONEADDINGCONTACTNATIVE, (args) =>{ 
+			MessagingCenter.Subscribe<CNViewControllerDelegate>(this, Values.DONEADDINGCONTACTNATIVE, (args) =>
+			{
 				Console.WriteLine("recieved DONTADDIGNCONTACTNATIVE message");
 				PhoneContacts phone = new PhoneContacts();
-				/*phone.SaveContactToDevice(cnContactToAdd.GivenName, cnContactToAdd.FamilyName, 
-					cnContactToAdd.PhoneNumbers.ToList(),
-					cnContactToAdd.OrganizationName, false);*/
-				saveRequest.DeleteContact(cnContactToDelete);
+
+				/*saveRequest.DeleteContact(cnContactToDelete);
 				error = new NSError();
 				store.ExecuteSaveRequest(saveRequest, out error);
 				if(error != null) Console.WriteLine("Error deleting old contact: {0}", cnContactToDelete.GivenName);
 				Console.WriteLine("old contact deleted: {0} {1}", cnContactToDelete.GivenName, cnContactToDelete.FamilyName);
+				*/
 			});
 
-			navcontrol.PushViewController (editor, true);
+			// Display picker
+			var navcontrol = GetUINavigationController(
+					UIApplication.SharedApplication.KeyWindow.RootViewController) as UINavigationController;
+
+			Console.WriteLine("navcontrol is {0}", navcontrol.GetType());
+			navcontrol.PushViewController(editor, true);
+
+			//if (App.MasterDetailPage == null)//using TabbedPage as root
+			//{
+			//	Console.WriteLine("root is TabbedPage");
+
+
+			/*}
+			else { //using MasterDetailPage as root
+				Console.WriteLine("root is MasterDetailPage");
+
+				var nav =
+					UIApplication.SharedApplication.KeyWindow.RootViewController.ChildViewControllers.First().
+					ChildViewControllers.Last().ChildViewControllers.First();
+				
+				var navcontrol = GetUINavigationController(
+					UIApplication.SharedApplication.KeyWindow.RootViewController) as UINavigationController;
+					//nav as UINavigationController;
+
+				Console.WriteLine("navcontrol is {0}", navcontrol.GetType());
+				navcontrol.PushViewController(editor, true);
+			}*/
 
 			Console.WriteLine ("Done w function");
+		}
+
+		UINavigationController GetUINavigationController(UIViewController controller) {
+			if (controller != null) {
+				Console.WriteLine("controller is not null");
+				if (IsUINavigationViewController(controller))
+				{
+					Console.WriteLine("Found uinavigationcontroller");
+					return (controller as UINavigationController);
+				}
+
+				if (controller.ChildViewControllers.Count() != 0)
+				{
+					var count = controller.ChildViewControllers.Count();
+
+					for (int c = 0; c < count; c++)
+					{
+						Console.WriteLine(
+							"local iteration {0}: current controller has {1} children", c, count);
+						var child = GetUINavigationController(controller.ChildViewControllers[c]);
+						if (child == null)
+						{
+							Console.WriteLine("No children left on current controller. Moving back up");
+						}
+						else if(IsUINavigationViewController(child)){
+							Console.WriteLine("returning customnavigationrenderer");
+							return (child as UINavigationController);
+						}
+					}
+				}
+			}
+
+			return null;
+		}
+
+		bool IsUINavigationViewController(NSObject view) {
+			if (view.GetType() == new CustomNavigationRenderer().GetType())
+				return true;
+			return false;
 		}
 
 		bool ShouldEditContact(){

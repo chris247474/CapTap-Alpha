@@ -21,12 +21,12 @@ namespace Capp2
 			this.Title = "Namelists";
 
 			Device.OnPlatform(
-				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, 
-					EndColor = App.EndColor}){
+				() => App.NavPage = new NavigationPage(new PlaylistPage()/*{StartColor = App.StartColor, 
+					EndColor = App.EndColor}*/){
 					//BarBackgroundColor = Color.White,
 					//BarTextColor = Color.FromHex(Values.GOOGLEBLUE),
 				}, 
-				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, EndColor = App.EndColor}){
+				() => App.NavPage = new NavigationPage(new PlaylistPage()/*{StartColor = App.StartColor, EndColor = App.EndColor}*/){
 					BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),
 					BarTextColor = Color.White,
 				}

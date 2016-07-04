@@ -257,12 +257,11 @@ namespace Capp2
 			);
 
 			DoneLabel = UIBuilder.CreateTutorialLabel ("Got it", NamedSize.Large, FontAttributes.Bold, 
-				LineBreakMode.WordWrap, new Command(()=>{
+				LineBreakMode.WordWrap, new Command(async ()=>{
 					TutorialHelper.PrevPage = page;
 					layout.Children.Remove(content.Content);
-					//await Task.Delay(500);
-					App.NavPage = new NavigationPage(new PlaylistPage());
-					App.MasterDetailPage.Detail = App.NavPage;
+
+					await NavigationHelper.PopToRootThenOpenToNamelistPage();
 				}));
 			UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, DoneLabel,
 				Constraint.RelativeToParent((parent) =>  { return (continuePositionX); }),

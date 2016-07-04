@@ -7,13 +7,16 @@ namespace Capp2
 	{
 		public TabbedStartPage ()
 		{
+			App.StartTabbedPage = this; 
+
 			Device.OnPlatform(
-				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, 
-					EndColor = App.EndColor}){
+				() => App.NavPage = new NavigationPage(new PlaylistPage()/*{StartColor = App.StartColor, 
+					EndColor = App.EndColor}*/){
 					//BarBackgroundColor = Color.White,
-					//BarTextColor = Color.FromHex(Values.GOOGLEBLUE),
+					//BarTextColor = Color.White,
 				}, 
-				() => App.NavPage = new NavigationPage(new PlaylistPage{StartColor = App.StartColor, EndColor = App.EndColor}){
+				() => App.NavPage = new NavigationPage(new PlaylistPage()/*{
+					StartColor = App.StartColor, EndColor = App.EndColor}*/){
 					BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),
 					BarTextColor = Color.White,
 				}
@@ -24,6 +27,8 @@ namespace Capp2
 			Children.Add (App.NavPage);
 			Children.Add (new SettingsPage ());
 
+			App.NavPage.Navigation.PopAsync();
+			App.NavPage.Navigation.PushAsync(new CAPP(App.DefaultNamelist));
 		}
 	}
 }

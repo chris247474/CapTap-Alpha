@@ -90,7 +90,14 @@ namespace Capp2
 
 						var updateResult = await App.Database.DeselectAll(selectedItems.AsEnumerable(), 
 							this, false);//uncheck checkmarks
-						NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist(this.playlistToAddTo, 1000);
+
+						//avoid interrupting tutorial overlays
+						if(App.InTutorialMode){
+							Debug.WriteLine("intutorial mode - only refreshing");
+							App.CapPage.refresh();
+						}else{
+							NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist(this.playlistToAddTo, 1000);
+						}
 
 						if(updateResult != 0){
 							await AlertHelper.Alert(this, "Copied!",

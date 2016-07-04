@@ -11,7 +11,6 @@ namespace Capp2.iOS
 {
 	public class CustomNavigationRenderer : NavigationRenderer
 	{
-
 		public override void PushViewController(UIKit.UIViewController viewController, bool animated)
 		{
 			base.PushViewController(viewController, animated);
@@ -19,6 +18,8 @@ namespace Capp2.iOS
 			NavigationBar.BarTintColor = UIColor.White;
 			NavigationBar.ShadowImage = new UIImage ();
 			NavigationBar.BackgroundColor = UIColor.Clear;
+			//this.HidesBarsOnSwipe = true;
+			//this.NavigationBarHidden = true;
 
 			//NavigationBar.SetBackgroundImage (new UIImage (), UIBarMetrics.Default);//completely see through navbar
 			//NavigationBar.TintColor = UIColor.White;

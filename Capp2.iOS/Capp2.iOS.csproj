@@ -128,7 +128,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </InterfaceDefinition>
     <BundleResource Include="Resources\capicon.png" />
-    <Compile Include="CustomRenderers\GradientContentPageRenderer.cs" />
     <Compile Include="CustomRenderers\CustomNavigationRenderer.cs" />
     <Compile Include="Helpers\EmailService.cs" />
     <BundleResource Include="Resources\trending-Small.png" />
@@ -175,7 +174,6 @@
     <BundleResource Include="Resources\HowToUseStatsScreenshot.png" />
     <BundleResource Include="Resources\HowToUseTextTemplates.mov" />
     <BundleResource Include="Resources\HowToUseTextTemplatesScreenshot.png" />
-    <Compile Include="CustomRenderers\CarouselLayoutRenderer.cs" />
     <BundleResource Include="Resources\Play-LightGray.png" />
     <BundleResource Include="Resources\dome.png" />
     <BundleResource Include="Resources\dome%402x.png" />
@@ -227,9 +225,6 @@
     <BundleResource Include="Resources\BlueGradientBackground.png" />
     <BundleResource Include="Resources\BlueGradientBackground%402x.png" />
     <BundleResource Include="Resources\BlueGradientBackground%403x.png" />
-    <BundleResource Include="Resources\Images\Checkbox\unchecked_checkbox-filled.png" />
-    <BundleResource Include="Resources\Images\Checkbox\unchecked_checkbox-filled%402x.png" />
-    <BundleResource Include="Resources\Images\Checkbox\unchecked_checkbox-filled%403x.png" />
     <BundleResource Include="Resources\Images\Checkbox\unchecked_checkbox%403x.png" />
     <BundleResource Include="Resources\Images\Checkbox\checked_checkbox%403x.png" />
     <Compile Include="Delegates\CNViewControllerDelegate.cs" />
@@ -237,6 +232,14 @@
     <Compile Include="Helpers\SystemSounds.cs" />
     <BundleResource Include="Resources\placeholder-contact-male%402x.png" />
     <BundleResource Include="Resources\placeholder-contact-male%403x.png" />
+    <BundleResource Include="Resources\settings.png" />
+    <BundleResource Include="Resources\settings%402x.png" />
+    <BundleResource Include="Resources\settings%403x.png" />
+    <BundleResource Include="Resources\phone_end.png" />
+    <BundleResource Include="Resources\phone_end%402x.png" />
+    <BundleResource Include="Resources\phone_end%403x.png" />
+    <BundleResource Include="Resources\Phone%402x.png" />
+    <BundleResource Include="Resources\Phone%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -402,12 +405,6 @@
     <Reference Include="FFImageLoading.Transformations">
       <HintPath>..\packages\Xamarin.FFImageLoading.Transformations.2.1.5\lib\Xamarin.iOS10\FFImageLoading.Transformations.dll</HintPath>
     </Reference>
-    <Reference Include="FAB.Forms">
-      <HintPath>..\packages\FAB.Forms.1.0.0.1\lib\Xamarin.iOS10\FAB.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="FAB.iOS">
-      <HintPath>..\packages\FAB.Forms.1.0.0.1\lib\Xamarin.iOS10\FAB.iOS.dll</HintPath>
-    </Reference>
     <Reference Include="Xamarin.Forms.Platform.iOS">
       <HintPath>..\packages\Xamarin.Forms.2.1.0.6529\lib\Xamarin.iOS10\Xamarin.Forms.Platform.iOS.dll</HintPath>
     </Reference>
@@ -419,6 +416,12 @@
     </Reference>
     <Reference Include="Xamarin.Forms.Platform">
       <HintPath>..\packages\Xamarin.Forms.2.1.0.6529\lib\Xamarin.iOS10\Xamarin.Forms.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="FAB.Forms">
+      <HintPath>..\packages\FAB.Forms.1.0.0.1\lib\Xamarin.iOS10\FAB.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="FAB.iOS">
+      <HintPath>..\packages\FAB.Forms.1.0.0.1\lib\Xamarin.iOS10\FAB.iOS.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

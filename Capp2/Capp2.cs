@@ -29,6 +29,7 @@ namespace Capp2
 		public static bool IsEditing{ get; set;}
 		public static NavigationPage NavPage;
 		public static StartPage MasterDetailPage;
+		public static TabbedPage StartTabbedPage;
        // public static bool AutoCallStatus { get; set; }
         public static CAPP CapPage { get; set; }
 		public static EditContactPage EditPage{ get; set;}
@@ -60,8 +61,8 @@ namespace Capp2
 		public App ()
 		{			
 			PrepareAppData ();
-			MainPage = new StartPage ();
-				//new TabbedStartPage ();
+			MainPage = //new StartPage ();
+				new TabbedStartPage ();
 		}
 
 		public async Task PrepareAppData(){

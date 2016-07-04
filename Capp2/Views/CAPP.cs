@@ -175,8 +175,8 @@ namespace Capp2
 
 		async void CreateUIElements(){
 			this.BackgroundColor = Color.Transparent;
-			if (Device.OS == TargetPlatform.iOS)
-				App.NavPage.BackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
+			//if (Device.OS == TargetPlatform.iOS)
+				//App.NavPage.BackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
 			
 			searchBar = new SearchBar {
 				BackgroundColor = Color.Transparent,
@@ -730,6 +730,7 @@ namespace Capp2
 		public HeaderCell() 
 		{
 			this.Height = 20;
+
 			var title = new Label 
 			{ 
 				BackgroundColor = Color.Transparent,

@@ -15,7 +15,7 @@ namespace Capp2
 
 		public SettingsPage ()
 		{
-			Icon = "Hamburger-blue.png";
+			Icon = "settings.png";
 			Title = "Settings";
 			BackgroundColor = Color.FromHex ("#333333");
 			Content = createUI ();

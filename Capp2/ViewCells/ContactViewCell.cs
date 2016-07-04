@@ -58,9 +58,10 @@ namespace Capp2
 			playlistLabel.SetBinding(Label.TextProperty, "Playlist");//"Playlist" links directly to the ContactData.Name property
 
 			checkbox = new CheckBox{ 
-				HorizontalOptions = LayoutOptions.FillAndExpand,
+				HorizontalOptions = LayoutOptions.Center,
 				VerticalOptions = LayoutOptions.Center,
 			};
+			checkbox.MinimumWidthRequest = checkbox.Height;
             checkbox.IsEnabled = true;
             checkbox.IsVisible = true;
             
@@ -80,8 +81,8 @@ namespace Capp2
 				Aspect = Aspect.AspectFit,
 				Source = FileImageSource.FromFile ("Phone"),
 				HorizontalOptions = LayoutOptions.End,
-				HeightRequest = nameLabel.FontSize *1.5,
-				WidthRequest = nameLabel.FontSize *1.5,
+				//HeightRequest = nameLabel.FontSize *1.5,
+				//WidthRequest = nameLabel.FontSize *1.5,
 			};
 
 			tapGestureRecognizer = new TapGestureRecognizer ();
