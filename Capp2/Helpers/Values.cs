@@ -4,6 +4,13 @@ namespace Capp2
 {
 	public static class Values
 	{
+		public const string APPNAME = "ConTap";
+
+		public const string NAMETEMPLATE = "<name here>";
+		public const string LOCTTEMPLATE = "<meetup here>";
+		public const string MEETINGTEMPLATE = "<meeting here>";
+		public const string DATETEMPLATE = "<date here>";
+
 		public const string FORMATSEPARATOR =  "   ";
 
 		public const string DONEADDINGCONTACT = "doneaddingcontact";

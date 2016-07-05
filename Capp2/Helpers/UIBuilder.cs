@@ -624,7 +624,7 @@ namespace Capp2
 			bool EntryShown = false;
 
 			TemplateEntry.SetBinding <SettingsViewModel>(Editor.TextProperty, pref => pref.DailyEmailTemplateSettings);
-			TemplateEntry.HorizontalOptions = LayoutOptions.Center;
+			TemplateEntry.HorizontalOptions = LayoutOptions.FillAndExpand;
 
 			TemplateStack = new StackLayout{
 				Orientation = StackOrientation.Vertical,

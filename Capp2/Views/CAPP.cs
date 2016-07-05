@@ -81,7 +81,9 @@ namespace Capp2
 						CappModal cappmodal = new CappModal (Values.ALLPLAYLISTPARAM, "", 
 							PreLoadedGroupedList, PreloadedList.ToList<ContactData> (), 
 							                      new List<ContactData> (), true);
-						await TutorialHelper.ShowTip_Welcome (cappmodal, "Welcome to CapTap!!!", Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange));
+						await TutorialHelper.ShowTip_Welcome (cappmodal, 
+						                                      string.Format("Welcome to {0}!!!", Values.APPNAME)
+						                                      , Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange));
 					}
 				} else {
 					Debug.WriteLine ("Tutorial already shown");
@@ -350,7 +352,7 @@ namespace Capp2
 							await App.Database.DeselectAll(saveList, this);
 							refresh();
 
-							UserDialogs.Instance.ShowSuccess("Moved!", 2000);
+							UserDialogs.Instance.ShowSuccess("Copied!", 2000);
 						}
 						else {
 							UserDialogs.Instance.WarnToast("Oops! You didn't choose a new namelist. Please try again", null, 2000);

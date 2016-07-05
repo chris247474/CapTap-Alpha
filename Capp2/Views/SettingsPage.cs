@@ -91,7 +91,8 @@ namespace Capp2
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(DailyEmailSettings); 
-						DependencyService.Get<IEmailService>().SendEmail(string.Empty, Settings.DailyEmailTemplateSettings);
+						DependencyService.Get<IEmailService>().SendEmail(string.Empty, Settings.DailyEmailTemplateSettings,
+				                                                         "My Daily Progress");
 					}
 				)});
 			DefaultNamelistSettings = UIBuilder.CreateSetting ("FinishFlag.png", "\tStarting Namelist", 
@@ -107,7 +108,7 @@ namespace Capp2
 					App.NavPage.Navigation.PushModalAsync (new TemplateSettingsPage ());
 				}
 				)});
-			FeedbackSettings = UIBuilder.CreateSetting ("Feedback.png", "\tContact Team CapTap", 
+			FeedbackSettings = UIBuilder.CreateSetting ("Feedback.png", string.Format("\tContact Team {0}", Values.APPNAME), 
 				new TapGestureRecognizer {Command = new Command (() => {
 					UIAnimationHelper.ZoomUnZoomElement(FeedbackSettings);
 
@@ -115,7 +116,8 @@ namespace Capp2
 						//Device.OpenUri (new Uri ("mailto:captapuserfeedback@gmail.com"));
 					}
 					else if (Device.OS == TargetPlatform.iOS) {
-						DependencyService.Get<IEmailService> ().SendEmail ("captapuserfeedback@gmail.com");
+					DependencyService.Get<IEmailService> ().SendEmail ("captapuserfeedback@gmail.com", string.Empty,
+					                                                  "ConTap User Feedback");
 					}})});
 		}
 	}

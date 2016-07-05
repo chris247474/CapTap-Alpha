@@ -240,6 +240,7 @@
     <BundleResource Include="Resources\phone_end%403x.png" />
     <BundleResource Include="Resources\Phone%402x.png" />
     <BundleResource Include="Resources\Phone%403x.png" />
+    <Compile Include="Helpers\iOSNavigationHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -423,6 +424,12 @@
     <Reference Include="FAB.iOS">
       <HintPath>..\packages\FAB.Forms.1.0.0.1\lib\Xamarin.iOS10\FAB.iOS.dll</HintPath>
     </Reference>
+    <Reference Include="HockeySDK">
+      <HintPath>..\Components\hockeyappios-4.1.0.2\lib\ios-unified\HockeySDK.dll</HintPath>
+    </Reference>
+    <Reference Include="HockeySDK.iOSBindings">
+      <HintPath>..\Components\hockeyappios-4.1.0.2\lib\ios-unified\HockeySDK.iOSBindings.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Entitlements.plist" />
@@ -497,6 +504,10 @@
   <ItemGroup>
     <XamarinComponentReference Include="googleiosmobileads">
       <Version>7.7.1.0</Version>
+      <Visible>False</Visible>
+    </XamarinComponentReference>
+    <XamarinComponentReference Include="hockeyappios">
+      <Version>4.1.0.2</Version>
       <Visible>False</Visible>
     </XamarinComponentReference>
   </ItemGroup>

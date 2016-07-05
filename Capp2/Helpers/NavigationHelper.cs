@@ -15,6 +15,14 @@ namespace Capp2
 			}
 		}
 
+		public static async Task DoublePop(int startdelay = 0, int middelay = 1000, int enddelay = 0) {
+			await Task.Delay(startdelay);
+			await App.NavPage.PopAsync();
+			await Task.Delay(middelay);
+			await App.NavPage.PopAsync();
+			await Task.Delay(enddelay);
+		}
+
 		public static void ClearNavigationStack(Page page){
 			var NavStackCount = page.Navigation.NavigationStack.Count;
 			for(int c = 0;c < NavStackCount;c++){

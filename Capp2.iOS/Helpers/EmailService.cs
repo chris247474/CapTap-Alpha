@@ -19,7 +19,7 @@ namespace Capp2.iOS
 			
 		}
 
-		public void SendEmail(string recipient = "", string body = ""){
+		public void SendEmail(string recipient = "", string body = "", string subject = ""){
 			try{
 				var window = UIApplication.SharedApplication.KeyWindow;
 				var vc = window.RootViewController;
@@ -37,7 +37,7 @@ namespace Capp2.iOS
 				if(!string.IsNullOrWhiteSpace(recipient)){
 					mailController.SetToRecipients (new string[]{recipient});
 				}
-				mailController.SetSubject ("CapTap User Feedback");
+				mailController.SetSubject (subject);
 				mailController.SetMessageBody (body, false);
 
 				mailController.Finished += ( object s, MFComposeResultEventArgs args) => {

@@ -6,10 +6,7 @@ using Xamarin.Forms.Platform.iOS;
 using Capp2.iOS;
 using Xamarin.Forms;
 using Capp2;
-using System.Linq;
 using Foundation;
-using Capp2.iOS.Helpers;
-
 
 [assembly:ExportRenderer(typeof(AddEditContactNativePage), typeof(AddContactUIViewController))]
 
@@ -22,55 +19,31 @@ namespace Capp2.iOS
 			Console.WriteLine ("AddContactUIViewController Viewdidload");
 			base.ViewDidLoad ();
 
-			//throw new NotImplementedException ("PresentNativeAddContactView still under construction");
 			// Create a new Mutable Contact (read/write)
 			// and attach it to the editor
 			NSError error;
 			var store = new CNContactStore ();
-			var fetchKeys = new [] { CNContactKey.FamilyName/*, CNContactKey.FamilyName, CNContactKey.PhoneNumbers*/ }; //contactviewmodel
+			var fetchKeys = new [] {CNContactViewController.DescriptorForRequiredKeys};
 			var mutableContact = new CNMutableContact ();
-			CNMutableContact cnContactToDelete = null, cnContactToAdd = null;
 			CNContactViewController editor; 
-			var saveRequest = new CNSaveRequest();
 
 			if (ShouldEditContact ()) {
 				Console.WriteLine ("ShouldEditContact()");
 
-				//contactviewmodel
-				/*mutableContact = store.GetUnifiedContacts 
-					(CNContact.GetPredicateForContacts (App.CurrentContact.LastName), fetchKeys, out error)
-					//.Where (person => person.GivenName == App.CurrentContact.FirstName &&
-					//App.CurrentContact.Number == person.PhoneNumbers [0].Value.StringValue)
-					[0].MutableCopy () as CNMutableContact
-					;  
-				  
-				Console.WriteLine("Contact: {0} {1} Number: {2}", mutableContact.GivenName, mutableContact.FamilyName
-					, mutableContact.PhoneNumbers[0].Value.StringValue);
-				
-				if (error != null) { 
-					throw new Exception (error.ToString ()); 
-				} else {  
-					Console.WriteLine ("no error"); 
+				var contacts = store.GetUnifiedContacts(
+					CNContact.GetPredicateForContacts(App.CurrentContact.LastName), fetchKeys, out error);
+				                    
+				mutableContact = GetMatchingPerson(contacts);
+				if(!mutableContact.AreKeysAvailable(CNContactOptions.PhoneticFamilyName))
+				{
+					mutableContact = store.GetUnifiedContact(mutableContact.Identifier, fetchKeys, out error).
+									  MutableCopy() as CNMutableContact;
+					Console.WriteLine("Contact: {0} {1} Aff: {2}", mutableContact.GivenName, mutableContact.FamilyName
+				                      , mutableContact.PhoneNumbers[0].Value.StringValue);
+				}
 
-					Console.WriteLine ("Mutable Contact: {0}", mutableContact.GivenName);*/
- 
-					cnContactToAdd = new CNMutableContact () {
-						GivenName = App.CurrentContact.FirstName,  
-						FamilyName = App.CurrentContact.LastName, 
-						PhoneNumbers = new CNLabeledValue<CNPhoneNumber>[] {
-							new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number)),
-							new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number2)),
-							new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number3)),
-							new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number4)),
-							new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number5)),
-						},
-						OrganizationName = mutableContact.OrganizationName,
-					};
-					editor = CNContactViewController.FromContact (cnContactToAdd);
-					Console.WriteLine ("CNContactViewController.From... done");
-					cnContactToDelete = (editor.Contact.MutableCopy () as CNMutableContact);
-					
-				//}
+				editor = CNContactViewController.FromContact(mutableContact);
+				Console.WriteLine("CNContactViewController.From... done");
 			} else {
 				editor = CNContactViewController.FromNewContact (mutableContact);
 			}
@@ -85,84 +58,55 @@ namespace Capp2.iOS
 
 			MessagingCenter.Subscribe<CNViewControllerDelegate>(this, Values.DONEADDINGCONTACTNATIVE, (args) =>
 			{
-				Console.WriteLine("recieved DONTADDIGNCONTACTNATIVE message");
-				PhoneContacts phone = new PhoneContacts();
-
-				/*saveRequest.DeleteContact(cnContactToDelete);
-				error = new NSError();
-				store.ExecuteSaveRequest(saveRequest, out error);
-				if(error != null) Console.WriteLine("Error deleting old contact: {0}", cnContactToDelete.GivenName);
-				Console.WriteLine("old contact deleted: {0} {1}", cnContactToDelete.GivenName, cnContactToDelete.FamilyName);
-				*/
+				Console.WriteLine("recieved DONEADDINGCONTACTNATIVE message");
+				NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist(App.CapPage.playlist, 500, 1000, 500);
 			});
 
 			// Display picker
-			var navcontrol = GetUINavigationController(
+			var navcontrol = iOSNavigationHelper.GetUINavigationController(
 					UIApplication.SharedApplication.KeyWindow.RootViewController) as UINavigationController;
 
-			Console.WriteLine("navcontrol is {0}", navcontrol.GetType());
+			//Console.WriteLine("navcontrol is {0}", navcontrol.GetType());
 			navcontrol.PushViewController(editor, true);
-
-			//if (App.MasterDetailPage == null)//using TabbedPage as root
-			//{
-			//	Console.WriteLine("root is TabbedPage");
-
-
-			/*}
-			else { //using MasterDetailPage as root
-				Console.WriteLine("root is MasterDetailPage");
-
-				var nav =
-					UIApplication.SharedApplication.KeyWindow.RootViewController.ChildViewControllers.First().
-					ChildViewControllers.Last().ChildViewControllers.First();
-				
-				var navcontrol = GetUINavigationController(
-					UIApplication.SharedApplication.KeyWindow.RootViewController) as UINavigationController;
-					//nav as UINavigationController;
-
-				Console.WriteLine("navcontrol is {0}", navcontrol.GetType());
-				navcontrol.PushViewController(editor, true);
-			}*/
 
 			Console.WriteLine ("Done w function");
 		}
 
-		UINavigationController GetUINavigationController(UIViewController controller) {
-			if (controller != null) {
-				Console.WriteLine("controller is not null");
-				if (IsUINavigationViewController(controller))
+		CNMutableContact GetMatchingPerson(CNContact[] contacts) {
+			CNMutableContact mutableContact;
+			for (int c = 0; c < contacts.Length; c++)
+			{
+				Console.WriteLine("Checking if {0} {1} is who we're looking for",
+								  contacts[c].GivenName, contacts[c].FamilyName);
+				if (string.Equals(contacts[c].GivenName, App.CurrentContact.FirstName) &&
+					string.Equals(contacts[c].FamilyName, App.CurrentContact.LastName) &&
+					string.Equals(contacts[c].OrganizationName, App.CurrentContact.Aff) /*&&
+					    NumberExistsIn(contactVM.GetNumbers(), contacts[c].PhoneNumbers)*/)
 				{
-					Console.WriteLine("Found uinavigationcontroller");
-					return (controller as UINavigationController);
-				}
-
-				if (controller.ChildViewControllers.Count() != 0)
-				{
-					var count = controller.ChildViewControllers.Count();
-
-					for (int c = 0; c < count; c++)
-					{
-						Console.WriteLine(
-							"local iteration {0}: current controller has {1} children", c, count);
-						var child = GetUINavigationController(controller.ChildViewControllers[c]);
-						if (child == null)
-						{
-							Console.WriteLine("No children left on current controller. Moving back up");
-						}
-						else if(IsUINavigationViewController(child)){
-							Console.WriteLine("returning customnavigationrenderer");
-							return (child as UINavigationController);
-						}
-					}
+					mutableContact = (contacts[c].MutableCopy() as CNMutableContact);
+					Console.WriteLine("Contact: {0} {1} Aff: {2}", mutableContact.GivenName, mutableContact.FamilyName
+				                      , mutableContact.PhoneNumbers[0].Value.StringValue);
+					return mutableContact;
 				}
 			}
-
 			return null;
 		}
 
-		bool IsUINavigationViewController(NSObject view) {
-			if (view.GetType() == new CustomNavigationRenderer().GetType())
-				return true;
+		bool NumberExistsIn(string[] numbers, CNLabeledValue<CNPhoneNumber>[] phones) {
+			for (int ctr = 0; ctr < numbers.Length; ctr++) { 
+				for (int c = 0; c < phones.Length; c++)
+				{
+					var filteredNumber = PhoneUtil.ToNumber_Custom(numbers[ctr]);
+					var cnNumber = PhoneUtil.ToNumber_Custom(phones[c].Value.StringValue);
+					Console.WriteLine("comparing {0} and {1}", filteredNumber, cnNumber);
+					if (string.Equals(filteredNumber, cnNumber))
+					{
+						Console.WriteLine("{0} and {1} are the same", filteredNumber, cnNumber);
+						return true;
+					}
+				}
+			}
+			Console.WriteLine("NumberExistsIn returning false");
 			return false;
 		}
 
@@ -178,3 +122,16 @@ namespace Capp2.iOS
 	}
 }
 
+
+/*cnContactToAdd = new CNMutableContact () {
+				GivenName = App.CurrentContact.FirstName,  
+				FamilyName = App.CurrentContact.LastName, 
+				PhoneNumbers = new CNLabeledValue<CNPhoneNumber>[] {
+					new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number)),
+					new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number2)),
+					new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number3)),
+					new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number4)),
+					new CNLabeledValue<CNPhoneNumber> ("mobile", new CNPhoneNumber (App.CurrentContact.Number5)),
+				},
+				OrganizationName = mutableContact.OrganizationName,
+			};*/

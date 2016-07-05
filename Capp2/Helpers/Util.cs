@@ -119,7 +119,8 @@ namespace Capp2
 		}
 		public static async Task ChooseNewDefaultNamelist(string[] buttons){
 			try{
-				var result = await UserDialogs.Instance.ActionSheetAsync("When I launch CapTap, open this namelist", "Cancel", null, buttons);
+				var result = await UserDialogs.Instance.ActionSheetAsync(string.Format(
+					"When I launch {0}, open this namelist",Values.APPNAME), "Cancel", null, buttons);
 				if (!string.Equals(result, "Cancel")) {
 					if (!string.IsNullOrWhiteSpace(result)/* && !string.Equals(result, "Cancel")*/)
 					{
@@ -286,7 +287,7 @@ namespace Capp2
 			IEnumerable<Tesseract.Result> imageResult = DependencyService.Get<IPics> ().imageResult;
 
 			if (imageResult == null) {
-				await page.DisplayAlert ("Unable to load contacts", "CapTap could not read the image", "OK");
+				await page.DisplayAlert ("Unable to load contacts", "Could not read the image", "OK");
 			} else {
 
 				foreach (Tesseract.Result result in imageResult) {

@@ -37,7 +37,7 @@ namespace Capp2
 
 			var TipView = UIBuilder./*CreateCarouselView(
 						new List<VideoChooserItem>()
-			*/CreateTutorialVideoPickerView (new VideoChooserItem[]{
+			*/CreateTutorialVideoPickerView(new VideoChooserItem[]{
 				new VideoChooserItem {
 					ImagePath = "HowToCappScreenshot.png",
 					LabelText = "How do I mark appointments?",
@@ -64,7 +64,7 @@ namespace Capp2
 				},
 				new VideoChooserItem {
 					ImagePath = "HowToSendYesCallsScreenshot.png",
-					LabelText = "Report your daily yes calls from CapTap",
+					LabelText = string.Format("Report your daily yes calls from {0}", Values.APPNAME),
 					VideoPath = "HowToUseSendYesCalls.mov",
 					DetailText = ""
 				},
@@ -72,7 +72,7 @@ namespace Capp2
 					ImagePath = "HowToSetStartingScreenshot.png",
 					LabelText = "Always start with this namelist",
 					VideoPath = "HowToSetStarting.mov",
-					DetailText = "Open to this list when startin CapTap"
+					DetailText = string.Format("Open to this list when starting {0}", Values.APPNAME),
 				},
 				new VideoChooserItem {
 					ImagePath = "HowToUseDailyEmailScreenshot.png",

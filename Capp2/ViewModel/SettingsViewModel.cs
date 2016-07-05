@@ -3,6 +3,7 @@ using System.ComponentModel;
 using Capp2.Helpers;
 using Xamarin.Forms;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace Capp2
 {
@@ -26,8 +27,11 @@ namespace Capp2
 		#region Setting BOMTemplateText
 		public string BOMTemplateSettings { 
 			get { return Settings.BOMTemplateSettings; } 
-			set { if (Settings.BOMTemplateSettings == value) 
-				return; Settings.BOMTemplateSettings = value; OnBOMTemplatePropertyChanged(); 
+			set { if (Settings.BOMTemplateSettings == value || string.IsNullOrWhiteSpace(value)) /*||
+			          !value.Contains(Values.NAMETEMPLATE) || !value.Contains(Values.MEETINGTEMPLATE) || 
+			          !value.Contains(Values.DATETEMPLATE))*/ return; 
+
+				Settings.BOMTemplateSettings = value; OnBOMTemplatePropertyChanged();
 			} 
 		} 
 		public event PropertyChangedEventHandler BOMTemplatePropertyChanged;
@@ -54,7 +58,7 @@ namespace Capp2
 		#region Settings DailyEmailTemplateSettings
 		public string DailyEmailTemplateSettings { 
 			get { return Settings.DailyEmailTemplateSettings; } 
-			set { if (Settings.DailyEmailTemplateSettings == value) 
+			set { Debug.WriteLine("DailyEmailTemplateSettings set called"); if (Settings.DailyEmailTemplateSettings == value || string.IsNullOrWhiteSpace(value)) 
 				return; Settings.DailyEmailTemplateSettings = value; OnDailyEmailPropertyChanged(); 
 			} 
 		} 
@@ -83,7 +87,7 @@ namespace Capp2
 		#region Setting BOMLocationSettings
 		public string BOMLocationSettings { 
 			get { return Settings.LocSettings; } 
-			set { if (Settings.LocSettings == value) 
+			set { if (Settings.LocSettings == value || string.IsNullOrWhiteSpace(value)) 
 				return; Settings.LocSettings = value; OnBOMLocationPropertyChanged(); 
 			} 
 		} 

@@ -15,7 +15,6 @@ namespace Capp2
 		public static async Task BookProspectOrMarkForCallBackDate(ContactData person, bool AutoCall, 
 			SettingsViewModel settings = null)
 		{
-
 			SettingsViewModel Settings; 
 			if (settings == null) {
 				Settings = new SettingsViewModel ();//on iOS
@@ -24,8 +23,9 @@ namespace Capp2
 			}
 			var DefaultTemplateText = Settings.BOMTemplateSettings;
 
-			Settings.BOMTemplateSettings = string.Format ("Hi {0}, {1}", person.FirstName, Settings.BOMTemplateSettings);
-			Settings.BOMTemplateSettings = PlaceLocationAndDatesIntoTemplateText (Settings.BOMTemplateSettings, person);
+			//Settings.BOMTemplateSettings = string.Format ("Hi {0}, {1}", person.FirstName, Settings.BOMTemplateSettings);
+			Settings.BOMTemplateSettings = PlaceNameLocationAndDatesIntoTemplateText (Settings.BOMTemplateSettings, person);
+			Debug.WriteLine("Inserting message into SMS: {0}", Settings.BOMTemplateSettings);
 
 			await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, Settings.BOMTemplateSettings, 
 				person.Name, Values.BOM, AutoCall);
@@ -48,21 +48,22 @@ namespace Capp2
 
 		}
 
-		public static string PlaceLocationAndDatesIntoTemplateText(string template, ContactData person){
-			template = template.Replace ("<meeting here>", Settings.LocSettings);
-			return template.Replace ("<date here>", string.Format("{0}, {1}", 
+		public static string PlaceNameLocationAndDatesIntoTemplateText(string template, ContactData person){
+			template = template.Replace(Values.NAMETEMPLATE, person.FirstName);
+			template = template.Replace (Values.MEETINGTEMPLATE, Settings.LocSettings);
+			return template.Replace (Values.DATETEMPLATE, string.Format("{0}, {1}", 
 				person.Appointed.ToString("M", CultureInfo.CurrentCulture), 
 				person.Appointed.ToString("t", CultureInfo.CurrentCulture)));
 		}
 
-		public static string PlaceLocationAndDatesIntoConfirmText(string template, ContactData person){
+		public static string PlaceNameAndDatesIntoConfirmText(string template, ContactData person){
+			template = template.Replace(Values.NAMETEMPLATE, person.FirstName);
 			return template.Replace ("<time here>", string.Format("{0}", 
 				person.Appointed.ToString("t", CultureInfo.CurrentCulture)));
 		}
 
 		public static async Task PrepareConfirmTomorrowsMeetingsTemplateThenSendText(ContactData person){
 			if (!person.IsConfirmedTomorrow) {
-				//var DefaultTemplateText = Settings.MeetingConfirmDefault;
 				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
 
 				string messageToSend = Settings.MeetingConfirmDefault;
@@ -71,17 +72,12 @@ namespace Capp2
 					messageToSend);
 
 				messageToSend = 
-					PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
+					PlaceNameAndDatesIntoConfirmText (messageToSend, person);
 				Debug.WriteLine ("inserting values into message: {0}", messageToSend);
 
 				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
 					messageToSend, person.Name, Values.CONFIRM, false, Values.TOMORROW);
 
-				/*Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
-				Settings.MeetingConfirmSettings = DefaultTemplateText;
-				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);
-				Settings.MeetingConfirmSettings = Settings.DailyEmailTemplateDefault;
-				Debug.WriteLine ("Meeting confirm tomorrow text: {0}", Settings.MeetingConfirmDefault);*/
 				messageToSend = string.Empty;
 
 				person.IsConfirmedTomorrow = true;
@@ -98,7 +94,7 @@ namespace Capp2
 					messageToSend);
 
 				messageToSend = 
-					PlaceLocationAndDatesIntoConfirmText (messageToSend, person);
+					PlaceNameAndDatesIntoConfirmText (messageToSend, person);
 				Debug.WriteLine ("inserting values into message: {0}", messageToSend);
 
 				await DependencyService.Get<IPhoneContacts>().SendSMS(person.Number, 
@@ -107,19 +103,9 @@ namespace Capp2
 				messageToSend = string.Empty;
 				Debug.WriteLine ("Reset messageToSend: {0}", messageToSend);
 
-				//Settings.MeetingTodayConfirmSettings = Settings.MeetingTodayConfirmDefault;
-
 				person.IsConfirmedToday = true;
 				App.Database.UpdateItem (person);
 			}
 		}
 	}
 }
-
-/*if(!AutoCall){
-				try {
-					NavigationHelper.ClearModals(App.NavPage);
-				} catch (IndexOutOfRangeException ex) {
-					Debug.WriteLine("Error popping datepage and texttemplate modals possibly due to using 'await Navigation.PopModalAsync()': {0} ", ex.Message);
-				} 
-			}*/ 

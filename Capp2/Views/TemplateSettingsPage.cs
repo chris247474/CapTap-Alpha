@@ -14,6 +14,7 @@ namespace Capp2
 		Editor SMSEntry, LocEntry, DailyEmailEntry;
 		StackLayout SettingsList1, SettingsList2, DailyEmailTemplate;
 		bool SMSEntryShown = false, LocEntrySHown = false, EmailShown = false;
+		Button RestoreButton;
 
 		public TemplateSettingsPage ()
 		{
@@ -22,12 +23,20 @@ namespace Capp2
 			Content = scroller;
 		}
 		void WarnUserNotToDeleteMeetingAndTimePlaceholders(){
-			AlertHelper.Alert("Warning", "Please don't delete the <meeting here> and <date here> parts. " +
-				"CapTap looks for those to automatically input your meetup details");
+			AlertHelper.Alert("Warning", string.Format("Please don't delete the <meeting here> and <date here> parts. " +
+			                                           "{0} looks for those to automatically input your meetup details"), 
+			                  Values.APPNAME);
 		}
 		ScrollView createUI(){
 			this.BackgroundColor = Color.FromHex (Values.BACKGROUNDLIGHTSILVER);
 			BindingContext = new SettingsViewModel();
+
+			RestoreButton = new Button { 
+				Command = new Command(() => { }),
+				Text = "Restore Default",
+				BackgroundColor = Color.FromHex(Values.GOOGLEBLUE),
+				FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Button)),
+			};
 
 			EmptyLabel = new Label{
 				Text = "     "
@@ -43,23 +52,28 @@ namespace Capp2
 			SMSEntry = new Editor ();
 			SMSEntry.SetBinding (Editor.TextProperty, new Xamarin.Forms.Binding(){Path="BOMTemplateSettings"});
 			SMSEntry.Completed += (sender, e) => {
-				CheckIfUserChangedMeetingAndTimeStringTags(SMSEntry.Text, false);
+				CheckIfUserChangedNameMeetingAndTimeStringTags(SMSEntry.Text, false);
 			};
-			SMSEntry.HorizontalOptions = LayoutOptions.Center;
+			SMSEntry.HorizontalOptions = LayoutOptions.FillAndExpand;
 
 			LocEntry = new Editor ();
 			LocEntry.SetBinding (Editor.TextProperty, new Xamarin.Forms.Binding(){Path="BOMLocationSettings"});
-			LocEntry.HorizontalOptions = LayoutOptions.Center;
+			LocEntry.Completed += (sender, e) => {
+				if(!LocationEntryIsValid()){
+					LocEntry.Focus();
+				}
+			};
+			LocEntry.HorizontalOptions = LayoutOptions.FillAndExpand;
 
 			DailyEmailEntry = new Editor ();
 			DailyEmailEntry.SetBinding<SettingsViewModel> (Editor.TextProperty, vm => vm.DailyEmailTemplateSettings);
-
+			DailyEmailEntry.HorizontalOptions = LayoutOptions.FillAndExpand;
 			DailyEmailTemplate = new StackLayout{
 				Orientation = StackOrientation.Vertical,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Children = {
 
-					UIBuilder.CreateSetting ("", "Daily Email", 
+					UIBuilder.CreateSetting ("", "Daily Report", 
 						new TapGestureRecognizer {Command = new Command (() => 
 							{
 								UIAnimationHelper.ShrinkUnshrinkElement(DailyEmailTemplate);
@@ -112,7 +126,10 @@ namespace Capp2
 							Children = {
 								EmptyLabel, 
 								UIBuilder.CreateModalXPopper (new Command(() => {
-									CheckIfUserChangedMeetingAndTimeStringTags(SMSEntry.Text, true);
+									//if(LocationEntryIsValid()){
+										CheckIfUserChangedNameMeetingAndTimeStringTags(SMSEntry.Text, true);
+									//}
+
 								}), "Text Templates")
 								//, MainLabel, 
 							}
@@ -129,7 +146,7 @@ namespace Capp2
 								UIBuilder.CreateTextTemplateSetting(
 									new Xamarin.Forms.Binding(){Path="DailyEmailTemplateSettings"}, 
 									BindingContext as SettingsViewModel,
-									"Daily Email Template", ""
+									"Daily Report Template", ""
 								),
 							}
 						}
@@ -137,16 +154,26 @@ namespace Capp2
 				}
 			};
 		}
-		void CheckIfUserChangedMeetingAndTimeStringTags(string input, bool poppage){
+		bool LocationEntryIsValid() {
+			if (string.IsNullOrWhiteSpace(LocEntry.Text)) {
+				this.DisplayAlert("Error", "We can't leave the location box blank. Please fill it in", "OK");
+				return false;
+			}
+			return true;
+		}
+		void CheckIfUserChangedNameMeetingAndTimeStringTags(string input, bool poppage){
 			if (!string.IsNullOrEmpty (input)) {
-				if (input.ToLower ().Contains ("<meeting here>") && input.ToLower ().Contains ("<date here>")) {
+				if (input.ToLower ().Contains ("<meeting here>") && input.ToLower ().Contains ("<date here>")
+				    && input.ToLower().Contains(Values.NAMETEMPLATE)) {
 					if (poppage)
 						App.NavPage.Navigation.PopModalAsync ();
 				} else {
-					this.DisplayAlert ("Oops!", "Please don't touch the '<meeting here>' and '<date here>' tags", "OK");
+					this.DisplayAlert ("Oops!", "Please don't touch the '"+Values.NAMETEMPLATE
+					                   +"', '<meeting here>' and '<date here>' tags", "OK");
 				}
 			} else {
 				if(poppage) App.NavPage.Navigation.PopModalAsync ();
+				//this.DisplayAlert("Bad Entry", "We can't leave any info blank. Please fill in all the fields", "OK");
 			}
 		}
 		void ShowOrHideTextTemplate(Editor entry, StackLayout parent, int indexToInsertAt){
@@ -171,9 +198,11 @@ namespace Capp2
 				entry.Text = (BindingContext as SettingsViewModel).BOMLocationSettings;
 				Debug.WriteLine (entry.Text);
 			}else{
-				parent.Children.Remove (entry);
-				LocEntrySHown = false;
-				Debug.WriteLine ((BindingContext as SettingsViewModel).BOMLocationSettings);
+				if (LocationEntryIsValid()) { 
+					parent.Children.Remove(entry);
+					LocEntrySHown = false;
+					Debug.WriteLine((BindingContext as SettingsViewModel).BOMLocationSettings);
+				}
 			}
 		}
 		void ShowOrHideEmailTemplate(Editor entry, StackLayout parent, int indexToInsertAt){

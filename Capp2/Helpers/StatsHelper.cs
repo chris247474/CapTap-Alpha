@@ -83,7 +83,7 @@ namespace Capp2
 						"Beat that!", yescalls);
 				}
 			}
-			message += "\n\n- CapTap";
+			message += string.Format("\n\n- {0}", Values.APPNAME);
 
 			return message;
 		}

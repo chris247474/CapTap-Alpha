@@ -54,6 +54,7 @@ namespace Capp2
 				TextColor = Color.Green,
 				VerticalOptions = LayoutOptions.Start,
 				HorizontalTextAlignment = TextAlignment.Start,
+				LineBreakMode = LineBreakMode.WordWrap,
 			};
 			playlistLabel.SetBinding(Label.TextProperty, "Playlist");//"Playlist" links directly to the ContactData.Name property
 
@@ -287,7 +288,8 @@ namespace Capp2
 			);
 			layout.Children.Add(playlistLabel,
 				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.5)),
-				Constraint.RelativeToParent((parent => parent.Height*0.22+nameLabel.Height))
+				Constraint.RelativeToParent((parent => parent.Height*0.22+nameLabel.Height)),
+			                    Constraint.RelativeToParent((parent => parent.Width*0.8))
 			);
 
 			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
@@ -329,7 +331,8 @@ namespace Capp2
 			);
 			layout.Children.Add(playlistLabel,
 				Constraint.RelativeToParent((parent => parent.X + circleImage.Width*1.5)),
-				Constraint.RelativeToParent((parent => parent.Height*0.22+nameLabel.Height))
+				Constraint.RelativeToParent((parent => parent.Height*0.22+nameLabel.Height)),
+								Constraint.RelativeToParent((parent => parent.Width * 0.5))
 			);
 
 			AddPhoneToLayout ();

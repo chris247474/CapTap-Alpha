@@ -1,5 +1,4 @@
 ﻿using Acr.UserDialogs;
-using Capp2.Helpers;
 using Foundation;
 using System;
 using UIKit;
@@ -7,8 +6,6 @@ using XLabs.Forms;
 using XLabs.Ioc;
 using XLabs.Platform.Device;
 using XLabs.Platform.Services;
-using CoreAnimation;
-using CoreGraphics;
 using Syncfusion.SfChart.XForms.iOS.Renderers;
 using System.Threading.Tasks;
 using Capp2.iOS.Helpers;
@@ -17,6 +14,7 @@ using FireSharp.Interfaces;
 using FireSharp.Config;
 using FireSharp;
 using FFImageLoading.Forms.Touch;
+//using HockeyApp.iOS;
 
 namespace Capp2.iOS
 {
@@ -31,6 +29,10 @@ namespace Capp2.iOS
 
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
+			//var manager = BITHockeyManager.SharedHockeyManager;
+			//manager.Configure("3bb7ee25bab74a39992a2d27b2b55ca1");
+			//manager.StartManager();
+
             // check for a notification
             if (options != null)
             {
