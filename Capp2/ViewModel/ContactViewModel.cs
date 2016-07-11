@@ -13,15 +13,12 @@ namespace Capp2
 	{
 		ContactData contact;
 		string _fname, _lname;
-		//string Separator = Values.FORMATSEPARATOR;
-		//public static string StaticSeparator = Values.FORMATSEPARATOR;
 
 		public ContactViewModel(ContactData contactParam){
 			contact = contactParam;
 			_fname = contact.FirstName;
 			_lname = contact.LastName;
 		}
-
 
 		public string FirstName { 
 			get { 
@@ -132,13 +129,14 @@ namespace Capp2
 			if (save) {
 				App.Database.UpdateItem (person);
 			}
-
 			return person;
 		}
+
+
+
 		public static string FormatNamelist(string namelist){
 			return Values.FORMATSEPARATOR + namelist + Values.FORMATSEPARATOR;
 		}
-
 		 
 		void NullCheck(){
 			if (contact == null) {

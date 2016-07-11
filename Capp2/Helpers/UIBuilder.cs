@@ -13,6 +13,9 @@ namespace Capp2
 {
 	public static class UIBuilder
 	{
+		public static StackLayout EmptyStack() {
+			return new StackLayout { };
+		}
 		public static Label CreateInitialsLabel(double fontsize, string binding, double opacity = 1){
 			var initials = new Label{
 				FontSize = fontsize,
@@ -162,18 +165,19 @@ namespace Capp2
 			await UserDialogs.Instance.ConfirmAsync (YesNo);
 		}
 
-		/*public static CarouselView CreateCarouselView(List<VideoChooserItem> videos){
+		public static CarouselView CreateCarouselView(List<VideoChooserItem> videos, Command OnPop = null)
+		{
 			CarouselView carousel = new CarouselView{
 				BackgroundColor = Color.Transparent,
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				ItemsSource = videos, 
 				ItemTemplate = new DataTemplate(() => {
-					return new CarouselTemplateView();
+					return new CarouselTemplateView(OnPop);
 				}),
 			};
 			return carousel;
-		}*/
+		}
 
 		public static StackLayout CreateDataTemplateLabelEmptySpace(){
 			return new StackLayout {
@@ -291,6 +295,7 @@ namespace Capp2
 			normalFab.NormalColor = NormalColor;
 			normalFab.Opacity = 0.9;
 			normalFab.PressedColor = PressedColor;
+			//normalFab.RippleColor = PressedColor;
 
 			//normalFab.SetBinding(FloatingActionButton.SourceProperty, 
 
@@ -326,6 +331,7 @@ namespace Capp2
 		{
 			RelativeLayout parentlayout = new RelativeLayout();
 
+			child.Source = icon;
 			parentlayout.VerticalOptions = LayoutOptions.FillAndExpand;
 			parentlayout.HorizontalOptions = LayoutOptions.FillAndExpand;
 			parentlayout.Children.Add(
@@ -339,11 +345,11 @@ namespace Capp2
 			CircleImage img = new CircleImage ();
 			img = CreateTappableCircleImage (icon, 
 				LayoutOptions.Fill, Aspect.AspectFit, new Command(()=>{
-					UIAnimationHelper.ShrinkUnshrinkElement (child, 100);
-					UIAnimationHelper.ShrinkUnshrinkElement (img, 100);
+					UIAnimationHelper.ShrinkUnshrinkElement (child, 50);
+					UIAnimationHelper.ShrinkUnshrinkElement (img, 50);
 					FabTapped.Execute(null);
 				}));
-			img.InputTransparent = true;
+			img.InputTransparent = false;
 
 			if (Device.OS == TargetPlatform.iOS) {
 				parentlayout.Children.Add(  
@@ -454,31 +460,27 @@ namespace Capp2
 		{
 			string tempicon = icon;
 
-            var normalFab = new FAB.Forms.FloatingActionButton();
+            var normalFab = new FloatingActionButton();
 
 			Image img = new Image();
 			img = CreateTappableImage (icon, 
 				LayoutOptions.Fill, Aspect.AspectFit, new Command(()=>{
 					Debug.WriteLine("icon tapped");
-					UIAnimationHelper.ShrinkUnshrinkElement (normalFab, 200);
-					UIAnimationHelper.ShrinkUnshrinkElement (img, 200);
-
-					if(!string.IsNullOrWhiteSpace(PressedIcon)){
-						tempicon = SwapIconsOnPressIfNeeded(normalFab, img, icon, PressedIcon, tempicon);
-					}
+					UIAnimationHelper.ShrinkUnshrinkElement (normalFab, 100);
+					UIAnimationHelper.ShrinkUnshrinkElement (img, 100);
 
 					FabTapped.Execute(null);
 				}));
-			img.InputTransparent = true;
+			img.InputTransparent = false;
 
 			normalFab.Clicked += (sender, e) => {
 				Debug.WriteLine("Clicked");
 				UIAnimationHelper.ZoomUnZoomElement (normalFab);
 				SystemSoundService.Play(SystemSounds.Tap);
 
-				if(!string.IsNullOrWhiteSpace(PressedIcon)){
+				/*if(!string.IsNullOrWhiteSpace(PressedIcon)){
 					tempicon = SwapIconsOnPressIfNeeded(normalFab, img, icon, PressedIcon, tempicon);
-				}
+				}*/
 
 				Debug.WriteLine("FabTapped");
 
@@ -490,6 +492,8 @@ namespace Capp2
 			normalFab.NormalColor = NormalColor;
 			normalFab.Opacity = 0.9;
 			normalFab.PressedColor = PressedColor;
+			//normalFab.RippleColor = PressedColor;
+			normalFab.Source = icon;
 
 			if (Device.OS == TargetPlatform.iOS) {
 				layout.Children.Add(
@@ -557,7 +561,7 @@ namespace Capp2
 			throw new NotImplementedException("UIBuilder.AddElementToObjectWithXYConstraintDependingOniOSAndAndroidLayouts() is not implmented in platforms other than iOS and Android");
 		}
 
-		public static RelativeLayout AddElementToObjectWithXYConstraint(
+		/*public static RelativeLayout AddElementToObjectWithXYConstraint(
 			View parentElement, View ElementToAdd, Constraint xOnParent, Constraint yOnParent)
 		{ 
 			RelativeLayout layout = new RelativeLayout ();
@@ -572,13 +576,13 @@ namespace Capp2
 			);
 			layout.Children.Add (
 				ElementToAdd,
-				xConstraint: xOnParent/*Constraint.RelativeToParent((parent) =>  { return (parent.Width - ElementToAdd.Width) - xOnParent; })*/,
-				yConstraint: yOnParent/*Constraint.RelativeToParent((parent) =>  { return (parent.Height - ElementToAdd.Height) - yOnParent; })*/
+				xConstraint: xOnParent//Constraint.RelativeToParent((parent) =>  { return (parent.Width - ElementToAdd.Width) - xOnParent; }),
+				yConstraint: yOnParent//Constraint.RelativeToParent((parent) =>  { return (parent.Height - ElementToAdd.Height) - yOnParent; })
 			);
 			Debug.WriteLine ("Parent row width: {0}, Parent row height: {1}, child row width {2}, child row height {3}", 
 				parentElement.Width, parentElement.Height, ElementToAdd.Width, ElementToAdd.Height);
 			return layout;
-		}
+		}*/
 		public static StackLayout ComposeInfoPageStack(){
 			return new StackLayout{
 				Orientation = StackOrientation.Vertical,
@@ -750,6 +754,21 @@ namespace Capp2
 			return new StackLayout {
 				Orientation = StackOrientation.Horizontal,
 				Children = { EmptyLabel }
+			};
+		}
+		public static StackLayout CreateDoubleEmptyStackSpace()
+		{
+			return new StackLayout
+			{
+				Orientation = StackOrientation.Horizontal,
+				Children = { CreateEmptyStackSpace(), CreateEmptyStackSpace() }
+			};
+		}
+		public static StackLayout CreateTripleEmtyStackSpace() { 
+			return new StackLayout
+			{
+				Orientation = StackOrientation.Horizontal,
+				Children = { CreateEmptyStackSpace(), CreateEmptyStackSpace() }
 			};
 		}
 		public static StackLayout CreateSettingsHeader(string header){

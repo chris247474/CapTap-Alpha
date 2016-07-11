@@ -41,10 +41,13 @@ namespace Capp2.Helpers
 				if (peopleCounter < totalPeople) {
 					Debug.WriteLine ("before sending text: peopleCounter {0}, unconfirmed peopleToday {1}", peopleCounter, totalPeople);
 					await Task.Delay (PauseBetweenConfirm);
+					//UserDialogs.Instance.HideLoading();
 					await TextTemplateHelper.PrepareConfirmTodaysMeetingsTemplateThenSendText (peopleToday [peopleCounter]);
+					//UserDialogs.Instance.ShowLoading("Confirming appointments...");
 					peopleCounter++;
 					Debug.WriteLine ("after sending text: peopleCounter {0}, peopleToday {1}", peopleCounter, totalPeople);
 				} else if (peopleCounter >= totalPeople) {
+					//UserDialogs.Instance.HideLoading();
 					Debug.WriteLine ("peopleCounter {0} > unconfirmed totalPeopleToday {1}", peopleCounter, totalPeople);
 					MessagingCenter.Send ("", Values.DONECONFIRMINGTODAYSMEETINGS);
 					peopleCounter = 0;
@@ -53,88 +56,75 @@ namespace Capp2.Helpers
 			} else {
 				totalPeople = peopleTomorrow.Length;
 				Debug.WriteLine ("SendConfirm: tomorrows meetings");
-				if (peopleCounter < totalPeople) {
-					Debug.WriteLine ("before sending text: peopleCounter {0}, unconfirmed peopleTomorrow {1}", peopleCounter, totalPeople);
-					await Task.Delay (PauseBetweenConfirm);
-					await TextTemplateHelper.PrepareConfirmTomorrowsMeetingsTemplateThenSendText (peopleTomorrow [peopleCounter]);
+				if (peopleCounter < totalPeople)
+				{
+					Debug.WriteLine("before sending text: peopleCounter {0}, unconfirmed peopleTomorrow {1}", peopleCounter, totalPeople);
+					await Task.Delay(PauseBetweenConfirm);
+					//UserDialogs.Instance.HideLoading();
+					await TextTemplateHelper.PrepareConfirmTomorrowsMeetingsTemplateThenSendText(peopleTomorrow[peopleCounter]);
+					//UserDialogs.Instance.ShowLoading("Confirming appointments...");
 					peopleCounter++;
-					Debug.WriteLine ("after sending text: peopleCounter {0}, unconfirmed peopleTomorrow {1}", peopleCounter, totalPeople);
+					Debug.WriteLine("after sending text: peopleCounter {0}, unconfirmed peopleTomorrow {1}", peopleCounter, totalPeople);
+				}
+				else {
+					//UserDialogs.Instance.HideLoading();
 				}
 			}
 		}
-		 /*static*/ async Task<bool> CheckToday(bool alerted){
+		 async Task<bool> CheckToday(bool alerted){
 			confirmingToday = true;
-			UserDialogs.Instance.HideLoading ();
-			peopleToday = PeopleForToday().Where(person => person.IsConfirmedToday == false).ToArray();
 			try
 			{	
+				peopleToday = PeopleForToday().Where(person => person.IsConfirmedToday == false).ToArray();
 				if (peopleToday != null && peopleToday.Length != 0)
 				{
 					Debug.WriteLine("Going thorugh Todays meetings");
-					UserDialogs.Instance.HideLoading ();
 
 					peopleCounter = 0;
 					await SendConfirm(confirmingToday);
-
-					/*for (int c = 0; c < peopleToday.Length; c++)
-					{
-						var person = peopleToday[c];
-						await Task.Delay(1000);
-						await TextTemplateHelper.PrepareConfirmTodaysMeetingsTemplateThenSendText(person);
-					}*/
 				}else{
 					await CheckTomorrow(alerted);
 				}
 			}
 			catch (Exception e)
 			{
-				Debug.WriteLine("" + e.Message);
-				
+				Debug.WriteLine("CheckToday error: " + e.Message);
+				//try {UserDialogs.Instance.HideLoading(); } catch { }
 			}
 
 			return alerted;
 		}
 
-		 /*static*/ async Task<bool> CheckTomorrow(bool alerted){
+		 async Task<bool> CheckTomorrow(bool alerted){
 			confirmingToday = false;
-			//UserDialogs.Instance.HideLoading ();
-			peopleTomorrow = PeopleForTomorrow().Where(person => person.IsConfirmedToday == false).ToArray();
 			try
 			{
+				peopleTomorrow = PeopleForTomorrow().Where(person => person.IsConfirmedToday == false).ToArray();
 				if (peopleTomorrow != null && peopleTomorrow.Length != 0)
 				{
-						
 					Debug.WriteLine("Going thorugh tomorrows meetings: {0}", peopleTomorrow.Length);
-					/*for (int c = 0; c < peopleTomorrow.Length; c++)
-					{
-						var person = peopleTomorrow[c];
-						await Task.Delay(1000);
-						await TextTemplateHelper.PrepareConfirmTomorrowsMeetingsTemplateThenSendText(person);
-					}*/
 					peopleCounter = 0;
 					await SendConfirm(confirmingToday);
 
 				}else{
 					Debug.WriteLine("No meetings tomorrow");
+					//UserDialogs.Instance.HideLoading();
 				}
 			}
 			catch (Exception e)
 			{
-				Debug.WriteLine("" + e.Message);
+				Debug.WriteLine("CheckTomorrow error: " + e.Message);
+				//try { UserDialogs.Instance.HideLoading(); } catch { }
 			}
 			return alerted;
 		}
 
 		public  /*static*/ async Task CheckMeetingsTodayTomorrowConfirmSentSendIfNot()
         {
-			
-			Debug.WriteLine ("first run? {0}", Settings.IsFirstRunSettings);
+			//Debug.WriteLine ("first run? {0}", Settings.IsFirstRunSettings);
 			if (!Settings.IsFirstRunSettings) {
-				UserDialogs.Instance.ShowLoading ("Checking today's calendar to confirm meetings");
+				//UserDialogs.Instance.ShowLoading ("Checking calendar to confirm meetings");
 				alerted = await CheckToday(alerted);
-				/*await Task.Delay (3000);
-				UserDialogs.Instance.ShowLoading ("Checking tomorrow's calendar to confirm meetings");
-				await CheckTomorrow (alerted);*/
 			}
         }
 
@@ -301,12 +291,11 @@ namespace Capp2.Helpers
             }
             return false;
         }
-        public  /*static*/ async Task<string> CreateAppointment(string ID, string eventName, string description, DateTime startDate)
+        public async Task<string> CreateAppointment(string ID, string eventName, string description, DateTime startDate)
         {
             if (CalendarExists)
             {
 				CalendarEvent ce;
-
                 try
                 {
 					if(await ReschedAppointment (ID, startDate)){
@@ -324,28 +313,54 @@ namespace Capp2.Helpers
 						await CrossCalendars.Current.AddOrUpdateEventAsync(PrimaryCalendar, ce);
 						Debug.WriteLine("ADDED CALENDAREVENT " + ce.ExternalID);
 						return ce.ExternalID;//return a new one if no previous meeting yet
-
 					}
                 }
                 catch (Exception e)
                 {
 					Debug.WriteLine ("Creating event error: {0}", e.Message);
                 }
-
-                /*try  
-                { 
-                    await CrossCalendars.Current.AddOrUpdateEventAsync(PrimaryCalendar, ce);
-                    Debug.WriteLine("ADDED CALENDAREVENT " + ce.ExternalID);
-                    return ce.ExternalID;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("[CreateAppointment()] " + ex.Message);
-                }
-                return null;*/
             } 
             return null;
         }
+
+		public async Task<string> CreateReschedAppointment(ContactData contact, string description, DateTime startDate)
+		{
+			if (CalendarExists)
+			{
+				CalendarEvent ce;
+				try
+				{
+					if (await ReschedAppointment(contact.NextMeetingID, startDate))
+					{
+						contact.IsConfirmedToday = false;
+						contact.IsConfirmedTomorrow = false;
+						Debug.WriteLine("Rescheduled: {0} confirmedtoday {1} confirmedtomorrow {2}", 
+						                contact.NextMeetingID, contact.IsConfirmedToday, contact.IsConfirmedTomorrow);
+						return contact.NextMeetingID;//return NextMeetingID if a previous meeting event was found
+					}
+					else {
+						Debug.WriteLine("No previous meeting found, creating one");
+
+						ce = new CalendarEvent
+						{
+							Name = contact.Name,
+							Description = description,
+							Start = startDate,
+							End = startDate.AddHours(Values.MEETINGLENGTH)
+						};
+						await CrossCalendars.Current.AddOrUpdateEventAsync(PrimaryCalendar, ce);
+						Debug.WriteLine("ADDED CALENDAREVENT " + ce.ExternalID);
+						return ce.ExternalID;//return a new one if no previous meeting yet
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.WriteLine("Creating event error: {0}", e.Message);
+				}
+			}
+			return null;
+		}
+
         public  /*static*/ async Task<bool> ReschedAppointment(string ID, DateTime startDate)
         {
 			try{

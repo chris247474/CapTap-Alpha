@@ -16,6 +16,46 @@ namespace Capp2
 		public static bool AutoCallContinue, calling;
 		public static int AutoCallCounter;
 
+		public static List<Grouping<string, ContactData>> AutoCallGroupedList;
+		public static int GroupCtr, ContactInGroupCtr, TotalContactsCtr;
+
+
+		public static List<ContactData> UngroupListButRetainOrder(List<Grouping<string, ContactData>> group) {
+			List<ContactData> UngroupedOrderedList = new List<ContactData>();
+
+			if (group == null)
+				throw new NullReferenceException("UngroupListButRetainOrder has null param");
+
+			GroupCtr = group.Count;
+
+			for (int c = 0;c < GroupCtr; c++) {
+				var contactGroup = group.ElementAt(c);
+				ContactInGroupCtr = contactGroup.Count;
+				for (int n = 0; n < ContactInGroupCtr; n++) {
+					Debug.WriteLine("Adding {0} to UngroupedOrderedList", contactGroup.ElementAt(n));
+					UngroupedOrderedList.Add(contactGroup.ElementAt(n));
+				}
+			}
+
+			return UngroupedOrderedList;
+		}
+
+		public static void PrepareForGroupedCalls(List<Grouping<string, ContactData>> group, int totalContacts)
+		{
+			AutoCallGroupedList = group;
+			GroupCtr = AutoCallGroupedList.Count;
+			TotalContactsCtr = totalContacts;
+		}
+
+		public static ContactData GetNextGroupedContact()
+		{
+			throw new NotImplementedException();
+		}
+
+		public static void SkipNextGroupedContact() {
+			throw new NotImplementedException();
+		}
+
 		public static string GetNumbers(ContactData contact){
 			string numbers = string.Empty;
 			numbers += string.Format("\n{0}",contact.Number);
@@ -219,9 +259,8 @@ namespace Capp2
 			Debug.WriteLine ("Calling " + contact.Name + " autocall: " + autocall.ToString ());
 			var dialer = DependencyService.Get<IDialer> ();
 			if (dialer != null) {
-				var numberToCall = await HandleMutlipleNumbers (contact);
+				var numberToCall = await HandleMutlipleNumbers(contact);//App.contactFuncs.MakeDBContactCallable(await HandleMutlipleNumbers (contact), true);
 				if (!string.IsNullOrWhiteSpace (numberToCall)) {
-
 					Debug.WriteLine ("{0} has spaces? {1}", numberToCall, numberToCall.Contains(" "));
 					Debug.WriteLine ("{0} char length is {1}", numberToCall, numberToCall.Length);
 					numberToCall = PhoneUtil.ToNumber_Custom (numberToCall);
@@ -255,7 +294,6 @@ namespace Capp2
 			}
 		}
 
-
 		public static async Task<string> HandleMutlipleNumbers(ContactData contact){
 			List<string> list = new List<string> ();
 			Debug.WriteLine ("In HandleMutlipleNumbers");
@@ -281,6 +319,7 @@ namespace Capp2
 			Debug.WriteLine ("HandeMultipleNumbers returning {0}", contact.Number);
 			return contact.Number;
 		}
+
 	}
 }
 

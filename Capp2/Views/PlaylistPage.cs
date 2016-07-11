@@ -28,7 +28,6 @@ namespace Capp2
 
             searchBar = new SearchBar {
 				BackgroundColor = Color.Transparent,
-				//PlaceholderColor = Color.FromHex(Values.GOOGLEBLUE),
 				CancelButtonColor = Color.FromHex(Values.GOOGLEBLUE),
                 Placeholder = "Search for a namelist",
                 VerticalOptions = LayoutOptions.FillAndExpand,
@@ -89,7 +88,7 @@ namespace Capp2
 			listView = new ListView {
 				BackgroundColor = Color.Transparent,
 				ItemsSource = App.Database.GetPlaylistItems(),
-				SeparatorColor = Color.Transparent,//FromHex("#E1E1E1"),//this.BackgroundColor,
+				SeparatorColor = Color.Transparent,
 				ItemTemplate = new DataTemplate(() =>
 					{
 						return new PlaylistViewCell(this);
@@ -103,11 +102,7 @@ namespace Capp2
 				
 				this.playlistSelected = (Playlist)e.SelectedItem;
 
-				//if(Settings.IsFirstRunSettings){
-				//	Navigation.PushAsync(App.CapPage);
-				//}else{
-					Navigation.PushAsync(new CAPP(playlistSelected.PlaylistName));
-				//}
+				Navigation.PushAsync(new CAPP(playlistSelected.PlaylistName), false);
 
 				// de-select the row
 				((ListView)sender).SelectedItem = null;
@@ -161,7 +156,6 @@ namespace Capp2
 			playlistLabel.HorizontalTextAlignment = TextAlignment.Start;
 			playlistLabel.HorizontalOptions = LayoutOptions.StartAndExpand;
 			playlistLabel.HeightRequest = playlistLabel.Height * 2;
-			//playlistLabel.FontFamily = Device.OnPlatform ("SFCompact", "sans-serif-black", null);
 			playlistLabel.FontSize = playlistLabel.FontSize * 1.2;
 			playlistLabel.TextColor = Color.FromHex ("#797979");
 
@@ -173,15 +167,13 @@ namespace Capp2
 				WidthRequest = playlistLabel.FontSize *1.3,
 			};
 			Image WarmCold = new Image{ 
-				Source = "",//FileImageSource.FromFile ("people.png"),
+				Source = "",
 				Aspect = Aspect.Fill,
 				HorizontalOptions = LayoutOptions.CenterAndExpand,
-				//HeightRequest = playlistLabel.FontSize *1.5,
-				//WidthRequest = playlistLabel.FontSize *1.5,
 			};
 			WarmCold.SetBinding (Image.SourceProperty, "Icon");
 
-			var EditAction = new MenuItem { Text = "Edit" };
+			var EditAction = new MenuItem { Text = "Rename" };
 			EditAction.SetBinding (MenuItem.CommandParameterProperty, new Binding ("."));
 			EditAction.Clicked += async (sender, e) => {
 				var mi = ((MenuItem)sender);
@@ -227,15 +219,18 @@ namespace Capp2
 		}
 		async Task<bool> EditPlaylistName(Playlist playlist){
             string oldPlaylistName = playlist.PlaylistName;
+			//Debug.WriteLine("Old namelist name is {0}", oldPlaylistName);
+
 			if (string.Equals (Values.ALLPLAYLISTPARAM, playlist.PlaylistName) || string.Equals (Values.TODAYSCALLS, playlist.PlaylistName)) {
-				UserDialogs.Instance.InfoToast ("Sorry, we can't edit an essential namelist");
+				await AlertHelper.Alert("Sorry", "We can't edit an essential namelist");
 			} else {
 				var result = await UserDialogs.Instance.PromptAsync("Enter a new name for this namelist:", "", "OK", "Cancel");
 				if (string.IsNullOrWhiteSpace (result.Text) || string.IsNullOrEmpty (result.Text)) {
 				} else {
 					playlist.PlaylistName = result.Text;
-					App.Database.UpdatePlaylistItem(playlist);//how to update all contacts playlist property? data bind?
+					//Debug.WriteLine("new namelist name is {0} from result {1}", playlist.PlaylistName, result.Text);
                     await UpdatePlaylistContentsToNewName(oldPlaylistName, result.Text);
+					App.Database.UpdatePlaylistItem(playlist);
                     return true;
 				}
 			}
@@ -244,16 +239,18 @@ namespace Capp2
         async Task UpdatePlaylistContentsToNewName(string oldPlaylistName, string newPlaylistName) {
             List<ContactData> contactsToMove = new List<ContactData>();
             try {
-                var contacts = App.Database.GetItems(oldPlaylistName).ToArray();
-
+				var contacts = App.Database.GetItems(oldPlaylistName).ToArray();
+				//Debug.WriteLine("old namelist name {0} has {1} numbers", oldPlaylistName, contacts.Length);
                 for (int c = 0; c < contacts.Length; c++)
                 {
-					contacts[c].Playlist = contacts[c].Playlist.Replace(oldPlaylistName, newPlaylistName);
-                    //contacts[c].Playlist = newPlaylistName;
+					contacts[c].Playlist = contacts[c].Playlist.Replace(ContactViewModel.FormatNamelist(oldPlaylistName), 
+					                                                    ContactViewModel.FormatNamelist(newPlaylistName));
                     contactsToMove.Add(contacts[c]);
+					//Debug.WriteLine("Changing {0} namelist to {1}", oldPlaylistName, newPlaylistName);
                 }
 
-                App.Database.UpdateAll(contactsToMove.AsEnumerable());
+				//Debug.WriteLine("Updating Namelist contents: {0}", App.Database.UpdateAll(contactsToMove.AsEnumerable()));
+                
             } catch (Exception e) {
                 Debug.WriteLine("UpdatePlaylistContentsToNewName error: {0}", e.Message);
                 UserDialogs.Instance.ShowError("Something went wrong! Pls try again"); }

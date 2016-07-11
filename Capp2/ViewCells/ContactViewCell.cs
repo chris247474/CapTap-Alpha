@@ -15,7 +15,7 @@ namespace Capp2
 	{
 		public ContactData personCalled{ set; get;}
 		TapGestureRecognizer tapGestureRecognizer;
-		Label nameLabel, firstnameLabel, lastnameLabel;
+		Label nameLabel;//, firstnameLabel, lastnameLabel;
 		Label playlistLabel, initials;
 		Image phone;
 		CheckBox checkbox;
@@ -31,16 +31,17 @@ namespace Capp2
 			this.playlist = page.playlist;
 
 			nameLabel = new Label{
-				FontSize = 15,//Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				FontSize = Values.NAMEFONTSIZE,//Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				HorizontalOptions = LayoutOptions.Start,
 				HorizontalTextAlignment = TextAlignment.Start,
+				FontFamily = Font.Default.FontFamily,
 			};
 			nameLabel.SetBinding(Label.TextProperty, "Name");
 
-			firstnameLabel = new Label();
+			/*firstnameLabel = new Label();
 			firstnameLabel.SetBinding (Label.TextProperty, "FirstName");
 			lastnameLabel = new Label();
-			lastnameLabel.SetBinding (Label.TextProperty, "LastName");
+			lastnameLabel.SetBinding (Label.TextProperty, "LastName");*/
 
 			circleImage = new CircleImage{
 				HorizontalOptions = LayoutOptions.Start,
@@ -50,11 +51,12 @@ namespace Capp2
 			circleImage.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
 			playlistLabel = new Label{
-				FontSize = 12,//Device.GetNamedSize (NamedSize.Small, typeof(Label)), 
+				FontSize = Values.NAMELISTFONTSIZE,//Device.GetNamedSize (NamedSize.Small, typeof(Label)), 
 				TextColor = Color.Green,
 				VerticalOptions = LayoutOptions.Start,
 				HorizontalTextAlignment = TextAlignment.Start,
 				LineBreakMode = LineBreakMode.WordWrap,
+				FontFamily = Font.Default.FontFamily,
 			};
 			playlistLabel.SetBinding(Label.TextProperty, "Playlist");//"Playlist" links directly to the ContactData.Name property
 
@@ -135,15 +137,29 @@ namespace Capp2
 				page.Navigation.PushModalAsync(new DatePage(Values.PURCHASED, personCalled, false));
 			};
 
+			var sched = new MenuItem { Text = "Sched" };
+			sched.SetBinding(MenuItem.CommandParameterProperty, new Binding("."));
+			sched.Clicked += async (sender, e) =>
+			{
+				var mi = ((MenuItem)sender);
+				personCalled = (ContactData)mi.BindingContext;
+				var result = (await UserDialogs.Instance.ActionSheetAsync("", null, null,
+				                                                          new string[] {Values.APPOINTEDCAPITALIZED,
+					                                                                          Values.PRESENTEDCAPITALIZED, 
+					                                                                          Values.PURCHASEDCAPITALIZED}));
+				await page.Navigation.PushModalAsync(new DatePage(result.ToLower(), personCalled, false));
+			};
+
 			View = CreateLayout(page.playlist);//createLayoutView(page.playlist);
 
 			SubscribeToEditingListeners ();
 
 			// add context actions to the cell
 			ContextActions.Add(nextAction);
-			ContextActions.Add (appointedAction);
-			ContextActions.Add (presentedAction);
-			ContextActions.Add (purchasedAction);
+			ContextActions.Add(sched);
+			//ContextActions.Add (appointedAction);
+			//ContextActions.Add (presentedAction);
+			//ContextActions.Add (purchasedAction);
 		}
 		protected override void OnBindingContextChanged ()
 		{
@@ -176,7 +192,7 @@ namespace Capp2
 
 			createLayoutView (playlist);
 
-			initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
+			initials = UIBuilder.CreateInitialsLabel (/*this.RenderHeight * 0.45*/Values.INITIALSFONTSIZE, "Initials");
 			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage, 0.45);
 
 			return layout;

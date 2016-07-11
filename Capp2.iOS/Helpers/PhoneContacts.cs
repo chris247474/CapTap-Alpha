@@ -300,22 +300,25 @@ namespace Capp2.iOS.Helpers
 						}
                         if (string.Equals(ConfirmOrBOM, Values.BOM))
                         {
-							//replace all notifiers with native Alert Dialogue
-
 							//too many alerts to user at the same time, this one isn't necessary
 							//notifier.Remind(DateTime.Now.AddMilliseconds(0), "BOM Confirmation texted to " + name, "Text Confirmation");
-
-							//AlertHelper.Alert(App.Current.MainPage, "Text Sent!", "Sent BOM Meetup Text to "+name, "OK");
                         }
                         else {
 							MessagingCenter.Send("", Values.DONEWITHCONFIRMTEXT);
                             if (string.Equals(TodayOrTomorrow, Values.TODAY))
                             {
-                                notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for later", "Confirming " + name);
+								Console.WriteLine("About to send notification for today");
+								try { 
+									notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for later", "Confirming " + name);
+								} catch (Exception exc) { Console.WriteLine("Error sending todays notification: {0}", exc.Message);}
 								//AlertHelper.Alert(App.CapPage, "Confirming " + name,  "Texted " + name + " for today's meeting", "OK");
 							}
                             else {
-                                notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
+								Console.WriteLine("About to send notification for tomorrow");
+								try
+								{
+									notifier.Remind(DateTime.Now.AddMilliseconds(0), "Texted " + name + " for tomorrow", "Confirming " + name);
+								}catch (Exception ex) { Console.WriteLine("Error sending tomorrows notification: {0}", ex.Message); }
 								//AlertHelper.Alert(App.CapPage, "Confirming " + name,  "Texted " + name + " for tomorrow's meeting", "OK");
 							}
                         }

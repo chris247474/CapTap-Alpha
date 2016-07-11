@@ -4,6 +4,13 @@ namespace Capp2
 {
 	public static class Values
 	{
+		//public const string STARTINGCONFIRMCHECK = "startconfirmcheck";
+		//public const string ENDINGCONFIRMCHECK = "endconfirmcheck";
+
+		public const int NAMEFONTSIZE = 13;
+		public const int NAMELISTFONTSIZE = 12;
+		public const int INITIALSFONTSIZE = 16;
+
 		public const string APPNAME = "ConTap";
 
 		public const string NAMETEMPLATE = "<name here>";
@@ -103,6 +110,9 @@ namespace Capp2
 		public const string PURCHASED = "purchased";
 		public const string PRESENTED = "presented";
 		public const string APPOINTED = "appointed";
+		public const string APPOINTEDCAPITALIZED = "Appointed";
+		public const string PURCHASEDCAPITALIZED = "Purchased";
+		public const string PRESENTEDCAPITALIZED = "Presented";
 		public const string CALLED = "called";
 		public const string NEXT = "next";
 		public const string APPOINTMENTDESCRIPTIONBOM = "Appointed for BOM";

@@ -2,17 +2,11 @@
 using Xamarin.Forms;
 using System.Diagnostics;
 using System.Collections.Generic;
-using Plugin.Contacts;
 using System.Threading.Tasks;
-using Plugin.Contacts.Abstractions;
 using System.Linq;
 using System.Collections.ObjectModel;
 using Acr.UserDialogs;
-using XLabs.Forms.Controls;
-using System.ComponentModel;
-using FAB.Forms;
 using Capp2.Helpers;
-using System.Globalization;
 
 namespace Capp2
 {
@@ -30,8 +24,9 @@ namespace Capp2
         List<Grouping<string, ContactData>> PreLoadedGroupedList;
 		SearchBar searchBar;
 		List<ContactData> AutoCallList;
+		List<Grouping<string, ContactData>> AutoCallGroupedList;
 		List<ContactData> PreloadedList;
-		ScrollView scroller = new ScrollView();
+		//ScrollView scroller = new ScrollView();
 		int AutoCallCounter;
 		public bool AutoCalling;
 		ContactViewModel contactViewModel;
@@ -50,7 +45,7 @@ namespace Capp2
 
 			ShowTipsIfFirstRun (showtip);
 
-			AdHelper.AddGreenURLOrangeTitleBannerToStack (scroller.Content as StackLayout);
+			AdHelper.AddGreenURLOrangeTitleBannerToStack (/*scroller.Content as StackLayout*/stack);
         }
 
 		void Init(string playlistChosen){
@@ -96,7 +91,7 @@ namespace Capp2
 			UIAnimationHelper.FlyIn(listView, 600, App.AppJustLaunched);
 		}
 		void CreateLayouts(){
-			scroller = new ScrollView {
+			/*scroller = new ScrollView {
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				Content = //stack
 					new StackLayout {
@@ -107,11 +102,13 @@ namespace Capp2
 						UIBuilder.CreateEmptyStackSpace (),
 						new StackLayout{
 							Padding = new Thickness(0, 10, 0, 0),
-							Children = { searchBar }
+							Children = { 
+								searchBar 
+							}
 						}, listView
 					}
 				},
-			};
+			};*/
 
 			if (Device.OS == TargetPlatform.iOS) {
 				stack = new StackLayout()
@@ -121,7 +118,14 @@ namespace Capp2
 					Orientation = StackOrientation.Vertical,
 					Children =
 						{
-							scroller
+							//scroller
+							UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(), 
+							new StackLayout{
+								Padding = new Thickness(0, 10, 0, 0),
+								Children = {
+									searchBar
+								}
+							}, listView
 						}
 					};
 			} else if (Device.OS == TargetPlatform.Android) {
@@ -133,7 +137,13 @@ namespace Capp2
 					Padding = new Thickness(7, 3, 7, 7),
 					Children =
 					{
-						scroller
+						//scroller
+						new StackLayout{
+							Padding = new Thickness(0, 10, 0, 0),
+							Children = {
+								searchBar
+							}
+						}, listView
 					}
 					};
 			}
@@ -177,37 +187,34 @@ namespace Capp2
 
 		async void CreateUIElements(){
 			this.BackgroundColor = Color.Transparent;
-			//if (Device.OS == TargetPlatform.iOS)
-				//App.NavPage.BackgroundColor = Color.FromHex (Values.GOOGLEBLUE);
 			
 			searchBar = new SearchBar {
 				BackgroundColor = Color.Transparent,
 				Placeholder = "Search for a name or number",
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
+				FontFamily = Font.Default.FontFamily,
 				FontSize = 15
-				//CancelButtonColor = Color.FromHex(Values.GOOGLEBLUE),
 			};
 			searchBar.TextChanged += (sender, e) => {
 				FilterCAPPContacts(searchBar.Text, playlist, PreLoadedGroupedList, PreloadedList);
 			};
-			searchBar.Focused += (object sender, FocusEventArgs e) => {
+			/*searchBar.Focused += (object sender, FocusEventArgs e) => {
 				Debug.WriteLine("SearchBar focused");
-				//ReBuildGroupedSearchableListView(playlist, PreLoadedGroupedList, ListViewCachingStrategy.RecycleElement);
-			};
+			};*/
 			lblContactsCount = new Label{
 				Text = App.Database.GetItems (playlist).Count.ToString()+" Contacts",
-				FontAttributes = FontAttributes.Bold,
+				//FontAttributes = FontAttributes.Bold,
 				VerticalOptions = LayoutOptions.Center,
 				HorizontalTextAlignment = TextAlignment.Center,
-				HeightRequest = 18
+				HeightRequest = 18,
+				FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label))
 			};
 			lblContactsCount.GestureRecognizers.Add (new TapGestureRecognizer{ Command = new Command (() => {
 				UIAnimationHelper.ZoomUnZoomElement(lblContactsCount);
 			}) });
 
 			CreateTBIs ();
-
 			CreateListView (ListViewCachingStrategy.RecycleElement);//Retain
 		}
 
@@ -246,7 +253,7 @@ namespace Capp2
 		protected override void OnAppearing ()
 		{
 			base.OnAppearing ();
-			scroller.VerticalOptions = LayoutOptions.FillAndExpand;
+			//scroller.VerticalOptions = LayoutOptions.FillAndExpand;
 			stack.VerticalOptions = LayoutOptions.FillAndExpand;
 			listView.VerticalOptions = LayoutOptions.FillAndExpand;
 
@@ -255,13 +262,12 @@ namespace Capp2
 			if (App.InTutorialMode && TutorialHelper.ReadyForExtraTips && TutorialHelper.HowToAddContactsDone) {
 				Debug.WriteLine ("finishing tutorial mode. about to show extra tips");
 				App.InTutorialMode = false;
-				TutorialHelper.ShowExtraTips (this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));
+				TutorialHelper.ShowExtraTips (this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Orange));
 			}
 		}
 		void CreateListView(ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement){
-
 			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(
-				/*App.Database.GetGroupedItems (playlist)*/this.PreLoadedGroupedList);
+				this.PreLoadedGroupedList);
 
 			listView = new ListView (cachestrat)
 			{
@@ -279,21 +285,14 @@ namespace Capp2
 				GroupHeaderTemplate = new DataTemplate (() => {
 					return new HeaderCell ();
 				}),
-				Header = contactsCount,
-				HeaderTemplate = new DataTemplate(() => {
+				Footer = contactsCount,
+				FooterTemplate = new DataTemplate(() => {
 					return new StackLayout{
 						Children = {
 							lblContactsCount
 						}
 					};
 				}),
-			};
-			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
-				//listView.HasUnevenRows = false;
-				//listView.RowHeight = 70;
-			}
-			listView.Focused += (object sender, FocusEventArgs e) => {
-				scroller.ScrollToAsync(0, listView.Y, true);
 			};
 			listView.ItemSelected += (sender, e) => {
 				// has been set to null, do not 'process' tapped event
@@ -303,7 +302,7 @@ namespace Capp2
 				personCalled = (ContactData)e.SelectedItem;
 
 				if(!App.IsEditing){
-					Navigation.PushAsync(new EditContactPage(personCalled, this));
+					Navigation.PushAsync(new EditContactPage(personCalled, this), false);
 					// de-select the row
 					((ListView)sender).SelectedItem = null; 
 				}else{
@@ -594,15 +593,15 @@ namespace Capp2
 			ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement)
 		{
 			searchBar.Unfocus ();
-			var listViewPosition = (scroller.Content as StackLayout).Children.IndexOf (listView); 
+			var listViewPosition = /*(scroller.Content as StackLayout)*/stack.Children.IndexOf (listView); 
 
             try {
                 this.IsBusy = true;
-				(scroller.Content as StackLayout).Children.Remove(listView);
+				/*(scroller.Content as StackLayout)*/stack.Children.Remove(listView);
 
 				CreateListView(cachestrat);
 
-				(scroller.Content as StackLayout).Children.Insert(/*(scroller.Content as StackLayout).Children.Count - 1*/
+				/*(scroller.Content as StackLayout)*/stack.Children.Insert(/*(scroller.Content as StackLayout).Children.Count - 1*/
 					listViewPosition, listView);
                 this.IsBusy = false;
             }
@@ -660,9 +659,11 @@ namespace Capp2
 			AutoCalling = true;
 			AutoCallCounter = 0;
 			AutoCallContinue = true;
-			AutoCallList = App.Database.GetItems(playlist);
-        }
+			AutoCallList = CallHelper.UngroupListButRetainOrder(App.Database.GetGroupedItems(playlist));
+			//AutoCallList = App.Database.GetItems(playlist);
+		}
 		async Task StartContinueAutoCall(){
+			await Task.Delay(1000);
 			if(AutoCallCounter >= AutoCallList.Count){
 				AutoCalling = false;
 				SetupNotAutoCalling ();
@@ -683,26 +684,69 @@ namespace Capp2
 
 					AutoCallCounter++;	
 					Debug.WriteLine ("AutoCallCounter after call is "+AutoCallCounter);	
-				} else {
+				} else{
 					string message = string.Empty;
-					if (contactToCall.IsAppointed) {
-						//await this.DisplayAlert ("Skipping...", , "OK");
-						message = string.Format ("{0} was appointed for {1}\n", contactToCall.FirstName,
-							contactToCall.Appointed.ToString ("MMMM dd, yyyy"));
+					if (contactToCall.IsAppointed)
+					{
+						message = string.Format("{0} was appointed for {1}\n", contactToCall.FirstName,
+							contactToCall.Appointed.ToString("MMMM dd, yyyy"));
 					}
-					if (contactToCall.IsSetForNextCall) {
-						message += string.Format ("{0} is scheduled for call on {1}",
-							contactToCall.FirstName, contactToCall.NextCall.ToString ("MMMM dd, yyyy"));
-						
-					}
-					await this.DisplayAlert ("Skipping...", message, "OK");
+					if (contactToCall.IsSetForNextCall)
+					{
+						message += string.Format("{0} is scheduled for call on {1}",
+							contactToCall.FirstName, contactToCall.NextCall.ToString("MMMM dd, yyyy"));
 
-					AutoCallCounter++;	
-					Debug.WriteLine ("AutoCallCounter after call is "+AutoCallCounter);
-					MessagingCenter.Send(this, Values.DONEWITHSKIPCALL);
+					}
+					//await this.DisplayAlert("Skipping...", message, "OK");
+					var callanyway = await UserDialogs.Instance.ConfirmAsync(message,
+						string.Format("We've already booked {0} for an appointment/callback date",
+									  contactToCall.FirstName),
+					"Call Again", "Skip");
+					if (callanyway)
+					{
+						await CallHelper.call(contactToCall, true);
+						AutoCallCounter++;
+						Debug.WriteLine("AutoCallCounter after call is " + AutoCallCounter);
+					}
+					else {
+						AutoCallCounter++;
+						Debug.WriteLine("AutoCallCounter after call is " + AutoCallCounter);
+						MessagingCenter.Send(this, Values.DONEWITHSKIPCALL);
+					}
 				}
 			}
 			Debug.WriteLine ("EXITING WHILE CONTINUE");
+		}
+
+		async Task IfContactAlreadyBookedOrMarkedAction(ContactData contactToCall) { 
+			string message = string.Empty;
+			if (contactToCall.IsAppointed)
+			{
+				message = string.Format("{0} was appointed for {1}\n", contactToCall.FirstName,
+					contactToCall.Appointed.ToString("MMMM dd, yyyy"));
+			}
+			if (contactToCall.IsSetForNextCall)
+			{
+				message += string.Format("{0} is scheduled for call on {1}",
+					contactToCall.FirstName, contactToCall.NextCall.ToString("MMMM dd, yyyy"));
+
+			}
+			//await this.DisplayAlert("Skipping...", message, "OK");
+			var callanyway = await UserDialogs.Instance.ConfirmAsync(message,
+				string.Format("We've already booked {0} for an appointment/callback date",
+							  contactToCall.FirstName),
+			"Call Again", "Skip");
+			if (callanyway)
+			{
+				await CallHelper.call(contactToCall, true);
+				AutoCallCounter++;
+				Debug.WriteLine("AutoCallCounter after call is " + AutoCallCounter);
+			}
+			else {
+				AutoCallCounter++;
+				Debug.WriteLine("AutoCallCounter after call is " + AutoCallCounter);
+				MessagingCenter.Send(this, Values.DONEWITHSKIPCALL);
+			}
 		}
 	}
 
@@ -732,11 +776,10 @@ namespace Capp2
 		public HeaderCell() 
 		{
 			this.Height = 20;
-
-			var title = new Label 
-			{ 
+			var title = new Label
+			{
 				BackgroundColor = Color.Transparent,
-				FontSize = Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				FontSize = Values.NAMEFONTSIZE,//Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				FontAttributes = FontAttributes.Bold,
 				TextColor = Color.Black,
 				VerticalOptions = LayoutOptions.Center,
@@ -748,11 +791,11 @@ namespace Capp2
 				BackgroundColor = Color.FromHex("E9E9E9"),
 				HorizontalOptions = LayoutOptions.FillAndExpand, 
 				VerticalOptions = LayoutOptions.Center,
-				Padding = new Thickness(5, 0), 
+				Padding = new Thickness(5, 2, 5, 0), 
 				Orientation = StackOrientation.Horizontal, 
 				Children = { title } 
 			}; 
-			this.View.BackgroundColor = Color.White;
+			this.View.BackgroundColor = Color.Transparent;
 			this.View.Opacity = 0.5;
 		} 
 	}

@@ -8,7 +8,6 @@ namespace Capp2
 	{
 		public NativeCell():base()
 		{
-			
 		}
 
 		public static readonly BindableProperty NameProperty =

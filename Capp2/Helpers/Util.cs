@@ -21,10 +21,6 @@ namespace Capp2
 		List<ContactData> contactErrors;
 		List<ContactData> contactDuplicates;
 
-		public Util ()
-		{
-		}
-
 		public static Color MatchPlaylistTextColorToIcon(string icon){
 			if (string.Equals (icon, "people.png")) {
 				return Color.FromHex (Values.CAPPTUTORIALCOLOR_Purple);
@@ -802,7 +798,7 @@ namespace Capp2
 					return null;
 
 				list = CrossContacts.Current.Contacts
-					.Where(c => !string.IsNullOrWhiteSpace(c.LastName) && c.Phones.Count > 0).OrderBy(c => c.DisplayName);
+				.Where(c => !string.IsNullOrWhiteSpace(c.LastName) && c.Phones.Count > 0);//.OrderBy(c => c.DisplayName);
 
 			}
 			return list;

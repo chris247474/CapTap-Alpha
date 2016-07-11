@@ -41,9 +41,9 @@ namespace Capp2
 				TextColor = Color.FromHex("#666")
 			};
 
-			info = new Label () {
+			info = new Label {
 				Text = GetCallInfo(contact),
-				FontSize = 14,
+				FontSize = 16,
 				//FontFamily = Device.OnPlatform(/*"HelveticaNeue-Light"*/"SF-UI","sans-serif-light",null),
 				HorizontalTextAlignment = TextAlignment.Center,
 				TextColor = Color.Black
@@ -58,26 +58,24 @@ namespace Capp2
 				}
 			})});*/
 
-
 			var stack = new StackLayout () {
 				Padding = new Thickness(20,10),
 				Children = {
 					name,
-					namelist,
+					namelist, 
+					contact.HasDefaultImage_Large ? UIBuilder.EmptyStack() : UIBuilder.CreateTripleEmtyStackSpace(), 
 					info
 				}
 			};
 
 			Content = stack;
-
-			UIAnimationHelper.StartPressMeEffectOnView (info, 1.1);
 		}
 
 		string GetCallInfo(ContactData contact){
 			string infotext = "\n";
 			if (contact.Called.Date > DateTime.MinValue) {
 				infotext = infotext  + string.Format ("We called {0} last {1}", contact.Name, 
-					contact.Called.ToString ("MMMM dd, yyyy"));//"U", CultureInfo.CurrentCulture));
+					contact.Called.ToString ("MMMM dd, yyyy"));
 
 				if (contact.Appointed.Date > DateTime.MinValue) {
 					infotext = infotext  + string.Format ("\nbooked {0} for a meeting last {1}", contact.FirstName, 

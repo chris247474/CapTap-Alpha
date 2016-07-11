@@ -90,7 +90,8 @@ namespace Capp2.iOS
 			CachedImageRenderer.Init();
 
 			//FABForms
-			new FAB.iOS.FloatingActionButtonRenderer();
+			new FAB.iOS.FloatingActionButtonRenderer();//v1.0.0.1 impl
+			//FAB.iOS.FloatingActionButtonRenderer.InitControl();//v2.0.0.1 impl
 
 			//FireBase for Google AdMobs Analytics
 			IFirebaseConfig config = new FirebaseConfig
@@ -153,20 +154,6 @@ namespace Capp2.iOS
 		void SetUIStyles(UIApplication iOSApp){
 			var win = new UIWindow(UIScreen.MainScreen.Bounds);
 
-			/*var StartColor = ColorFromHex(Values.PURPLE);  
-			var EndColor = ColorFromHex(Values.GOOGLEBLUE);*/
-
-			//UINavigationBar.Appearance.BarTintColor = UIColor.FromRGB(43, 132, 211); //bar background 
-
-			//UINavigationBar.Appearance.TintColor = ColorFromHex(Values.GOOGLEBLUE); //Tint color of button items  
-			/*UINavigationBar.Appearance.SetTitleTextAttributes(new UITextAttributes() { 
-				Font = UIFont.FromName("HelveticaNeue-Light", (nfloat)20f), TextColor = UIColor.White 
-			});*/
-
-			/*var gradientLayer = new CAGradientLayer ();
-			gradientLayer.Frame = win.Bounds;//View.Bounds;
-			gradientLayer.Colors = new CGColor[] { StartColor.CGColor, EndColor.CGColor };
-			win.Layer.InsertSublayer (gradientLayer, 0);*/
 		}
 		void SetGradientLayerAsiOSBackground(UIWindow win, UIColor StartColor, UIColor EndColor)
 		{

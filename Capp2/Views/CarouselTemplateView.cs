@@ -6,12 +6,12 @@ namespace Capp2
 {
 	public class CarouselTemplateView : ContentView
 	{
-		public CarouselTemplateView ()
+		public CarouselTemplateView (Command OnPop = null)
 		{
-			Content = CreateView ();
+			Content = CreateView (OnPop);
 		}
 
-		StackLayout CreateView(){
+		StackLayout CreateView(Command OnPop){
 			Label TitleLabel = new Label{
 				//Text = labelText,
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
@@ -32,7 +32,7 @@ namespace Capp2
 
 			Image img = UIBuilder.CreateTappableImage ("", LayoutOptions.Center, Aspect.AspectFit, new Command(()=>{
 				DependencyService.Get<IVideoHelper>().PlayVideo((this.BindingContext as VideoChooserItem).VideoPath);
-			}), TitleLabel.FontSize, 40, 20);
+			}), TitleLabel.FontSize, 40*0.77, 20*0.77);
 			img.SetBinding(Image.SourceProperty, new Binding(){Path = "ImagePath"});
 
 			return new StackLayout {
@@ -43,7 +43,8 @@ namespace Capp2
 				Children = {
 					UIBuilder.CreateEmptyStackSpace(),
 					UIBuilder.CreateModalXPopper(new Command(()=>{
-						Navigation.PopModalAsync();
+						if(OnPop != null) OnPop.Execute(null);
+						else Navigation.PopModalAsync();
 					}), "", "Close-Thin.png", 0.8),
 					TitleLabel, 
 					new StackLayout{

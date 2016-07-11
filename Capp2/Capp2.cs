@@ -45,7 +45,7 @@ namespace Capp2
 		public static SettingsViewModel SettingsHelper = new SettingsViewModel ();
 		public static bool ImageImportingDone = false;
 		public static string[] ProfileBackground;
-		public ResourceDictionary Resources = new ResourceDictionary ();
+		//public ResourceDictionary Resources = new ResourceDictionary ();
 		public static ContactData CurrentContact = null;
 		public static CalendarService CalendarHelper = new CalendarService();
 

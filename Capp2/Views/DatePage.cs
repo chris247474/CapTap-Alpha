@@ -90,10 +90,10 @@ namespace Capp2
 				VerticalOptions = LayoutOptions.Center,
 				Padding = new Thickness(20),
 				Children = {
-					UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
-					UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
-					UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
-					UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
+					//UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
+					//UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
+					//UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
+					//UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(),
 					lbl, new StackLayout{
 						VerticalOptions = LayoutOptions.Center,
 						Children = { datePicker, timePicker,}
@@ -126,10 +126,10 @@ namespace Capp2
 				return "When did we book " + personCalled.Name + "?";
 				break;
 			case Values.PRESENTED:
-				return "When did we present " + personCalled.Name + " ?";
+				return "When did we present to " + personCalled.Name + "?";
 				break;
 			case Values.PURCHASED:
-				return "When did " + personCalled.Name + " signup/purchase?";
+					return "When did we close the deal with " + personCalled.Name + "?";// + " signup/purchase?";
 				break;
 			case Values.NEXT:
 				return "When are following up " + personCalled.Name + "?";
@@ -145,7 +145,7 @@ namespace Capp2
                     {
                         case Values.NEXT:
                             Debug.WriteLine("ABOUT TO RESCHED: NEXTMEETINGID " + personCalled.NextMeetingID);
-							await /*CalendarService*/App.CalendarHelper.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours(timePicker.Time.Hours));
+							await App.CalendarHelper.ReschedAppointment(personCalled.NextMeetingID, datePicker.Date.AddHours(timePicker.Time.Hours));
 
                             App.Database.UpdateItem(personCalled);
 
@@ -157,11 +157,11 @@ namespace Capp2
 							
 							ResolveCAPP(personCalled, Values.APPOINTED);
 
-							//if was appointed and confirmed before resched, reset IsConfirmedToday/IsConfirmedTomorrow to false
-
-							personCalled.NextMeetingID = await /*CalendarService*/App.CalendarHelper.CreateAppointment(
-								personCalled.NextMeetingID, 
-								personCalled.Name, Values.APPOINTMENTDESCRIPTIONBOM, 
+							personCalled.NextMeetingID = await App.CalendarHelper.CreateReschedAppointment(
+								//personCalled.NextMeetingID, 
+								//personCalled.Name, 
+								personCalled,
+								Values.APPOINTMENTDESCRIPTIONBOM, 
 								datePicker.Date.AddHours(timePicker.Time.Hours));
                             Debug.WriteLine("[DatePage - Appointed] NextMeetingID: " + personCalled.NextMeetingID);
 

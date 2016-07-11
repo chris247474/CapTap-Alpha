@@ -18,7 +18,7 @@ namespace Capp2
 		//string playlist, 
 		string playlistToAddTo;
 		StackLayout stack = new StackLayout(), contentstack = new StackLayout();
-		Button AddTo = new Button ();
+		//Button AddTo = new Button ();
 		ContactViewModel contactViewModel;
 
 		public CappModal (string playlist, string playlistToAddTo, List<Grouping<string, ContactData>> groupedlist, 
@@ -123,7 +123,7 @@ namespace Capp2
 		}
 
 		void CreateUIElements(){
-			AddTo = new Button { 
+			/*AddTo = new Button { 
 				Text = "Add To '"+playlistToAddTo+"'", 
 				BackgroundColor = Color.Green, 
 				TextColor = Color.Black, 
@@ -146,7 +146,7 @@ namespace Capp2
 
 				MessagingCenter.Send("", Values.DONEADDINGCONTACT);
 				Navigation.PopModalAsync();
-			};
+			};*/
 
 
 			searchBar = CappBuilder.CreateSearchBar ("Search", new Command (() => {
@@ -154,9 +154,9 @@ namespace Capp2
 			}));
 			//searchBar.Unfocused += (object sender, FocusEventArgs e) => {
 			//};
-			searchBar.Focused += (object sender, FocusEventArgs e) => {
+			//searchBar.Focused += (object sender, FocusEventArgs e) => {
 				//ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, ListViewCachingStrategy.RecycleElement);
-			};
+			//};
 
 			listView = CappBuilder.CreateGroupedListView (this, groupedlist, new CappModalViewCell (playlist), new Command (() => {
 				//dont do anything
@@ -277,6 +277,17 @@ namespace Capp2
 				listView.HasUnevenRows = false;
 				listView.RowHeight = 70;
 			}
+			listView.ItemSelected += (object sender, SelectedItemChangedEventArgs e) => { 
+				if (e.SelectedItem == null)
+					return;
+
+				/*var personCalled = (ContactData)e.SelectedItem;
+				personCalled.IsSelected = !personCalled.IsSelected;
+				refresh();
+				App.Database.UpdateItem(personCalled);*/
+
+				((ListView)sender).SelectedItem = null;
+			};
 		}
 	}
 
@@ -319,35 +330,9 @@ namespace Capp2
 				Constraint.RelativeToParent((parent => parent.Height*0.3))
 			);
 
-			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
+			var initials = UIBuilder.CreateInitialsLabel (/*this.RenderHeight * 0.45*/Values.INITIALSFONTSIZE, "Initials");
 
 			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, ContactPic, 0.45);
-
-			/*var content = UIBuilder.AddElementToObjectDependingOniOSAndAndroidListViewShortNameBinding (
-				
-				new StackLayout{
-					Orientation = StackOrientation.Horizontal,
-					HorizontalOptions = LayoutOptions.StartAndExpand,
-					Children = {ContactPic, nameLabel}
-				},
-				new StackLayout{
-					HorizontalOptions = LayoutOptions.End,
-					VerticalOptions = LayoutOptions.Center,
-					Children = {checkbox}
-				}
-			);
-
-			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials"); 
-
-			layout.Children.Add (
-				content,
-				xConstraint: Constraint.Constant(0),
-				yConstraint: Constraint.Constant(0),
-				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
-				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
-			);
-
-			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.042, ContactPic);*/
 
 			return layout;
 		}
@@ -362,7 +347,7 @@ namespace Capp2
 			ContactPic.SetBinding (CircleImage.SourceProperty, "PicStringBase64");
 
 			nameLabel = new Label{
-				FontSize = 15,//Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
+				FontSize = Values.NAMEFONTSIZE,//Device.GetNamedSize (NamedSize.Medium, typeof(Label)),
 				VerticalOptions = LayoutOptions.StartAndExpand,
 				HorizontalTextAlignment = TextAlignment.Start,
 			};
@@ -390,12 +375,8 @@ namespace Capp2
 		/*protected override void OnBindingContextChanged ()
 		{
 			base.OnBindingContextChanged ();
-			Debug.WriteLine ("OnBindingContextChanged");
-
 			var item = BindingContext as ContactData;
-			this.Height = 80;
-			ContactPic.HeightRequest = 72;
-			this.ForceUpdateSize ();
+
 		}*/
 	}
 }

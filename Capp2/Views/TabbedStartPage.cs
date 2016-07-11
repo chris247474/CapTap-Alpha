@@ -10,13 +10,9 @@ namespace Capp2
 			App.StartTabbedPage = this; 
 
 			Device.OnPlatform(
-				() => App.NavPage = new NavigationPage(new PlaylistPage()/*{StartColor = App.StartColor, 
-					EndColor = App.EndColor}*/){
-					//BarBackgroundColor = Color.White,
-					//BarTextColor = Color.White,
+				() => App.NavPage = new NavigationPage(new PlaylistPage()){
 				}, 
-				() => App.NavPage = new NavigationPage(new PlaylistPage()/*{
-					StartColor = App.StartColor, EndColor = App.EndColor}*/){
+				() => App.NavPage = new NavigationPage(new PlaylistPage()){
 					BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),
 					BarTextColor = Color.White,
 				}

@@ -18,6 +18,11 @@ namespace Capp2.iOS
 			NavigationBar.BarTintColor = UIColor.White;
 			NavigationBar.ShadowImage = new UIImage ();
 			NavigationBar.BackgroundColor = UIColor.Clear;
+
+			UIStringAttributes myTextAttrib = new UIStringAttributes();
+			myTextAttrib.Font = UIFont.SystemFontOfSize(15);
+			NavigationBar.TitleTextAttributes = myTextAttrib;
+
 			//this.HidesBarsOnSwipe = true;
 			//this.NavigationBarHidden = true;
 

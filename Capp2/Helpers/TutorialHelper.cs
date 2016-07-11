@@ -32,12 +32,28 @@ namespace Capp2
 			string text = "A few extra tips...", bool intutorial = true, string gradientcolor = Values.MaterialDesignOrange)
 		{
 			Debug.WriteLine ("In ShowExtraTips");
-
 			layout = ((RelativeLayout)page.Content);
 
-			var TipView = UIBuilder./*CreateCarouselView(
+			var OnClosing = new Command(async () => {
+				if (intutorial)
+				{
+					App.InTutorialMode = false;
+					await AlertHelper.Alert("That's pretty much it!",
+						"If you forget, you can replay this tutorial in the Settings page at anytime. We'll return you to the main namelist now :)");
+					UserDialogs.Instance.ShowLoading();
+					App.NavPage.Navigation.PopModalAsync(true);
+					NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist();
+					UserDialogs.Instance.HideLoading();
+					await App.NavPage.PopAsync(true);
+				}
+				else { 
+					await App.NavPage.Navigation.PopModalAsync(true);
+				}
+			});
+
+			var TipView = UIBuilder.CreateCarouselView(
 						new List<VideoChooserItem>()
-			*/CreateTutorialVideoPickerView(new VideoChooserItem[]{
+			/*CreateTutorialVideoPickerView(new VideoChooserItem[]*/{
 				new VideoChooserItem {
 					ImagePath = "HowToCappScreenshot.png",
 					LabelText = "How do I mark appointments?",
@@ -80,7 +96,7 @@ namespace Capp2
 					VideoPath = "HowToUseDailyEmail.mov",
 					DetailText = "Report your daily targets"
 				},
-			});
+			}, OnClosing);
 
 			content = new ContentView();
 			var stack = new StackLayout {
@@ -94,6 +110,7 @@ namespace Capp2
 				),
 				Children = { TipView }
 			};
+
 			content.Content = stack;
 
 			Debug.WriteLine ("contentview initialized");
@@ -110,20 +127,27 @@ namespace Capp2
 				})
 			);
 
-			if (intutorial) {
-				ResetContinueLabel (layout, new Command (async () => {
+			if (intutorial)
+			{
+				/*ResetContinueLabel (layout, new Command (async () => {
 					App.InTutorialMode = false;
 					layout.Children.Remove (content.Content);
 					await AlertHelper.Alert ("That's pretty much it!", 
 						"If you forget, you can replay this tutorial in the Settings page at anytime. We'll return you to the main namelist now :)");
 					UserDialogs.Instance.ShowLoading ();
-					//App.NavPage = new NavigationPage (new PlaylistPage ());
-					//App.MasterDetailPage.Detail = App.NavPage;
-					//App.NavPage.Navigation.PushAsync (new CAPP (Values.ALLPLAYLISTPARAM));
 					NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist();
 					UserDialogs.Instance.HideLoading ();
-				}), true, true);
+				}), true, true);*/
 
+				stack.BackgroundColor = Color.Transparent;
+				layout.Children.Remove(content.Content);
+				var contentpage = new ContentPage
+				{
+					BackgroundImage = UIBuilder.GetGradientBackground(gradientcolor),
+					Content = stack
+				};
+
+				await App.NavPage.Navigation.PushModalAsync(contentpage);
 
 			} else {
 				page.BackgroundImage = UIBuilder.GetGradientBackground (gradientcolor);
@@ -268,6 +292,7 @@ namespace Capp2
 				Constraint.RelativeToParent((parent) =>  { return (continuePositionY) ; })
 			);
 			DoneLabel.Opacity = 1;
+			UIAnimationHelper.StartPressMeEffectOnView(DoneLabel, 1.1);
 		}
 
 		public static bool PrevPageIsPlaylistPage(){
@@ -647,11 +672,12 @@ namespace Capp2
 		}
 
 		public static async Task ResetContinueLabel(RelativeLayout layout, Command ContinueCommand, 
-			bool tipshownintutorial = true, bool SetDoneLowerRight = false){
+		                         bool tipshownintutorial = true, bool SetDoneLowerRight = false, bool blue = false){
 			continuePressed = false;
 
-			//layout.Children.Remove (DoneLabel);
-			//DoneLabel = null;
+			if (blue) {
+				DoneLabel.TextColor = Color.FromHex(Values.GOOGLEBLUE);
+			}
 
 			if(tipshownintutorial)
 				layout.Children.Remove (DoneLabel);

@@ -46,7 +46,7 @@ namespace Capp2
 				new Command(() => {
 					//SwitchEditViewMode(page, contact);
 					Navigation.PushAsync(new AddEditContactNativePage(contact));
-				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE), "Checkmark.png");
+				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE)/*, "Checkmark.png"*/);
 
 			UIAnimationHelper.FlyDown (relativeLayout);
 		}
@@ -66,23 +66,27 @@ namespace Capp2
 				})
 			);
 
-			/*relativeLayout.Children.Add (
+			if (!contact.HasDefaultImage_Small) { 
+				relativeLayout.Children.Add(
 				shader,
-				Constraint.Constant (0),
-				Constraint.Constant (0),
-				Constraint.RelativeToParent ((parent) => {
+				Constraint.Constant(0),
+				Constraint.Constant(0),
+				Constraint.RelativeToParent((parent) =>
+				{
 					return parent.Width;
 				}),
-				Constraint.RelativeToParent ((parent) => {
+				Constraint.RelativeToParent((parent) =>
+				{
 					return parent.Height * .4;
 				})
-			);*/
+			);
+			}
 
 			relativeLayout.Children.Add (
 				dome,
 				Constraint.Constant (-10),
 				Constraint.RelativeToParent ((parent) => {
-					return (parent.Height * .4) - 50;
+					return (parent.Height * 0.4) - 50;
 				}),
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Width + 10;
@@ -90,41 +94,39 @@ namespace Capp2
 				Constraint.Constant (75)
 			);
 
-			relativeLayout.Children.Add (
-				ContactPic, 
-				Constraint.RelativeToParent ((parent) => {
-					return ((parent.Width / 2) - (ContactPic.Width / 2));
-				}),
-				Constraint.RelativeToParent ((parent) => {
-					return parent.Height * .22;
-				}),
-				Constraint.RelativeToParent ((parent) => {
-					return parent.Width * .5;
-				}),
-				Constraint.RelativeToParent ((parent) => {
-					return parent.Width * .5;
-				})
-			);
-			/*bool drawinitials = false;
-			for (int c = 0; c < App.ProfileBackground.Length; c++) {
-				if (string.Equals (contact.LargePic, App.ProfileBackground [c])) {
-					Debug.WriteLine ("LargePic: {0}, placeholder {1}: {2}", contact.LargePic, c, App.ProfileBackground[c]);
-					drawinitials = true;
-				}
-			}*/
-
 			if (contact.HasDefaultImage_Large) {
+				relativeLayout.Children.Add(
+					ContactPic,
+					Constraint.RelativeToParent((parent) =>
+					{
+						return ((parent.Width / 2) - (ContactPic.Width / 2));
+					}),
+					Constraint.RelativeToParent((parent) =>
+					{
+						return parent.Height * .22;
+					}),
+					Constraint.RelativeToParent((parent) =>
+					{
+						return parent.Width * .5;
+					}),
+					Constraint.RelativeToParent((parent) =>
+					{
+						return parent.Width * .5;
+					})
+				);
+
 				UIBuilder.PlaceInitialsTextOnImage (relativeLayout, details.name.FontSize, ContactPic, contact);
 				Debug.WriteLine ("{0} has default image large", contact.Name);
 			} else {
 				Debug.WriteLine ("{0} has custom image large", contact.Name);
 			}
 
+			var detailHeightMultiplier = contact.HasDefaultImage_Large ? 2 : 0.4;
 			relativeLayout.Children.Add (
 				MainStack,
 				Constraint.Constant (0),
 				Constraint.RelativeToView (dome, (parent, view) => {
-					return view.Y + (view.Height *2);
+					return view.Y + (view.Height *detailHeightMultiplier);
 				}),
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Width;
@@ -204,8 +206,7 @@ namespace Capp2
 			};
 
 			shader = new BoxView () {
-				Color = Color.Black.MultiplyAlpha(0.5),
-					
+				Color = Color.Black.MultiplyAlpha(0.25),
 			};
 
 			ContactPic = UIBuilder.CreateTappableCircleImage ("", LayoutOptions.Fill, Aspect.Fill, new Command(()=>{}));
@@ -301,19 +302,20 @@ namespace Capp2
 
 			DetailStack = new StackLayout{
 				Orientation = StackOrientation.Vertical,
+				BackgroundColor = Color.Transparent,
 				Children = {
 					details
 				}
 			};
 			CreateEditContactLayout (contact);
-			MainStack = new StackLayout{
+			MainStack = new StackLayout
+			{
 				Orientation = StackOrientation.Vertical,
 				BackgroundColor = Color.Transparent,
 				Children = {
 					DetailStack
 				}
 			};
-
 		}
 
 		async Task SwitchEditViewMode(CAPP page, ContactData contact){

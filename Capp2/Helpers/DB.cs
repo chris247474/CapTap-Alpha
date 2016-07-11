@@ -28,23 +28,22 @@ namespace Capp2
 			Debug.WriteLine ("Fetching list {0}", playlist);
 			if (playlist == "All") {
 				//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
-				list = (from x in (database.Table<ContactData> ().OrderBy (x => x.LastName))
+				list = (from x in (database.Table<ContactData> ().OrderBy (x => x.FirstName))
 					select x).ToList<ContactData> ();
 				App.lastIndex = list.Count+1;
 			} else if(playlist == Values.TODAYSCALLS){
 				//all contacts regardless of playlist, marked for callback today
 				list = (from x in (database.Table<ContactData> ().
-					Where (c => c.OldPlaylist == Values.CALLTODAY && c.NextCall == DateTime.Today.Date).OrderBy (x => x.LastName))
+					Where (c => c.OldPlaylist == Values.CALLTODAY && c.NextCall == DateTime.Today.Date).
+				                   OrderBy (x => x.FirstName))
 					select x).ToList<ContactData> (); 
 				App.lastIndex = list.Count+1;
 			}else {
 				try{
 					//get list of namelists, compare to playlist param. 
-					//if equal, pass to query line directly below for x.Playlist comparison
 					var matchingNamelist = FindMatchingNamelist(playlist);
-
-					list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist.Contains(matchingNamelist)
-						/*x.Playlist == playlist*/).OrderBy (x => x.LastName))
+					list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist.Contains(matchingNamelist))
+					                   .OrderBy (x => x.FirstName))
 						select x).ToList<ContactData> ();
 					App.lastIndex = list.Count+1;
 				}catch(Exception e){
@@ -60,24 +59,38 @@ namespace Capp2
 			var listarr = list.ToArray();
 
 			for(int c = 0;c < listarr.Length;c++){
-				var firstinitial = listarr[c].FirstName.ToCharArray()[0];
-				var secondinitial = listarr[c].LastName.ToCharArray()[0];
+				var firstinitial = listarr[c].FirstName[0];
+				var secondinitial = listarr[c].LastName[0];
 				if(listarr[c].HasDefaultImage_Small){
-					//Debug.WriteLine("{0} has default image");
 					listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
 				}else{
 					listarr[c].Initials = string.Empty;
 				}
 
+				/*Need to do this before populating every list - for some reason, string ContactData.Number doesn't
+				 keep the callable format after being stored in the db.
+				 Additionally, searching the namelist only returns literal/exact matches and not similar matches,
+				 ex: searching for 09163247357 will not show 0916(324)7357 to the user if we don't call Util.MakeDBContactCallable
+				 ,because formats are lost while storing into SQLite*/
 				listarr[c].Number = App.contactFuncs.MakeDBContactCallable (listarr[c].Number, false);
-				listarr[c].Number2 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number2, false);
-				listarr[c].Number3 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number3, false);
-				listarr[c].Number4 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number4, false);
-				listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable (listarr[c].Number5, false);
-
+				if (!string.IsNullOrWhiteSpace(listarr[c].Number2))
+				{
+					listarr[c].Number2 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number2, false);
+					if (!string.IsNullOrWhiteSpace(listarr[c].Number3))
+					{
+						listarr[c].Number3 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number3, false);
+						if (!string.IsNullOrWhiteSpace(listarr[c].Number4))
+						{
+							listarr[c].Number4 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number4, false);
+							if (!string.IsNullOrWhiteSpace(listarr[c].Number5))
+							{
+								listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number5, false);
+							}
+						}
+					}
+				}
 				//Debug.WriteLine ("{0}'s number is {1}", listarr[c].Name, listarr[c].Number);
 			}
-
 			return list;
 		}
 
@@ -261,54 +274,11 @@ namespace Capp2
 
 		public List<Grouping<string, ContactData>> GetGroupedItems (string playlist) {
 			try{
-				/*if (playlist == Values.ALLPLAYLISTPARAM) {
-					//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
-					list = (from x in (database.Table<ContactData> ().OrderBy (x => x.LastName))
-						select x).ToList<ContactData> ();
-					App.lastIndex = list.Count+1;
-				}else if(playlist == Values.TODAYSCALLS){
-					//all contacts regardless of playlist, marked for callback today
-					list = (from x in (database.Table<ContactData> ().
-						Where (c => c.OldPlaylist == Values.CALLTODAY && c.NextCall == DateTime.Today.Date).OrderBy (x => x.LastName))
-						select x).ToList<ContactData> ();
-					App.lastIndex = list.Count+1;
-
-
-				} else {
-					try{
-						list = (from x in (database.Table<ContactData> ().Where(x => x.Playlist == playlist).OrderBy (x => x.LastName))
-							select x).ToList<ContactData> ();
-						App.lastIndex = list.Count+1;
-					}catch(Exception e){
-						Debug.WriteLine (e.Message+" --------------------------- EMPTYEXCEPTION");
-						UserDialogs.Instance.Alert ("No contacts yet", "This namelist is still empty", "I'll add some in a bit");
-						list = null;
-					}
-				}
-
-				var listarr = list.ToArray();
-				for(int c = 0;c < listarr.Length;c++){
-					listarr[c].Number = App.contactFuncs.MakeDBContactCallable(listarr[c].Number, false);
-					listarr[c].Number2 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number2, false);
-					listarr[c].Number3 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number3, false);
-					listarr[c].Number4 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number4, false);
-					listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number5, false);
-					var firstinitial = listarr[c].FirstName.ToCharArray()[0];
-					var secondinitial = listarr[c].LastName.ToCharArray()[0];
-					if(listarr[c].HasDefaultImage_Small){
-						Debug.WriteLine("{0} has default image");
-						listarr[c].Initials = firstinitial.ToString()+secondinitial.ToString();
-					}else{
-						listarr[c].Initials = string.Empty;
-					}
-				}
-				App.Database.UpdateAll(listarr.AsEnumerable());*/
-
 				list = GetItems(playlist);
 
 				var groupedData =
-					list.OrderBy(p => p.LastName)
-						.GroupBy(p => p.LastName[0].ToString())
+					list.OrderBy(p => p.FirstName)
+					    .GroupBy(p => p.FirstName[0].ToString())
 						.Select(p => new Grouping<string, ContactData>(p))
 						.ToList<Grouping<string, ContactData>>();
 
@@ -518,6 +488,7 @@ namespace Capp2
                 return database.Update(item);
             }
         }
+
 
 		public async Task<int> DeselectAll(IEnumerable<ContactData> list, CAPPBase capp, bool refresh = true){
 			ContactData[] arr = list.ToArray ();

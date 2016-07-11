@@ -24,7 +24,8 @@ namespace Capp2
 			Content = layout;
 
 			layout = await TutorialHelper.ShowExtraTips (this, Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange), 
-				"Tips and Tricks\nto help you burn through those call lists", false);
+				"A few extra tips...", false);
 		}
 	}
 }
+//"Tips and Tricks\nto help you burn through those call lists"
