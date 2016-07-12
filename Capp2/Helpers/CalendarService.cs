@@ -31,6 +31,8 @@ namespace Capp2.Helpers
 			MessagingCenter.Subscribe<string>(this, Values.DONECONFIRMINGTODAYSMEETINGS, async (args) =>{ 
 				Debug.WriteLine ("Checking tomorrow's calendar to confirm meetings");
 				await CheckTomorrow (alerted);
+				await Task.Delay(1000);
+				MessagingCenter.Send("", Values.DONECONFIRMINGMEETINGS);
 			});
 		}
 		async Task SendConfirm(bool confirmingtoday = true){
@@ -89,7 +91,7 @@ namespace Capp2.Helpers
 			catch (Exception e)
 			{
 				Debug.WriteLine("CheckToday error: " + e.Message);
-				//try {UserDialogs.Instance.HideLoading(); } catch { }
+				MessagingCenter.Send("", Values.DONECONFIRMINGMEETINGS);			
 			}
 
 			return alerted;
@@ -108,14 +110,13 @@ namespace Capp2.Helpers
 
 				}else{
 					Debug.WriteLine("No meetings tomorrow");
-					//UserDialogs.Instance.HideLoading();
 				}
 			}
 			catch (Exception e)
 			{
 				Debug.WriteLine("CheckTomorrow error: " + e.Message);
-				//try { UserDialogs.Instance.HideLoading(); } catch { }
 			}
+			//MessagingCenter.Send("", Values.DONECONFIRMINGMEETINGS);
 			return alerted;
 		}
 

@@ -72,19 +72,19 @@ namespace Capp2
 				 Additionally, searching the namelist only returns literal/exact matches and not similar matches,
 				 ex: searching for 09163247357 will not show 0916(324)7357 to the user if we don't call Util.MakeDBContactCallable
 				 ,because formats are lost while storing into SQLite*/
-				listarr[c].Number = App.contactFuncs.MakeDBContactCallable (listarr[c].Number, false);
+				listarr[c].Number = Util.MakeDBContactCallable (listarr[c].Number, false);
 				if (!string.IsNullOrWhiteSpace(listarr[c].Number2))
 				{
-					listarr[c].Number2 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number2, false);
+					listarr[c].Number2 = Util.MakeDBContactCallable(listarr[c].Number2, false);
 					if (!string.IsNullOrWhiteSpace(listarr[c].Number3))
 					{
-						listarr[c].Number3 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number3, false);
+						listarr[c].Number3 = Util.MakeDBContactCallable(listarr[c].Number3, false);
 						if (!string.IsNullOrWhiteSpace(listarr[c].Number4))
 						{
-							listarr[c].Number4 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number4, false);
+							listarr[c].Number4 = Util.MakeDBContactCallable(listarr[c].Number4, false);
 							if (!string.IsNullOrWhiteSpace(listarr[c].Number5))
 							{
-								listarr[c].Number5 = App.contactFuncs.MakeDBContactCallable(listarr[c].Number5, false);
+								listarr[c].Number5 = Util.MakeDBContactCallable(listarr[c].Number5, false);
 							}
 						}
 					}

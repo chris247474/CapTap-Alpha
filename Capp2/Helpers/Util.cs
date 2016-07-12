@@ -11,15 +11,16 @@ using System.IO;
 using Acr.UserDialogs;
 using Capp2.Helpers;
 using System.Collections.ObjectModel;
+using Capp2;
 
 namespace Capp2
 {
-	public class Util
+	public static class Util
 	{
 		public static bool contactPermission{ get; set;}
 		public static IQueryable<Contact> deviceContacts{ get; set;}
-		List<ContactData> contactErrors;
-		List<ContactData> contactDuplicates;
+		static List<ContactData> contactErrors;
+		static List<ContactData> contactDuplicates;
 
 		public static Color MatchPlaylistTextColorToIcon(string icon){
 			if (string.Equals (icon, "people.png")) {
@@ -99,6 +100,14 @@ namespace Capp2
 			}
 
 			return importchoices.ToArray();
+		}
+
+		public static async Task<string> GetUserInputSingleLinePromptDialogueWithoutCancel(string message, string title,
+		                                                                                    string placeholder = "",
+		                                                                                   InputType input = InputType.Default) {
+			var result = await UserDialogs.Instance.PromptAsync(message, title, "OK", null
+			                                                    , placeholder, input);
+			return result.Text;
 		}
 
 		public static async Task<string> GetUserInputSingleLinePromptDialogue(string message = "Please enter a name for this list:", string title = "New namelist", string template = ""){
@@ -184,7 +193,7 @@ namespace Capp2
             return null;
         }
 
-        public string ConnectStrings(string[] s){
+        public static string ConnectStrings(string[] s){
 			string result = "";
 			if (s != null && s.Length > 0) {
 				for(int c = 0;c < s.Length;c++){
@@ -193,7 +202,7 @@ namespace Capp2
 			}
 			return result;
 		}
-		public async Task<bool> DeviceCalendarExistsAndInit(){
+		public static async Task<bool> DeviceCalendarExistsAndInit(){
 			//check if calendar app has at least one calendar account
 			try{
 				await /*CalendarService*/App.CalendarHelper.InitCalendar ();
@@ -206,15 +215,15 @@ namespace Capp2
 			return false;
 		}
 
-		public string RemoveCountryCodeAndSpecialChar(string input, Regex countryCode, Regex special){
+		public static string RemoveCountryCodeAndSpecialChar(string input, Regex countryCode, Regex special){
 			return countryCode.Replace (special.Replace(input.Replace(Values.WEIRDCHARFL, "").Replace(Values.WEIRDQUOTE, "").Replace(Values.LONGDASH, "").Replace(Values.UNDERLINE, "").Replace(Values.WEIRDCHARFI, "").Replace(Values.OTHERWEIRDQUOTE, "").Trim(), ""), "0");
 		}
 
-		public string RemoveMatchingString(string input, Regex special){
+		public static string RemoveMatchingString(string input, Regex special){
 			return special.Replace (input, "").Replace(" ", string.Empty);
 		}
 
-		public string MakeDBContactCallable(string number, bool debug){
+		public static string MakeDBContactCallable(string number, bool debug){
 			if (string.IsNullOrWhiteSpace (number)) {
 				return string.Empty;
 			} else {
@@ -238,7 +247,7 @@ namespace Capp2
 			}
 		}
 
-		public string RemoveWhiteSpaces(string s){
+		public static string RemoveWhiteSpaces(string s){
 			if (!string.IsNullOrWhiteSpace (s)) {
 				var arr = s.Split(new char[] { ' ', '\t' });
 				for (int c = 0; c < arr.Length; c++) {
@@ -248,7 +257,7 @@ namespace Capp2
 			return s;
 		}
 
-		public List<ContactData> MakeDBContactListCallable(List<ContactData> list, bool debug){
+		public static List<ContactData> MakeDBContactListCallable(List<ContactData> list, bool debug){
 			if (list == null)
 				return null;
 
@@ -260,7 +269,7 @@ namespace Capp2
 			return arr.ToList<ContactData> ();
 		}
 
-		public async void loadContactsFromPic(string playlist, Stream s, CAPP page, bool saveProcessedImage){
+		public static async void loadContactsFromPic(string playlist, Stream s, CAPP page, bool saveProcessedImage){
 			UserDialogs.Instance.ShowLoading ("Loading Contacts...", new MaskType?(MaskType.Clear));
 
 			contactErrors = new List<ContactData> ();
@@ -409,7 +418,7 @@ namespace Capp2
 			contactDuplicates = new List<ContactData>();//reset duplciates list
 		}
 
-		public string[] SeparateFullNameIntoFirstAndLast(string rawName){
+		public static string[] SeparateFullNameIntoFirstAndLast(string rawName){
 			string firstname = "", lastname = "";
 			var wordReg = new Regex(Values.WORDREGEX);
 			var specialReg = new Regex(Values.SINGLESPECIALCHARREGEX);
@@ -443,7 +452,7 @@ namespace Capp2
 			return null;
 		}
 
-		public bool isValidMobile(string number){
+		public static bool isValidMobile(string number){
 			Regex strictNumReg = new Regex (Values.STRICTNUMREGEX);
 			Match strictNumMatch = strictNumReg.Match(number);
 			if (!strictNumMatch.Success) {
@@ -452,7 +461,7 @@ namespace Capp2
 			return true;
 		}
 
-		public void handleErrors(List<ContactData> errorList, CAPP page){
+		public static void handleErrors(List<ContactData> errorList, CAPP page){
 			var editIgnoreConfig = new ConfirmConfig () { 
 				Title = "Some of these contacts' info was misread", 
 				OkText = "Edit them",
@@ -477,7 +486,7 @@ namespace Capp2
 			}
 		}
 
-		public async void handleDuplicates(List<ContactData> dList, CAPP page){
+		public static async void handleDuplicates(List<ContactData> dList, CAPP page){
 			string duplicates = "";
 
 			foreach(ContactData c in dList){
@@ -504,9 +513,9 @@ namespace Capp2
 		/// <param name="duplicatesAllowed">If set to <c>true</c> contacts with the same name in the database will be allowed. *not yet implemented</param>
 		/// <param name="duplicateList">List of contacts who's names already exists in the db</param>
 		/// <param name="contactToStore">The ContactData to save</param>
-		public bool saveContactToDB(bool duplicatesAllowed, ContactData contactToStore, string playlist){
+		public static bool saveContactToDB(bool duplicatesAllowed, ContactData contactToStore, string playlist){
 			if (!duplicatesAllowed) {
-				if (!App.contactFuncs.duplicateExists (contactToStore, App.Database.GetItems (playlist).ToArray ())) {
+				if (!/*App.contactFuncs*/duplicateExists (contactToStore, App.Database.GetItems (playlist).ToArray ())) {
 					App.Database.SaveItem (contactToStore);
 					return true;
 				} else {
@@ -519,7 +528,7 @@ namespace Capp2
 		}
 		/*public async Task<bool> saveContactToDB(bool duplicatesAllowed, ContactDataItemAzure contactToStore, string playlist){
 			if (!duplicatesAllowed) {
-				if (!App.contactFuncs.duplicateExists (contactToStore, (await App.AzureDB.GetItems (playlist)).ToArray ())) {
+				if (!Util.duplicateExists (contactToStore, (await App.AzureDB.GetItems (playlist)).ToArray ())) {
 					await App.AzureDB.SaveItem (contactToStore, true);
 					return true;
 				} else {
@@ -529,8 +538,8 @@ namespace Capp2
 				await App.AzureDB.SaveItem (contactToStore, true);
 				return true;
 			}
-		}*/
-		public bool saveMultipleContactToDB(bool duplicatesAllowed, List<ContactData> contactsToStore, string playlist
+		}*/ 
+		public static bool saveMultipleContactToDB(bool duplicatesAllowed, List<ContactData> contactsToStore, string playlist
 			, bool savingFromPicture = false){
 			var DBListArr = App.Database.GetItems (playlist).ToArray ();
 			var listArr = contactsToStore.ToArray ();
@@ -538,7 +547,7 @@ namespace Capp2
 
 			if (!duplicatesAllowed) {
 				for(int x = 0;x < listArr.Length;x++){
-					if (!App.contactFuncs.duplicateExists (listArr[x], DBListArr)) {
+					if (!/*App.contactFuncs*/duplicateExists (listArr[x], DBListArr)) {
 						saveList.Add (listArr[x]);
 					}
 				}
@@ -552,7 +561,7 @@ namespace Capp2
 
 
 		/*public string saveContactVMToDB(string duplicateList, ContactViewModel contactToStore){
-			if (!App.contactFuncs.duplicateContactVMExists (contactToStore, loadContactsIntoViewModel(App.Database.GetItems ("All").ToList ()))) {
+			if (!Util.duplicateContactVMExists (contactToStore, loadContactsIntoViewModel(App.Database.GetItems ("All").ToList ()))) {
 				App.Database.SaveItem (contactToStore);//not yet converted
 				return Values.NODUPLICATES;
 			} else {
@@ -566,15 +575,15 @@ namespace Capp2
 		/// </summary>
 		/// <returns>The string array to string.</returns>
 		/// <param name="strArrayToConvert">The string array that you want to store in a single string</param>
-		public string convertStringArrayToString(string[] strArrayToConvert){
+		public static string convertStringArrayToString(string[] strArrayToConvert){
 			return null;
 		}
 
-		public string subtractFromString(string stringToRemove, string originalString){
+		public static string subtractFromString(string stringToRemove, string originalString){
 			return originalString.Replace (stringToRemove, "");
 		}
 
-		public bool duplicateExists(ContactData contact, ContactData[] contactsArr){
+		public static bool duplicateExists(ContactData contact, ContactData[] contactsArr){
 			//var contactsArr = currentContacts.ToArray ();
 			bool match = false;
 			/*foreach(ContactData i in currentContacts){
@@ -618,7 +627,7 @@ namespace Capp2
 			}
 			return match;
 		}*/
-		public async Task<bool> loadDeviceContactsIntoDBSingleTransaction(bool timeExecution){
+		public static async Task<bool> loadDeviceContactsIntoDBSingleTransaction(bool timeExecution){
 			Debug.WriteLine ("In loadDeviceContactsIntoDBSingleTransaction");
 			Stopwatch stopwatch = null;
 			if (timeExecution) {
@@ -652,11 +661,11 @@ namespace Capp2
 								Name = listArr[c].FirstName + " " + listArr[c].LastName,
 								FirstName = listArr[c].FirstName,
 								LastName = listArr[c].LastName,
-								Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,//, false),
-								Number2 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[1].Number,//, false),
-								Number3 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[2].Number,// false),
-								Number4 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[3].Number,// false),
-								Number5 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[4].Number, //false),
+								Number = /*Util.MakeDBContactCallable(*/listpArr[0].Number,//, false),
+								Number2 = /*Util.MakeDBContactCallable(*/listpArr[1].Number,//, false),
+								Number3 = /*Util.MakeDBContactCallable(*/listpArr[2].Number,// false),
+								Number4 = /*Util.MakeDBContactCallable(*/listpArr[3].Number,// false),
+								Number5 =/* Util.MakeDBContactCallable(*/listpArr[4].Number, //false),
 								Playlist = Values.ALLPLAYLISTPARAM,// + Values.FORMATSEPARATOR,
 								Aff = aff,
 								//initials
@@ -670,10 +679,10 @@ namespace Capp2
 									Name = listArr[c].FirstName + " " + listArr[c].LastName,
 									FirstName = listArr[c].FirstName,
 									LastName = listArr[c].LastName,
-									Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,// false),
-									Number2 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[1].Number,// false),
-									Number3 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[2].Number,// false),
-									Number4 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[3].Number,// false),
+									Number = /*Util.MakeDBContactCallable(*/listpArr[0].Number,// false),
+									Number2 = /*Util.MakeDBContactCallable(*/listpArr[1].Number,// false),
+									Number3 = /*Util.MakeDBContactCallable(*/listpArr[2].Number,// false),
+									Number4 = /*Util.MakeDBContactCallable(*/listpArr[3].Number,// false),
 									Playlist = Values.ALLPLAYLISTPARAM,
 									Aff = aff
 								};
@@ -683,9 +692,9 @@ namespace Capp2
 										Name = listArr[c].FirstName + " " + listArr[c].LastName,
 										FirstName = listArr[c].FirstName,
 										LastName = listArr[c].LastName,
-										Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,// false),
-										Number2 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[1].Number,// false),
-										Number3 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[2].Number,// false),
+										Number = /*Util.MakeDBContactCallable(*/listpArr[0].Number,// false),
+										Number2 = /*Util.MakeDBContactCallable(*/listpArr[1].Number,// false),
+										Number3 = /*Util.MakeDBContactCallable(*/listpArr[2].Number,// false),
 										Playlist = Values.ALLPLAYLISTPARAM,
 										Aff = aff
 									};
@@ -695,8 +704,8 @@ namespace Capp2
 											Name = listArr[c].FirstName + " " + listArr[c].LastName,
 											FirstName = listArr[c].FirstName,
 											LastName = listArr[c].LastName,
-											Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,// false),
-											Number2 = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[1].Number,// false),
+											Number = /*Util.MakeDBContactCallable(*/listpArr[0].Number,// false),
+											Number2 = /*Util.MakeDBContactCallable(*/listpArr[1].Number,// false),
 											Playlist = Values.ALLPLAYLISTPARAM,
 											Aff = aff
 										};
@@ -706,7 +715,7 @@ namespace Capp2
 												Name = listArr[c].FirstName + " " + listArr[c].LastName,
 												FirstName = listArr[c].FirstName,
 												LastName = listArr[c].LastName,
-												Number = /*App.contactFuncs.MakeDBContactCallable(*/listpArr[0].Number,// false),
+												Number = /*Util.MakeDBContactCallable(*/listpArr[0].Number,// false),
 												Playlist = Values.ALLPLAYLISTPARAM,
 												Aff = aff
 											};
@@ -739,7 +748,7 @@ namespace Capp2
 			return true;
 		}
 
-		public async Task<bool> loadDeviceContactsIntoDB(bool timeExecution){
+		public static async Task<bool> loadDeviceContactsIntoDB(bool timeExecution){
 			Stopwatch stopwatch = null;
 			if (timeExecution) {
 				stopwatch = Stopwatch.StartNew();
@@ -787,7 +796,7 @@ namespace Capp2
 			return temp;
 		}*/
 
-		public async Task<IQueryable<Contact>> getDeviceContacts(){
+		public static async Task<IQueryable<Contact>> getDeviceContacts(){
 			IQueryable<Contact> list = null;
 			contactPermission = await CrossContacts.Current.RequestPermission ();
 			if(contactPermission) 
@@ -798,7 +807,7 @@ namespace Capp2
 					return null;
 
 				list = CrossContacts.Current.Contacts
-				.Where(c => !string.IsNullOrWhiteSpace(c.LastName) && c.Phones.Count > 0);//.OrderBy(c => c.DisplayName);
+				.Where(c => !string.IsNullOrWhiteSpace(c.LastName) && c.Phones.Count > 0).OrderBy(c => c.DisplayName);
 
 			}
 			return list;

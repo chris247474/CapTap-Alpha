@@ -105,7 +105,7 @@ namespace Capp2
 			fab = UIBuilder.CreateFAB ("", FabSize.Normal, Color.FromHex (Values.RED), 
 				Color.FromHex (Values.GOOGLEBLUE));
 
-			Content = UIBuilder.AddFABToViewWrapRelativeLayout(stack, fab, "phone_end", new Command(() => {
+			Content = UIBuilder.AddFABToViewWrapRelativeLayout(stack, fab, "phone_end3x", new Command(() => {
 				NavigationHelper.ClearModals(this);
 				if(App.CapPage.AutoCalling){
 					App.CapPage.SetupNotAutoCalling();

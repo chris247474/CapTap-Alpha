@@ -220,8 +220,8 @@ namespace Capp2
 				};
 
 				//check if added contact details already exists in playlist
-				if(!App.contactFuncs.duplicateExists (AddContact, App.Database.GetItems (this.playlist).ToArray ()/*.ToList ()*/)){
-					if(App.contactFuncs.saveContactToDB (false, AddContact, this.playlist)){
+				if(!Util/*App.contactFuncs*/.duplicateExists (AddContact, App.Database.GetItems (this.playlist).ToArray ()/*.ToList ()*/)){
+					if(Util/*App.contactFuncs*/.saveContactToDB (false, AddContact, this.playlist)){
 						DependencyService.Get<IPhoneContacts> ().SaveContactToDevice(AddContact.FirstName, AddContact.LastName, AddContact.Number, AddContact.Aff);
 						//await App.AzureDB.SaveTaskAsync (new ContactDataItemAzure{FirstName = AddContact.FirstName, LastName = AddContact.LastName, Number = AddContact.Number}, true);
 					}

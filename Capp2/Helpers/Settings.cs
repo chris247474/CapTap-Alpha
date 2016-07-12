@@ -38,6 +38,23 @@ namespace Capp2.Helpers
 		}
 	}
 
+	#region AskAgain
+	private const string AskAgainKey = "askagain";
+	private static bool AskAgainDefault = true;
+	#endregion
+
+	public static bool AskAgainSettings
+	{
+		get
+		{
+			return AppSettings.GetValueOrDefault<bool>(AskAgainKey, AskAgainDefault);
+		}
+		set
+		{
+			AppSettings.AddOrUpdateValue<bool>(AskAgainKey, value);
+		}
+	}
+
 	#region IsFirstRun
 	private const string IsFirstRunKey = "IsFirstRun";
 	private static bool IsFirstRunDefault = true;
@@ -241,6 +258,23 @@ namespace Capp2.Helpers
 		set
 		{
 			AppSettings.AddOrUpdateValue<string>(LocKey, value);
+		}
+	}
+
+	#region Setting Email Constants
+	private const string EmailKey = "email_key";
+	private static readonly string EmailDefault = "";
+	#endregion
+
+	public static string EmailSettings
+	{
+		get
+		{
+			return AppSettings.GetValueOrDefault<string>(EmailKey, EmailDefault);
+		}
+		set
+		{
+			AppSettings.AddOrUpdateValue<string>(EmailKey, value);
 		}
 	}
 

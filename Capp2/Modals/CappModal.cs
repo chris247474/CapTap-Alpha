@@ -273,10 +273,10 @@ namespace Capp2
 						return new HeaderCell();
 					})
 			};
-			if (cachestrat == ListViewCachingStrategy.RecycleElement) {
+			/*if (cachestrat == ListViewCachingStrategy.RecycleElement) {
 				listView.HasUnevenRows = false;
 				listView.RowHeight = 70;
-			}
+			}*/
 			listView.ItemSelected += (object sender, SelectedItemChangedEventArgs e) => { 
 				if (e.SelectedItem == null)
 					return;

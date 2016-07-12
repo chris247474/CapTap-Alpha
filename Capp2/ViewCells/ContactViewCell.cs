@@ -143,7 +143,7 @@ namespace Capp2
 			{
 				var mi = ((MenuItem)sender);
 				personCalled = (ContactData)mi.BindingContext;
-				var result = (await UserDialogs.Instance.ActionSheetAsync("", null, null,
+				var result = (await UserDialogs.Instance.ActionSheetAsync(null, null, null,
 				                                                          new string[] {Values.APPOINTEDCAPITALIZED,
 					                                                                          Values.PRESENTEDCAPITALIZED, 
 					                                                                          Values.PURCHASEDCAPITALIZED}));

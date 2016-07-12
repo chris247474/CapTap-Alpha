@@ -442,7 +442,7 @@ namespace Capp2
 			try{
 				await cameraOps.SelectPicture ();
 				var mediaFile = cameraOps.mediaFileForTesseract;
-				App.contactFuncs.loadContactsFromPic(this.playlist, mediaFile.Source, this, true);
+				Util/*App.contactFuncs*/.loadContactsFromPic(this.playlist, mediaFile.Source, this, true);
 			}catch(Exception){
 				UserDialogs.Instance.WarnToast ("Oops something happened! Ok let's try that one more time");
 			}

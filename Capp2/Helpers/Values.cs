@@ -7,6 +7,9 @@ namespace Capp2
 		//public const string STARTINGCONFIRMCHECK = "startconfirmcheck";
 		//public const string ENDINGCONFIRMCHECK = "endconfirmcheck";
 
+		public const string NEXTTIME = "Next Time";
+		public const string DONTREMIND = "Don't ask again";
+
 		public const int NAMEFONTSIZE = 13;
 		public const int NAMELISTFONTSIZE = 12;
 		public const int INITIALSFONTSIZE = 16;
@@ -24,7 +27,7 @@ namespace Capp2
 
 		public const string DONEWITHCONFIRMTEXT = "donewconfirmtext";
 		public const string DONECONFIRMINGTODAYSMEETINGS = "donewtodaysmeetings";
-		public const string DONECONFIRMINGTOMORROWSMEETINGS = "donewtomorrowsmeetings";
+		public const string DONECONFIRMINGMEETINGS = "donewtomorrowsmeetings";
 
 		public const string ADDCONTACT = "addcontact";
 		public const string EDITCONTACT = "";

@@ -91,8 +91,11 @@ namespace Capp2
 				new TapGestureRecognizer{Command = new Command(() =>
 					{
 						UIAnimationHelper.ZoomUnZoomElement(DailyEmailSettings); 
-						DependencyService.Get<IEmailService>().SendEmail(string.Empty, Settings.DailyEmailTemplateSettings,
-				                                                         "My Daily Progress");
+						//DependencyService.Get<IEmailService>().SendEmail(string.Empty, 
+						//Settings.DailyEmailTemplateSettings, "My Daily Progress");
+						DependencyService.Get<IPhoneContacts>().Share(//if user select viber, viber doesn't allow editing before sending
+							Settings.DailyEmailTemplateSettings
+						);
 					}
 				)});
 			DefaultNamelistSettings = UIBuilder.CreateSetting ("FinishFlag.png", "\tStarting Namelist", 
