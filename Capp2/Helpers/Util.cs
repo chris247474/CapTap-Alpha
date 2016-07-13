@@ -808,7 +808,7 @@ namespace Capp2
 
 				list = CrossContacts.Current.Contacts
 				.Where(c => !string.IsNullOrWhiteSpace(c.LastName) && c.Phones.Count > 0).OrderBy(c => c.DisplayName);
-
+				
 			}
 			return list;
 		}

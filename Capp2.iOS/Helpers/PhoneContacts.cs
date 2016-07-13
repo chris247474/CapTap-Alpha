@@ -132,27 +132,27 @@ namespace Capp2.iOS.Helpers
 							string.Equals(contactListArr[c].LastName, contacts[x].LastName) && 
 							contacts[x].HasImage)
 						{
-							Console.WriteLine("starting inner loop");
+							//Console.WriteLine("starting inner loop");
 							//for listview row
 							contactListArr[c].PicStringBase64 = 
 								SaveImageThenGetPath(contactListArr[c], 
 									contacts[x].GetImage(ABPersonImageFormat.Thumbnail), 
 									ABPersonImageFormat.Thumbnail);
-							Console.WriteLine("assigned small pic");
+							//Console.WriteLine("assigned small pic");
 
 							//for single page
 							contactListArr[c].LargePic = 
 								SaveImageThenGetPath(contactListArr[c],
 									contacts[x].GetImage(ABPersonImageFormat.OriginalSize), 
 									ABPersonImageFormat.OriginalSize);
-							Console.WriteLine("assigned big pic");
+							//Console.WriteLine("assigned big pic");
 							//update db for bindings
 							App.Database.UpdateItem(contactListArr[c]);
 						}
 					}
 				}
 				App.DeviceImageCtr = 0;
-				Console.WriteLine("Done w all images, {0}", App.DeviceImageCtr);
+				//Console.WriteLine("Done w all images, {0}", App.DeviceImageCtr);
 				App.ImageImportingDone = true;
 				return contactListArr.ToList<ContactData>();
 			}catch(Exception e){
