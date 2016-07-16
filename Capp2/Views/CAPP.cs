@@ -21,15 +21,18 @@ namespace Capp2
 		public ToolbarItem EditTBI, DeleteTBI, CopyToTBI, AddTBI;
 		string title;
 		StackLayout stack = new StackLayout(), AutoCallStack = new StackLayout();
-        List<Grouping<string, ContactData>> PreLoadedGroupedList;
+        public List<Grouping<string, ContactData>> PreLoadedGroupedList;
 		SearchBar searchBar;
 		List<ContactData> AutoCallList;
 		List<Grouping<string, ContactData>> AutoCallGroupedList;
-		List<ContactData> PreloadedList;
-		//ScrollView scroller = new ScrollView();
+		public List<ContactData> PreloadedList;
 		int AutoCallCounter;
 		public bool AutoCalling;
 		ContactViewModel contactViewModel;
+		Command FABCommand, AutoCallCommand, SelectAllCommand;
+		FAB.Forms.FloatingActionButton SelectAllFAB;
+		Image img = new Image();
+		ContactsViewModel ContactsVM;
 
 		public CAPP (string playlistChosen, bool showtip = true)
 		{
@@ -45,18 +48,34 @@ namespace Capp2
 
 			ShowTipsIfFirstRun (showtip);
 
-			AdHelper.AddGreenURLOrangeTitleBannerToStack (/*scroller.Content as StackLayout*/stack);
+			AdHelper.AddGreenURLOrangeTitleBannerToStack (stack);
         }
 
 		void Init(string playlistChosen){
 			App.CapPage = this;
 			App.CurrentNamelist = playlistChosen;
+			//ContactsVM = new ContactsViewModel(playlistChosen);
 			PreLoadedGroupedList = App.Database.GetGroupedItems(playlistChosen);
 			PreloadedList = App.Database.GetItems (playlistChosen);
 			title = playlistChosen + " Contacts";
 			this.playlist = playlistChosen;
 			this.Title = title;
 			cameraOps = new CameraViewModel();
+			SelectAllFAB = UIBuilder.CreateFAB("", FAB.Forms.FabSize.Mini,
+											   Color.FromHex(Values.MaterialDesignOrange), Color.FromHex(Values.PURPLE));
+
+			img = UIBuilder.CreateTappableImage("CheckAll.png", LayoutOptions.Fill, Aspect.AspectFit,
+			                                    new Command(()=> 
+			{
+				Debug.WriteLine("SelectAllFAB Tapped");
+				UIAnimationHelper.ShrinkUnshrinkElement(SelectAllFAB, 100);
+				UIAnimationHelper.ShrinkUnshrinkElement(img, 100);
+				this.SelectDeselectAll(PreloadedList, true);
+			}));
+			img.InputTransparent = false;
+			/*SelectAllFAB.Clicked += (object sender, EventArgs e) => {
+				SelectAll();
+			};*/
 		}
 
 		async Task ShowTipsIfFirstRun(bool showtip){
@@ -148,12 +167,16 @@ namespace Capp2
 					};
 			}
 
-			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "", 
-				new Command (async () =>
-				{
-					//CallHelper.AutoCall(this.playlist);
-					AutoCall();
-				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
+			//AutoCallCommand = new Command(() => AutoCall());
+			//SelectAllCommand = new Command(() => SelectAll());
+			FABCommand = new Command(() => AutoCall());
+
+			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, Values.AUTOCALLICON, FABCommand
+				, Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
+
+			/*var fab = UIBuilder.CreateFAB(Values.AUTOCALLICON, FAB.Forms.FabSize.Normal, 
+			                              Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE));
+			Content = UIBuilder.AddFABToViewWrapRelativeLayout(*/
 		}
 
 		async Task AddContacts(){
@@ -273,7 +296,7 @@ namespace Capp2
 			{
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = Color.Transparent,
-				ItemsSource = PreLoadedGroupedList,
+				ItemsSource = /*ContactsVM.GroupedNamelist,*/PreLoadedGroupedList,
 				SeparatorColor = Color.Transparent,
 				ItemTemplate = new DataTemplate(() => {
 					return new ContactViewCell (this);
@@ -294,22 +317,42 @@ namespace Capp2
 					};
 				}),
 			};
-			listView.ItemSelected += (sender, e) => {
-				// has been set to null, do not 'process' tapped event
-				if (e.SelectedItem == null)
-					return; 
-
-				personCalled = (ContactData)e.SelectedItem;
-
-				if(!App.IsEditing){
-					Navigation.PushAsync(new EditContactPage(personCalled, this), false);
-					// de-select the row
-					((ListView)sender).SelectedItem = null; 
-				}else{
-					((ListView)sender).SelectedItem = null; 
-				}
-			};
+			listView.ItemSelected += ItemSelectedNotEditing;
 		}
+
+		public void ItemSelectedNotEditing(object sender, SelectedItemChangedEventArgs e) {
+			// has been set to null, do not 'process' tapped event
+			if (e.SelectedItem == null)
+				return;
+
+			personCalled = (ContactData)e.SelectedItem;
+
+			if (!App.IsEditing)
+			{
+				Navigation.PushAsync(new EditContactPage(personCalled, this), false);
+				// de-select the row
+				((ListView)sender).SelectedItem = null;
+			}
+			else {
+				((ListView)sender).SelectedItem = null;
+			}
+		}
+
+		public void ItemSelectedEditing(object sender, SelectedItemChangedEventArgs e)
+		{
+			var personCalled = (ContactData)e.SelectedItem;
+			// has been set to null, do not 'process' tapped event
+			if (personCalled == null)
+				return;
+
+			personCalled.IsSelected = !personCalled.IsSelected;
+			refresh();
+			App.Database.UpdateItem(personCalled);
+
+			((ListView)sender).SelectedItem = null;
+		}
+
+
 
 		void CreateTBIs(){
 			AddTBI = new ToolbarItem("Add", "", async () =>
@@ -380,12 +423,18 @@ namespace Capp2
 					await App.Database.DeselectAll (saveList, this);
 					refresh();
 				});
-			EditTBI = new ToolbarItem("Edit", "", () =>
+			EditTBI = new ToolbarItem("Edit", "", async () =>
 				{
 					if(string.Equals(EditTBI.Text, "Edit")){
-						UpdateUI_DisableAutoCallingBeforeEditing();
+						await UpdateUI_DisableAutoCallingBeforeEditing();
+						listView.ItemSelected -= ItemSelectedNotEditing;
+						listView.ItemSelected += ItemSelectedEditing;
+						await ShowSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img);
 					}else{
-						UpdateUI_EnableAutoCallingAfterEditing();
+						await UpdateUI_EnableAutoCallingAfterEditing();
+						listView.ItemSelected -= ItemSelectedEditing;
+						listView.ItemSelected += ItemSelectedNotEditing;
+						await HideSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img);
 					}
 				});
 			if (!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals(this.playlist, Values.TODAYSCALLS)) {
@@ -393,9 +442,9 @@ namespace Capp2
 			}
 		}
 
+
+
 		async Task UpdateUI_DisableAutoCallingBeforeEditing(){
-			//cmdAutocall.IsEnabled = false;
-			//cmdAutocall.BackgroundColor = Color.Gray;
 			App.IsEditing = true;
 			EditTBI.Text = "Done";
 			//EditTBI.Icon = "";
@@ -566,18 +615,6 @@ namespace Capp2
 				Debug.WriteLine ("CONTINUING TO NEXT NUMBER");
 				 this.StartContinueAutoCall ();
 			});
-			/*MessagingCenter.Subscribe<CAPP> (this, Values.ISEDITING, (args) => { 
-				Debug.WriteLine ("ISEDITING MESSAGE RECEIVED");
-				listView.ItemTemplate = new DataTemplate(() => {
-					return new ContactViewCell (this);
-				});
-			});
-			MessagingCenter.Subscribe<CAPP> (this, Values.DONEEDITING, (args) => { 
-				Debug.WriteLine ("DONEEDITING MESSAGE RECEIVED");
-				listView.ItemTemplate = new DataTemplate(() => {
-					return new ContactViewCell (this);
-				});
-			});*/
 			MessagingCenter.Subscribe<string>(this, Values.DONEWAUTOCALLTIP, (args) =>{ 
 				TutorialHelper.ShowTip_HowToGoBackToPlaylistPage(this, "Let's start by making a new namelist\nTap 'Namelists' up here", 
 					Color.FromHex(Values.CAPPTUTORIALCOLOR_Blue));
@@ -593,16 +630,15 @@ namespace Capp2
 			ListViewCachingStrategy cachestrat = ListViewCachingStrategy.RecycleElement)
 		{
 			searchBar.Unfocus ();
-			var listViewPosition = /*(scroller.Content as StackLayout)*/stack.Children.IndexOf (listView); 
+			var listViewPosition = stack.Children.IndexOf (listView); 
 
             try {
                 this.IsBusy = true;
-				/*(scroller.Content as StackLayout)*/stack.Children.Remove(listView);
+				stack.Children.Remove(listView);
 
 				CreateListView(cachestrat);
 
-				/*(scroller.Content as StackLayout)*/stack.Children.Insert(/*(scroller.Content as StackLayout).Children.Count - 1*/
-					listViewPosition, listView);
+				stack.Children.Insert(listViewPosition, listView);
                 this.IsBusy = false;
             }
             catch (Exception e) {

@@ -13,7 +13,6 @@ namespace Capp2
 
 		StackLayout CreateView(Command OnPop){
 			Label TitleLabel = new Label{
-				//Text = labelText,
 				FontSize = Device.GetNamedSize (NamedSize.Large, typeof(Label)),
 				HorizontalOptions = LayoutOptions.Center,
 				TextColor = Color.White,
@@ -30,14 +29,17 @@ namespace Capp2
 			};
 			DetailLabel.SetBinding(Label.TextProperty, new Binding(){Path = "DetailText"});
 
-			Image img = UIBuilder.CreateTappableImage ("", LayoutOptions.Center, Aspect.AspectFit, new Command(()=>{
+			/*Image img = UIBuilder.CreateTappableImage ("", LayoutOptions.Center, Aspect.AspectFit, new Command(()=>{
 				DependencyService.Get<IVideoHelper>().PlayVideo((this.BindingContext as VideoChooserItem).VideoPath);
 			}), TitleLabel.FontSize, 40*0.77, 20*0.77);
-			img.SetBinding(Image.SourceProperty, new Binding(){Path = "ImagePath"});
+			img.SetBinding(Image.SourceProperty, new Binding(){Path = "ImagePath"});*/
+
+			var browser = new BindableGIFWebView();
+			browser.SetBinding(BindableGIFWebView.GIFSourceProperty, new Binding() { Path = "GIFSource" });
 
 			return new StackLayout {
 				VerticalOptions = LayoutOptions.Start,
-				HorizontalOptions = LayoutOptions.Start,
+				HorizontalOptions = LayoutOptions.Center,
 				BackgroundColor = Color.Transparent,
 				Padding = new Thickness(30, 0),
 				Children = {
@@ -51,10 +53,8 @@ namespace Capp2
 						Padding = new Thickness(10),
 						Children = { DetailLabel }
 					},
-					UIBuilder.CreateEmptyStackSpace(),
-					img, 
+					UIBuilder.CreateEmptyStackSpace(), browser//img, 
 					//button indicator
-					//backgorund gradient
 				}
 			};
 		}

@@ -176,6 +176,9 @@ namespace Capp2
 					return new CarouselTemplateView(OnPop);
 				}),
 			};
+			/*carousel.ItemSelected += (object sender, SelectedItemChangedEventArgs e) => {
+				Debug.WriteLine("Total memory according to GC is {0}", GC.GetTotalMemory(true));
+			};*/
 			return carousel;
 		}
 
@@ -186,7 +189,7 @@ namespace Capp2
 			};
 		}
 
-		public static ScrollView CreateTutorialVideoPickerView(VideoChooserItem[] videos){
+		/*public static ScrollView CreateTutorialVideoPickerView(VideoChooserItem[] videos){
 			if (videos == null || videos.Length < 1) {
 				throw new ArgumentNullException ("param must not be null and array must not be empty");
 			}
@@ -209,7 +212,7 @@ namespace Capp2
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				Content = stack
 			};
-		}
+		}*/
 		public static Grid CreateDynamicGrid(int rows, int cols){
 			Grid grid = new Grid ();
 			grid.RowDefinitions = new RowDefinitionCollection();
@@ -225,7 +228,7 @@ namespace Capp2
 			}
 			return grid;
 		}
-		public static StackLayout CreateTappableImageWithBottomLabel(string imagePath, string labelText, string videotoplay){
+		/*public static StackLayout CreateTappableImageWithBottomLabel(string imagePath, string labelText, string videotoplay){
 			Label lbl = new Label{
 				Text = labelText,
 				FontSize = Device.GetNamedSize (NamedSize.Small, typeof(Label)),
@@ -242,15 +245,12 @@ namespace Capp2
 				Padding = new Thickness(10),
 				Children = {
 					img,
-					/*AddElementToObjectWithXYConstraint (img, PlayIcon, 
-						Constraint.RelativeToParent((parent) =>  { return parent.Width/2; }), 
-						Constraint.RelativeToParent((parent) =>  { return parent.Height/2; })
-					),*/
+
 					lbl,
 				}
 			};
 			return stack;
-		}
+		}*/
 
 		public static Label CreateTutorialLabel(string text, NamedSize fontSize = NamedSize.Medium, FontAttributes fontattributes = FontAttributes.Bold, 
 			LineBreakMode linebreakmode = LineBreakMode.WordWrap, Command tapCommand = null)
@@ -342,11 +342,11 @@ namespace Capp2
 				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
 			);
 
-			CircleImage img = new CircleImage ();
-			img = CreateTappableCircleImage (icon, 
+			Image img = new Image();
+			img = CreateTappableImage (icon, 
 				LayoutOptions.Fill, Aspect.AspectFit, new Command(()=>{
-					UIAnimationHelper.ShrinkUnshrinkElement (child, 50);
-					UIAnimationHelper.ShrinkUnshrinkElement (img, 50);
+					UIAnimationHelper.ShrinkUnshrinkElement (child, 100);
+					UIAnimationHelper.ShrinkUnshrinkElement (img, 100);
 					FabTapped.Execute(null);
 				}));
 			img.InputTransparent = false;
@@ -384,29 +384,6 @@ namespace Capp2
 
 			return parentlayout;
 		}
-
-		/*public static StackLayout AddFloatingActionButtonToStackLayout(View view, string icon, Command FabTapped, 
-			Color NormalColor, Color PressedColor)
-		{
-			var layout = new RelativeLayout ();
-			layout.VerticalOptions = LayoutOptions.FillAndExpand;
-			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
-			layout.Children.Add(
-				view,
-				xConstraint: Constraint.Constant(0),
-				yConstraint: Constraint.Constant(0),
-				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
-				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
-			);
-
-			return new StackLayout{
-				BackgroundColor = Color.Transparent,
-				Children = {
-					AddFloatingActionButtonToRelativeLayout(layout, icon, FabTapped, NormalColor, PressedColor)
-				}
-			};
-		}*/
-
 
 		public static RelativeLayout AddFloatingActionButtonToViewWrapWithRelativeLayout(View view, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
 			var layout = new RelativeLayout ();
@@ -764,11 +741,19 @@ namespace Capp2
 				Children = { CreateEmptyStackSpace(), CreateEmptyStackSpace() }
 			};
 		}
-		public static StackLayout CreateTripleEmtyStackSpace() { 
+		public static StackLayout CreateTripleEmptyStackSpace() { 
 			return new StackLayout
 			{
 				Orientation = StackOrientation.Horizontal,
 				Children = { CreateEmptyStackSpace(), CreateEmptyStackSpace() }
+			};
+		}
+		public static StackLayout CreateQuadEmptyStackSpace()
+		{
+			return new StackLayout
+			{
+				Orientation = StackOrientation.Horizontal,
+				Children = { CreateDoubleEmptyStackSpace(), CreateDoubleEmptyStackSpace() }
 			};
 		}
 		public static StackLayout CreateSettingsHeader(string header){

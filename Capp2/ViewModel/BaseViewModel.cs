@@ -9,7 +9,7 @@ namespace Capp2
 {
 	public abstract class BaseViewModel : INotifyPropertyChanged
 	{
-		public INavigation Navigation { get; set; }
+		//public INavigation Navigation { get; set; }
 
 		internal virtual Task Initialize (params object[] args)
 		{
@@ -21,7 +21,7 @@ namespace Capp2
 			PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
 		}
 
-		protected void SetObservableProperty<T>(
+		protected void SetProperty<T>(
 			ref T field, 
 			T value,
 			[CallerMemberName] string propertyName = "")

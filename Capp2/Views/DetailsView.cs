@@ -63,7 +63,7 @@ namespace Capp2
 				Children = {
 					name,
 					namelist, 
-					contact.HasDefaultImage_Large ? UIBuilder.EmptyStack() : UIBuilder.CreateTripleEmtyStackSpace(), 
+					contact.HasDefaultImage_Large ? UIBuilder.EmptyStack() : UIBuilder.CreateQuadEmptyStackSpace(), 
 					info
 				}
 			};

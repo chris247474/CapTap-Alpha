@@ -34,7 +34,7 @@ namespace Capp2
 			return Color.Transparent;
 		}
 
-		public static async Task AddNamelist(PlaylistPage page){
+		/*public static async Task AddNamelist(PlaylistPage page){
 			var result = await UserDialogs.Instance.PromptAsync("Please enter a name for this list:", 
 				"New namelist", "OK");
 			if(string.IsNullOrWhiteSpace(result.Text) || string.Equals("Cancel", result.Text)){
@@ -73,7 +73,7 @@ namespace Capp2
 				TutorialHelper.OpenNamelist(page, "You made a namelist! Now tap it to select it", 
 					Color.FromHex (Values.CAPPTUTORIALCOLOR_Green));
 			}
-		}
+		}*/
 
 		public static string[] ImportChoices(string playlist){
 			var playlistsList = (App.Database.GetPlaylistItems ());
@@ -813,9 +813,10 @@ namespace Capp2
 			return list;
 		}
 
-		public static async Task GetContactsImagesInBackground(){
-		var ContactListWithImages = await DependencyService.Get<IPhoneContacts> ().GetProfilePicPerPerson (App.Database.GetItems (Values.ALLPLAYLISTPARAM).ToList<ContactData>());
+		/*public static async Task GetContactsImagesInBackground(){
+			var ContactListWithImages = await DependencyService.Get<IPhoneContacts> ().
+				GetProfilePicPerPerson (App.Database.GetItems (Values.ALLPLAYLISTPARAM).ToList<ContactData>());
 			App.Database.UpdateAll (ContactListWithImages);
-		}
+		}*/
 	}
 }

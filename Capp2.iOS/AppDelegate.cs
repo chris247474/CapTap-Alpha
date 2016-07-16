@@ -14,6 +14,7 @@ using FireSharp.Interfaces;
 using FireSharp.Config;
 using FireSharp;
 using FFImageLoading.Forms.Touch;
+using Capp2.Helpers;
 //using HockeyApp.iOS;
 
 namespace Capp2.iOS
@@ -135,17 +136,14 @@ namespace Capp2.iOS
 		public override void DidEnterBackground (UIApplication application)
 		{
 			base.DidEnterBackground (application);
-			Console.WriteLine ("In Background iOS");
+			Console.WriteLine ("In Background iOS, last loaded contacts at index {0}", Settings.Count);
 
 			nint taskID = UIApplication.SharedApplication.BeginBackgroundTask( () => {});
-
 			if (!App.ImageImportingDone) {
 				Console.WriteLine ("Image importing not yet started, starting");
 				new Task (async () => {
 					PhoneContacts PhoneFunc = new PhoneContacts();
-
 					await PhoneFunc.GetProfilePicPerPerson(App.Database.GetItems(Values.ALLPLAYLISTPARAM).ToList<ContactData>());
-
 					UIApplication.SharedApplication.EndBackgroundTask(taskID);
 				}).Start();
 			}
@@ -153,7 +151,6 @@ namespace Capp2.iOS
 
 		void SetUIStyles(UIApplication iOSApp){
 			var win = new UIWindow(UIScreen.MainScreen.Bounds);
-
 		}
 		void SetGradientLayerAsiOSBackground(UIWindow win, UIColor StartColor, UIColor EndColor)
 		{

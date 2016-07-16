@@ -317,8 +317,6 @@ namespace Capp2.Helpers
       }
     }
 
-
-	
 	#region Setting CountKey Constants
 	const string CountKey = "count"; 
 	private static readonly int CountDefault = 0; 

@@ -18,9 +18,9 @@ namespace Capp2
 		StackLayout EditContactStack = new StackLayout(), DetailStack = new StackLayout(), 
 			MainStack = new StackLayout();
 		string[] playlistArr;
-		Label numberLabel, number2Label, number3Label, number4Label, number5Label, firstNameLabel, lastNameLabel, affLabel, playlistLabel;
-		Entry numberEntry, number2Entry, number3Entry, number4Entry, number5Entry, firstNameEntry, lastNameEntry, affEntry;
-		Picker playlistPicker;
+		//Label numberLabel, number2Label, number3Label, number4Label, number5Label, firstNameLabel, lastNameLabel, affLabel, playlistLabel;
+		//Entry numberEntry, number2Entry, number3Entry, number4Entry, number5Entry, firstNameEntry, lastNameEntry, affEntry;
+		//Picker playlistPicker;
 		Image phoneImg = new Image(), messageImg = new Image(),
 			dome = new Image();
 		CachedImage backgroundImage = new CachedImage ();
@@ -184,15 +184,10 @@ namespace Capp2
 			this.ToolbarItems.Add (EditTBI);
 
 			backgroundImage = new CachedImage () {
-				/*FinishCommand = new Command(()=>{
-					backgroundImage.FadeTo (0.8, 1000, Easing.Linear);
-				}),*/
-				//FadeAnimationEnabled = true,
 				DownsampleToViewSize = true,
 				LoadingPriority = LoadingPriority.Highest,
 				CacheDuration = TimeSpan.FromDays(30),
 				Aspect = Aspect.AspectFill,
-				//IsOpaque = true,
 				Opacity = 0.8,
 				Transformations = new System.Collections.Generic.List<ITransformation>() {
 					new BlurredTransformation(1)
@@ -213,7 +208,7 @@ namespace Capp2
 			ContactPic.BackgroundColor = Color.White;
 			ContactPic.SetBinding(CircleImage.SourceProperty, new Xamarin.Forms.Binding{Path = "LargePic"});
 
-			firstNameLabel = new Label { Text = "First Name" };
+			/*firstNameLabel = new Label { Text = "First Name" };
 			firstNameLabel.HorizontalOptions = LayoutOptions.Center;
 			firstNameEntry = new Entry ();
 			firstNameEntry.Text = contact.FirstName;
@@ -287,16 +282,16 @@ namespace Capp2
 				}
 				contact.Playlist = playlistArr[x];
 			};
-
+*/
 			phoneImg = UIBuilder.CreateTappableImage ("Phone-blue-outline", LayoutOptions.Fill, Aspect.AspectFit,
 				new Command (async () => {
 					await CallHelper.call (contact, false);
-				}), firstNameLabel.FontSize * 2);
+				})/*, firstNameLabel.FontSize * 2*/);
 
 			messageImg = UIBuilder.CreateTappableImage ("message-blue-outline"/*"Message-green-100"*/, LayoutOptions.Fill, Aspect.AspectFit,
 				new Command (async () => {
 					DependencyService.Get<IPhoneContacts> ().SendSMS (await CallHelper.HandleMutlipleNumbers (contact));
-				}), firstNameLabel.FontSize * 2);
+				})/*, firstNameLabel.FontSize * 2*/);
 
 			details = new DetailsView (contact);
 
@@ -307,7 +302,7 @@ namespace Capp2
 					details
 				}
 			};
-			CreateEditContactLayout (contact);
+			//CreateEditContactLayout (contact);
 			MainStack = new StackLayout
 			{
 				Orientation = StackOrientation.Vertical,
@@ -318,7 +313,7 @@ namespace Capp2
 			};
 		}
 
-		async Task SwitchEditViewMode(CAPP page, ContactData contact){
+		/*async Task SwitchEditViewMode(CAPP page, ContactData contact){
 			var layoutyposition = relativeLayout.Y;
 			var mainstackyposition = MainStack.Y;
 
@@ -512,6 +507,6 @@ namespace Capp2
 			} else {
 				return true;
 			}
-		}
+		}*/
 	}
 }

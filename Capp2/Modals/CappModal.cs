@@ -20,10 +20,13 @@ namespace Capp2
 		StackLayout stack = new StackLayout(), contentstack = new StackLayout();
 		//Button AddTo = new Button ();
 		ContactViewModel contactViewModel;
+		FAB.Forms.FloatingActionButton SelectAllFAB;
+		Image img = new Image();
 
 		public CappModal (string playlist, string playlistToAddTo, List<Grouping<string, ContactData>> groupedlist, 
 			List<ContactData> list, List<ContactData> NamelistToAddTo, bool isToolTipHolder = false)
 		{
+			//App.CapModal = this;
 			Debug.WriteLine ("Entered CappModal");
 			this.playlist = playlist;
 			this.playlistToAddTo = playlistToAddTo;
@@ -31,6 +34,19 @@ namespace Capp2
 			this.list = list;
 			this.namelisttoaddto = NamelistToAddTo;
 			BindingContext = new ObservableCollection<Grouping<string, ContactData>>(groupedlist);
+			SelectAllFAB = UIBuilder.CreateFAB("", FAB.Forms.FabSize.Mini,
+											   Color.FromHex(Values.MaterialDesignOrange), Color.FromHex(Values.PURPLE));
+
+			img = UIBuilder.CreateTappableImage("CheckAll.png", LayoutOptions.Fill, Aspect.AspectFit,
+												new Command(() =>
+			{
+				Debug.WriteLine("SelectAllFAB Tapped");
+				UIAnimationHelper.ShrinkUnshrinkElement(SelectAllFAB, 150);
+				UIAnimationHelper.ShrinkUnshrinkElement(img, 150);
+				//App.Database.SelectDeselectAll(this.list, true, true);
+				this.SelectDeselectAll(this.list, true);
+			}));
+			img.InputTransparent = false;
 
 			CreateUIElements ();
 			CreateLayouts (isToolTipHolder);
@@ -38,6 +54,9 @@ namespace Capp2
 			//for some reason, all the contacts are initially shown w the same name. this will 'refresh' the list
 			ReBuildGroupedSearchableListView(playlist, groupedlist, stack, 
 				ListViewCachingStrategy.RecycleElement);//Retain
+
+			ShowSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img, 0, -30);
+
 			SubscribeToMessagingCenter ();
 		}
 
@@ -75,18 +94,10 @@ namespace Capp2
 				};
 				Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(contentstack, 
 					"Checkmark.png", new Command (async () => {
-						//ContactViewModel contactsViewModel;
-						//add to namelist
 						var selectedItems = App.Database.GetSelectedItems(playlist).ToArray();
 						for(int c = 0;c < selectedItems.Length;c++){
-							//contactsViewModel = new ContactViewModel(selectedItems[c]);
-							selectedItems[c] = ContactViewModel.AddNamelist(selectedItems[c], new string[]{this.playlistToAddTo}, false);
-							//selectedItems[c].Playlist = this.playlistToAddTo;//Add to Capp playlist where we came from
+							selectedItems[c] = ContactViewModel.AddContactsToNamelist(selectedItems[c], new string[]{this.playlistToAddTo}, false);
 						}
-
-						//save as new contacts to preserve other namelists that we're copying from? 
-						//App.Database.SaveAll(selectedItems);//duplicates
-						//var updateResult = await App.Database.UpdateAllAsync(selectedItems);
 
 						var updateResult = await App.Database.DeselectAll(selectedItems.AsEnumerable(), 
 							this, false);//uncheck checkmarks
@@ -123,43 +134,10 @@ namespace Capp2
 		}
 
 		void CreateUIElements(){
-			/*AddTo = new Button { 
-				Text = "Add To '"+playlistToAddTo+"'", 
-				BackgroundColor = Color.Green, 
-				TextColor = Color.Black, 
-				FontAttributes = FontAttributes.Bold 
-			};
-			AddTo.Clicked += async (sender, e) => {
-				UIAnimationHelper.ShrinkUnshrinkElement(AddTo);
-				//add to namelist
-				var selectedItems = App.Database.GetSelectedItems(playlist).ToArray();
-				for(int c = 0;c < selectedItems.Length;c++){
-					selectedItems[c].Playlist = this.playlistToAddTo;//Add to Capp playlist where we came from
-				}
-				App.Database.SaveAll(selectedItems);//save as new contacts to preserve other namelists that we're copying from
-
-				await App.Database.DeselectAll(this.list, this);//uncheck checkmarks
-
-				await AlertHelper.Alert(this, "Copied!",
-					string.Format("Moved {0} contacts from {1} to {2}", selectedItems.Length, playlist, playlistToAddTo)
-				);
-
-				MessagingCenter.Send("", Values.DONEADDINGCONTACT);
-				Navigation.PopModalAsync();
-			};*/
-
-
 			searchBar = CappBuilder.CreateSearchBar ("Search", new Command (() => {
 				FilterCAPPContacts(searchBar.Text, playlist, groupedlist, stack);
 			}));
-			//searchBar.Unfocused += (object sender, FocusEventArgs e) => {
-			//};
-			//searchBar.Focused += (object sender, FocusEventArgs e) => {
-				//ReBuildGroupedSearchableListView(playlist, this.groupedlist, stack, ListViewCachingStrategy.RecycleElement);
-			//};
-
 			listView = CappBuilder.CreateGroupedListView (this, groupedlist, new CappModalViewCell (playlist), new Command (() => {
-				//dont do anything
 			}));
 		}
 
@@ -167,14 +145,12 @@ namespace Capp2
 		{
 			base.OnDisappearing ();
 			App.Database.DeselectAll(App.Database.GetItems(Values.ALLPLAYLISTPARAM), App.CapPage);
+
 		}
 
 		void FilterCAPPContacts(string filter, string playlist, List<Grouping<string, ContactData>> groupedList, 
 			StackLayout stack)
 		{
-			//Debug.WriteLine ("Performing grouped filter search");
-			//listView.BeginRefresh();
-
 			App.UsingSearch = true;
 			if (string.IsNullOrWhiteSpace(filter))
 			{
@@ -251,7 +227,7 @@ namespace Capp2
 		public void refresh (ListView list, string playlist)
 		{
 			this.groupedlist = App.Database.GetGroupedItems(playlist);
-			listView.ItemsSource = this.groupedlist;
+			listView.ItemsSource = App.Database.GetItems(playlist);
 		}
 
 		void CreateListView(ListViewCachingStrategy cachestrat, List<Grouping<string, ContactData>> groupedList){
@@ -280,14 +256,14 @@ namespace Capp2
 			listView.ItemSelected += (object sender, SelectedItemChangedEventArgs e) => { 
 				if (e.SelectedItem == null)
 					return;
-
-				/*var personCalled = (ContactData)e.SelectedItem;
-				personCalled.IsSelected = !personCalled.IsSelected;
-				refresh();
-				App.Database.UpdateItem(personCalled);*/
-
 				((ListView)sender).SelectedItem = null;
 			};
+			/*listView.ItemTapped += (sender, e) => { 
+				var personCalled = (ContactData)e.Item;
+				personCalled.IsSelected = !personCalled.IsSelected;
+				refresh();
+				App.Database.UpdateItem(personCalled);
+			};*/
 		}
 	}
 
@@ -371,6 +347,12 @@ namespace Capp2
 			};
 
 
+		}
+
+		protected override void OnDisappearing()
+		{
+			base.OnDisappearing();
+			MessagingCenter.Unsubscribe<string>(this, Values.UNFOCUSPLAYLISTPAGESEARCHBAR);
 		}
 		/*protected override void OnBindingContextChanged ()
 		{

@@ -25,7 +25,7 @@ namespace Capp2
 				return contact.FirstName;
 			} 
 			set { 
-				SetObservableProperty (ref _fname, value);
+				SetProperty (ref _fname, value);
 				contact.FirstName = _fname;
 				contact.Name = this.FirstName + " " + contact.LastName;
 
@@ -39,7 +39,7 @@ namespace Capp2
 				return contact.LastName;
 			} 
 			set { 
-				SetObservableProperty (ref _lname, value);
+				SetProperty (ref _lname, value);
 				contact.LastName = _lname;
 				contact.Name = this.FirstName + " " + contact.LastName;
 
@@ -110,7 +110,7 @@ namespace Capp2
 
 			return contact;
 		}
-		public static ContactData AddNamelist(ContactData person, string[] namelists, bool save = true){
+		public static ContactData AddContactsToNamelist(ContactData person, string[] namelists, bool save = true){
 			for (int c = 0; c < namelists.Length; c++) {
 				if(!string.IsNullOrWhiteSpace(namelists[c])){
 					if (person.Playlist.EndsWith (Values.FORMATSEPARATOR + namelists[c] + Values.FORMATSEPARATOR)) {

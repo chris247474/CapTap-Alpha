@@ -29,7 +29,10 @@ namespace Capp2
 		public static NavigationPage NavPage;
 		public static StartPage MasterDetailPage;
 		public static TabbedPage StartTabbedPage;
-        public static CAPP CapPage { get; set; }
+		public static CAPP CapPage { get; set; }
+		//public static CappModal CapModal { get; set; }
+		//public static WeakReference<CAPP> CapPage { get;set;}
+		//public static WeakReference<CappModal> CapModal { get; set; }
 		public static EditContactPage EditPage{ get; set;}
 		public static Color StartColor;
 		public static Color EndColor;
@@ -78,8 +81,6 @@ namespace Capp2
 
 			StartupHelper.SetInstallDateForStatsPageReference (); 
 
-			//SetupGradientBackground ();
-
 			StartupHelper.SetAsPremium (true);
 
 			await Util.loadDeviceContactsIntoDBSingleTransaction (false);
@@ -93,16 +94,6 @@ namespace Capp2
 			StartupHelper.CheckForMeetingsTodayTomorrowThenSendSMSToConfirm ();
 		}
 
-		/*void SetupGradientBackground(){
-			if(Device.OS == TargetPlatform.iOS)
-			{
-				OnAppStart = true;
-			}
-			StartColor = Color.White;//FromHex (Values.GOOGLEBLUE);//BACKGROUNDPURPLEGRADIENT); 
-			EndColor = Color.White;//FromHex (Values.BACKGROUNDDARKPURPLEGRADIENT);
-		}*/
-
-
 		protected override void OnStart ()
 		{
 			// Handle when your app starts
@@ -113,9 +104,14 @@ namespace Capp2
 			// Handle when your app sleeps
 		}
 
-		protected override void OnResume ()
+		protected override async void OnResume()
 		{
 			// Handle when your app resumes
+			Debug.WriteLine("Pausing at index {0}", Settings.Count);
+			var temp = Settings.Count;
+			Settings.Count = Database.GetItems(Values.ALLPLAYLISTPARAM).Count;
+			await Task.Delay(100);
+			Settings.Count = temp;
 		}
 	}
 

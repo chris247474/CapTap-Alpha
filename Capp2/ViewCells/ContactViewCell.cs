@@ -38,11 +38,6 @@ namespace Capp2
 			};
 			nameLabel.SetBinding(Label.TextProperty, "Name");
 
-			/*firstnameLabel = new Label();
-			firstnameLabel.SetBinding (Label.TextProperty, "FirstName");
-			lastnameLabel = new Label();
-			lastnameLabel.SetBinding (Label.TextProperty, "LastName");*/
-
 			circleImage = new CircleImage{
 				HorizontalOptions = LayoutOptions.Start,
 				Aspect = Aspect.AspectFit,
@@ -308,10 +303,6 @@ namespace Capp2
 			                    Constraint.RelativeToParent((parent => parent.Width*0.8))
 			);
 
-			var initials = UIBuilder.CreateInitialsLabel (this.RenderHeight * 0.45, "Initials");
-
-			UIBuilder.AddInitialsToContactListItem (layout, initials, 0.039, circleImage);
-
 			AddCheckboxToLayout ();
 
 			return layout;
@@ -358,11 +349,10 @@ namespace Capp2
 		public View createLayoutView (string playlist)
 		{
 			//Debug.WriteLine ("In createLayoutView");
+
 			if (App.IsEditing) {
-			//	Debug.WriteLine ("Is Editing");
 				return CreateEditingLayout ();
 			} else {
-			//	Debug.WriteLine ("Is not editing");
 				return CreateNotEditingLayout ();
 			}
 		}

@@ -246,6 +246,7 @@
     <Compile Include="SMSActivity.cs" />
     <Compile Include="SplashScreen.cs" />
     <Compile Include="Helpers\VideoHelper.cs" />
+    <Compile Include="Helpers\BaseUrl_Android.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

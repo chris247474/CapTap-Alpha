@@ -40,10 +40,19 @@ namespace Capp2
 			Settings.IsPremiumSettings = isPremium;
 		}
 
+		static bool TimeToAskForEmail() {
+			var timetoask = (Settings.AskAgainSettings && !Settings.IsFirstRunSettings &&
+					DateTime.Today.Date >= Settings.InstallDateSettings.Date.AddDays(
+				                 Values.XDAYSTOWAITAFTERINSTALLINGTOASKFOREMAIL) &&
+							 Settings.InstallDateSettings.Date > DateTime.MinValue.Date);
+			Debug.WriteLine("Time To ask for email: {0}", timetoask);
+			return timetoask;
+		}
+
 		public static async Task StoreUserEmail()
 		{
 			Debug.WriteLine("AskAgain: {0}, FirstRun: {1}", Settings.AskAgainSettings, Settings.IsFirstRunSettings);
-			if (Settings.AskAgainSettings && !Settings.IsFirstRunSettings)
+			if (TimeToAskForEmail())
 			{
 				var itsgreat = await UserDialogs.Instance.ConfirmAsync(
 																   "Would you like to know more about apps that can double your productivity?",

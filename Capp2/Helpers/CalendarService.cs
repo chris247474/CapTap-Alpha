@@ -33,6 +33,9 @@ namespace Capp2.Helpers
 				await CheckTomorrow (alerted);
 				await Task.Delay(1000);
 				MessagingCenter.Send("", Values.DONECONFIRMINGMEETINGS);
+
+				MessagingCenter.Unsubscribe<string>(this, Values.DONECONFIRMINGTODAYSMEETINGS);
+				MessagingCenter.Unsubscribe<string>(this, Values.DONEWITHCONFIRMTEXT);
 			});
 		}
 		async Task SendConfirm(bool confirmingtoday = true){

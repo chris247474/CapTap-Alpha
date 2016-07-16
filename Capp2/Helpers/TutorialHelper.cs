@@ -52,54 +52,36 @@ namespace Capp2
 			});
 
 			var TipView = UIBuilder.CreateCarouselView(
-						new List<VideoChooserItem>()
-			/*CreateTutorialVideoPickerView(new VideoChooserItem[]*/{
+						new List<VideoChooserItem>(){
 				new VideoChooserItem {
-					ImagePath = "HowToCappScreenshot.png",
 					LabelText = "How do I mark appointments?",
-					VideoPath = "HowToCapp.mov",
-					DetailText = "Just slide out a name to mark a schedule"
+					DetailText = "Just slide out a name to mark a schedule",
+					GIFSource = "HowToMark.gif"
 				},
 				new VideoChooserItem {
-					ImagePath = "HowToUseTextTemplatesScreenshot.png",
-					LabelText = "Type your meetup texts once",
-					VideoPath = "HowToUseTextTemplates.mov",
-					DetailText = "It'll get filled in for you next time"
-				},
-				new VideoChooserItem {
-					ImagePath = "HowToUseStatsScreenshot.png",
 					LabelText = "See your work stats",
-					VideoPath = "HowToUseStats.mov",
-					DetailText = "Your efficiency at a glance"
+					DetailText = "Your lead generation skill visualized",
+					GIFSource = "HowToUseStats.gif"
 				},
 				new VideoChooserItem {
-					ImagePath = "HowToFeedbackScreenshot.png",
-					LabelText = "Suggestions, Feedback, Questions?",
-					VideoPath = "HowToFeedback.mov",
-					DetailText = ""
+					LabelText = "Type your meetup texts once",
+					DetailText = "It'll get filled in for you after every call",
+					GIFSource = "HowToUseTextTemplates.gif"
 				},
 				new VideoChooserItem {
-					ImagePath = "HowToSendYesCallsScreenshot.png",
+					LabelText = "Daily Reports & Yes Calls",
+					DetailText = "Report your daily targets",
+					GIFSource = "HowToUseDailyReport.gif"
+				},
+				/*new VideoChooserItem {
 					LabelText = string.Format("Report your daily yes calls from {0}", Values.APPNAME),
-					VideoPath = "HowToUseSendYesCalls.mov",
-					DetailText = ""
-				},
-				new VideoChooserItem {
-					ImagePath = "HowToSetStartingScreenshot.png",
-					LabelText = "Always start with this namelist",
-					VideoPath = "HowToSetStarting.mov",
-					DetailText = string.Format("Open to this list when starting {0}", Values.APPNAME),
-				},
-				new VideoChooserItem {
-					ImagePath = "HowToUseDailyEmailScreenshot.png",
-					LabelText = "Daily Emails",
-					VideoPath = "HowToUseDailyEmail.mov",
-					DetailText = "Report your daily targets"
-				},
+					DetailText = "",
+					GIFSource = "HowToUseSendYesCalls.gif"
+				},*/
 			}, OnClosing);
 
 			content = new ContentView();
-			var stack = new StackLayout {
+			stack = new StackLayout {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
 				VerticalOptions = LayoutOptions.FillAndExpand,
 				BackgroundColor = new Color (
@@ -129,16 +111,6 @@ namespace Capp2
 
 			if (intutorial)
 			{
-				/*ResetContinueLabel (layout, new Command (async () => {
-					App.InTutorialMode = false;
-					layout.Children.Remove (content.Content);
-					await AlertHelper.Alert ("That's pretty much it!", 
-						"If you forget, you can replay this tutorial in the Settings page at anytime. We'll return you to the main namelist now :)");
-					UserDialogs.Instance.ShowLoading ();
-					NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist();
-					UserDialogs.Instance.HideLoading ();
-				}), true, true);*/
-
 				stack.BackgroundColor = Color.Transparent;
 				layout.Children.Remove(content.Content);
 				var contentpage = new ContentPage
@@ -154,10 +126,7 @@ namespace Capp2
 				layout.BackgroundColor = Color.Transparent;
 				content.BackgroundColor = Color.Transparent;
 				stack.BackgroundColor = Color.Transparent;
-				//content.Content = TipView;
 			}
-
-
 
 			Debug.WriteLine ("donelabel reset");
 
@@ -216,10 +185,7 @@ namespace Capp2
 				})
 			);
 
-			//fab.Clicked += (object sender, EventArgs e) => {
-				
-			//};
-			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "", new Command(async () => {
+			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, Values.AUTOCALLICON, new Command(async () => {
 				layout.Children.Remove(content.Content);
 				layout.Children.Remove(fab);
 				ReadyForAutoCallTipDone = true;
@@ -433,7 +399,8 @@ namespace Capp2
 				layout.Children.Remove(content.Content);
 				layout.Children.Remove(fab);
 				TutorialHelper.HowToMakeNamelistDone = true;
-				await Util.AddNamelist(page);
+				//await Util.AddNamelist(page);
+				await page.PlaylistVM.AddNamelist(page);
 			}));
 
 			Debug.WriteLine ("added fab");
@@ -508,15 +475,14 @@ namespace Capp2
 
 			Debug.WriteLine ("assigned layout");
 
-			fab = UIBuilder.CreateFAB ("", FabSize.Normal, Color.FromHex (Values.GOOGLEBLUE), 
+			fab = UIBuilder.CreateFAB (Values.AUTOCALLICON, FabSize.Normal, Color.FromHex (Values.GOOGLEBLUE), 
 				Color.FromHex (Values.GOOGLEBLUE));
 
 			Debug.WriteLine ("created fab");
 
 			AutoCallInfoLabel = UIBuilder.CreateTutorialLabel (
 				"Introducing AUTOCALL\n\nDouble your daily yes calls.\n\nNo more dialling. " +
-				"No more typing every text. \nNo more papers to lose.\nNo losing track of your sched\n\n"/* +
-				"CapTap does it all for you"*/,
+				"No more typing every text. \nNo more papers to lose.\nNo losing track of your sched\n\n",
 				NamedSize.Small, FontAttributes.Bold, LineBreakMode.WordWrap,
 				new Command(() => {
 					UIAnimationHelper.ShrinkUnshrinkElement(AutoCallInfoLabel);
@@ -646,7 +612,9 @@ namespace Capp2
 			continuePositionX = DoneLabel.X;
 			continuePositionY = DoneLabel.Y;
 
-			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, "", new Command(() => {Debug.WriteLine("Welcome fab tapped");}));
+			page.Content = UIBuilder.AddFABToViewWrapRelativeLayout(layout, fab, Values.AUTOCALLICON, new Command(() => {
+				Debug.WriteLine("Welcome fab tapped");
+			}));
 			layout = ((RelativeLayout)page.Content);
 
 			UIBuilder.AddElementRelativeToViewonRelativeLayoutParent(layout, AutoCallInfoLabel,

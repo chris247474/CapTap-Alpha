@@ -1,22 +1,43 @@
-﻿using System;
+﻿
 using SQLite;
 
 namespace Capp2
 {
-	[Table ("Playlists")]
-	public class Playlist
+	[Table("Playlists")]
+	public class Playlist : BaseViewModel
 	{
 		[PrimaryKey, AutoIncrement, Column("ID"), NotNull]
 		public int ID { get; set; }
 
+		string _playlistname;
 		[Column("PlaylistName"), NotNull, Unique]
-		public string PlaylistName { get; set; }
+		public string PlaylistName
+		{
+			get { return _playlistname; }
+			set { SetProperty(ref _playlistname, value, nameof(PlaylistName)); }
+		}
 
+		string _icon = "people.png";
 		[Column("Icon")]
-		public string Icon { get; set; } = "people.png";
+		public string Icon
+		{
+			get { return _icon; }
+			set { SetProperty(ref _icon, value, nameof(Icon)); }
+		}
 
-		[Column("LastIndexCalled")] 
-		public int LastIndexCalled{ get; set;} = 0;
+		int _lastindexcalled = 0;
+		[Column("LastIndexCalled")]
+		public int LastIndexCalled
+		{
+			get
+			{
+				return _lastindexcalled;
+			}
+			set
+			{
+				SetProperty(ref _lastindexcalled, value, nameof(LastIndexCalled));
+			}
+		}
 	}
 }
 

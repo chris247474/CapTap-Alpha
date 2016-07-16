@@ -10,17 +10,20 @@ using Capp2.Helpers;
 
 namespace Capp2
 {
-	public class PlaylistPage:ContentPage//GradientContentPage
+	public class PlaylistPage:ContentPage
 	{
 		public ListView listView{ get; set;}
 		public Playlist playlistSelected;
         StackLayout stack = new StackLayout();
 		SearchBar searchBar;
+		public PlaylistViewModel PlaylistVM;
 
         public PlaylistPage()
         {
             this.Title = "Namelists";
 			this.BackgroundColor = Color.Transparent;
+
+			PlaylistVM = new PlaylistViewModel();
 
             foreach (Playlist p in App.Database.GetPlaylistItems()) {
                 Debug.WriteLine("playlist: {0}", p.PlaylistName);
@@ -78,16 +81,18 @@ namespace Capp2
 
 			Content = UIBuilder.AddFloatingActionButtonToViewWrapWithRelativeLayout(stack, "Plus.png", new Command (async () =>
 				{
-					Util.AddNamelist(this);
+					//Util.AddNamelist(this);
+					PlaylistVM.AddNamelist(this);
 				}), Color.FromHex (Values.GOOGLEBLUE), Color.FromHex (Values.PURPLE));
 
 			listView.Opacity = 0;
 		}
 			
 		public void CreateListView(){
-			listView = new ListView {
+			listView = new ListView
+			{
 				BackgroundColor = Color.Transparent,
-				ItemsSource = App.Database.GetPlaylistItems(),
+				ItemsSource = PlaylistVM.Namelists,//App.Database.GetPlaylistItems(),
 				SeparatorColor = Color.Transparent,
 				ItemTemplate = new DataTemplate(() =>
 					{
@@ -110,10 +115,11 @@ namespace Capp2
 				listView.Opacity = 0;
 			};
 		}
-
 		protected override void OnAppearing ()
 		{
 			base.OnAppearing ();
+
+			//listView.ItemsSource = PlaylistVM.ObservableNamelists;
 
 			listView.FadeTo (1, 125, Easing.CubicIn);
 			UIAnimationHelper.FlyFromLeft (listView, 400);
@@ -127,7 +133,7 @@ namespace Capp2
 		}
 		public void refresh ()
 		{
-			listView.ItemsSource = App.Database.GetPlaylistItems();
+			listView.ItemsSource = PlaylistVM.Namelists;
 		}
 
 		public void FilterPlaylists(string filter)
@@ -148,8 +154,10 @@ namespace Capp2
 
 	public class PlaylistViewCell:ViewCell
 	{
+		PlaylistPage page;
 		public PlaylistViewCell (PlaylistPage page)
 		{
+			this.page = page;
 			this.Height = this.RenderHeight * 2;
 			Label playlistLabel = new Label();
 			playlistLabel.SetBinding(Label.TextProperty, "PlaylistName");//"Name" binds directly to the ContactData.Name property
@@ -178,7 +186,6 @@ namespace Capp2
 			EditAction.Clicked += async (sender, e) => {
 				var mi = ((MenuItem)sender);
 				await EditPlaylistName((Playlist)mi.BindingContext);
-				page.refresh ();
 			};
 
 			var DeleteAction = new MenuItem { Text = "Delete" , IsDestructive = true};
@@ -186,7 +193,6 @@ namespace Capp2
 			DeleteAction.Clicked += (sender, e) => {
 				var mi = ((MenuItem)sender);
 				DeletePlaylist((Playlist)mi.BindingContext);
-				page.refresh ();
 			};
 
 			View = new StackLayout {
@@ -227,39 +233,65 @@ namespace Capp2
 				var result = await UserDialogs.Instance.PromptAsync("Enter a new name for this namelist:", "", "OK", "Cancel");
 				if (string.IsNullOrWhiteSpace (result.Text) || string.IsNullOrEmpty (result.Text)) {
 				} else {
-					playlist.PlaylistName = result.Text;
+					//playlist.PlaylistName = result.Text;
 					//Debug.WriteLine("new namelist name is {0} from result {1}", playlist.PlaylistName, result.Text);
-                    await UpdatePlaylistContentsToNewName(oldPlaylistName, result.Text);
-					App.Database.UpdatePlaylistItem(playlist);
+					await UpdatePlaylistContentsToNewName(oldPlaylistName, result.Text);
+					//App.Database.UpdatePlaylistItem(playlist);
+
+					page.PlaylistVM.UpdateNamelistLabel(oldPlaylistName, result.Text);
                     return true;
 				}
 			}
 			return false;
 		}
+
         async Task UpdatePlaylistContentsToNewName(string oldPlaylistName, string newPlaylistName) {
             List<ContactData> contactsToMove = new List<ContactData>();
             try {
 				var contacts = App.Database.GetItems(oldPlaylistName).ToArray();
-				//Debug.WriteLine("old namelist name {0} has {1} numbers", oldPlaylistName, contacts.Length);
                 for (int c = 0; c < contacts.Length; c++)
                 {
 					contacts[c].Playlist = contacts[c].Playlist.Replace(ContactViewModel.FormatNamelist(oldPlaylistName), 
 					                                                    ContactViewModel.FormatNamelist(newPlaylistName));
                     contactsToMove.Add(contacts[c]);
-					//Debug.WriteLine("Changing {0} namelist to {1}", oldPlaylistName, newPlaylistName);
                 }
 
-				//Debug.WriteLine("Updating Namelist contents: {0}", App.Database.UpdateAll(contactsToMove.AsEnumerable()));
-                
+				App.Database.UpdateAll(contactsToMove);
             } catch (Exception e) {
                 Debug.WriteLine("UpdatePlaylistContentsToNewName error: {0}", e.Message);
-                UserDialogs.Instance.ShowError("Something went wrong! Pls try again"); }
+                UserDialogs.Instance.ShowError("Something went wrong! Pls try again"); 
+			}
         }
+
+		bool RemovePlaylistContentsFrom(string namelist) {
+			List<ContactData> contactsToMove = new List<ContactData>();
+			try
+			{
+				var contacts = App.Database.GetItems(namelist).ToArray();
+				for (int c = 0; c < contacts.Length; c++)
+				{
+					contacts[c].Playlist = contacts[c].Playlist.Replace(ContactViewModel.FormatNamelist(namelist),
+					                                                    Values.FORMATSEPARATOR);
+					contactsToMove.Add(contacts[c]);
+				}
+
+				App.Database.UpdateAll(contactsToMove);
+			}
+			catch (Exception e)
+			{
+				Debug.WriteLine("RemovePlaylistContentsFrom error: {0}", e.Message);
+				UserDialogs.Instance.ShowError("Something went wrong! Pls try again");
+				return false;;
+			}
+			return true;
+		}
+
 		void DeletePlaylist(Playlist playlist){
 			if (string.Equals (Values.ALLPLAYLISTPARAM, playlist.PlaylistName) || string.Equals (Values.TODAYSCALLS, playlist.PlaylistName)) {
 				UserDialogs.Instance.InfoToast ("Sorry, we can't delete an essential namelist");
 			} else {
-				App.Database.DeletePlaylistItem (playlist);
+				if(RemovePlaylistContentsFrom(playlist.PlaylistName));
+					page.PlaylistVM.DeleteNamelist(playlist.PlaylistName);
 			}
 		}
 	}

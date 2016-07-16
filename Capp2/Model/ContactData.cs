@@ -9,25 +9,76 @@ using System.Runtime.CompilerServices;
 namespace Capp2
 {
 	[Table ("Contacts")]
-	public class ContactData
+	public class ContactData:BaseViewModel
 	{
 		[PrimaryKey, AutoIncrement, Column("ID"), NotNull]
 		public int ID { get; set; }
 
+		string _name;
 		[Column("Name"), NotNull]
-		public string Name { get; set;}
+		public string Name { 
+			get
+			{
+				return _name;
+			}
+			set 
+			{
+				SetProperty(ref _name, value, nameof(Name));
+			}
+		}
 
+		string _firstname;
 		[Column("FirstName"), NotNull]
-		public string FirstName { get; set; }
+		public string FirstName { 
+			get 
+			{
+				return _firstname;
+			}
+			set 
+			{
+				SetProperty(ref _firstname, value, nameof(FirstName));
+			}
+		}
 
+		string _lastname;
 		[Column("LastName"), NotNull]
-		public string LastName { get; set;}
+		public string LastName {
+			get 
+			{
+				return _lastname;
+			}
+			set
+			{
 
+				SetProperty(ref _lastname, value, nameof(LastName));
+			}
+		}
+
+		string _aff;
 		[Column("Affiliation")]
-		public string Aff { get; set; }
+		public string Aff {
+			get
+			{
+				return _aff;
+			}
+			set
+			{
+				SetProperty(ref _aff, value, nameof(Aff));
+			}
+		}
 
+		string _number;
 		[Column("Number"), NotNull]
-		public string Number { get; set; }
+		public string Number {
+			get
+			{
+				return _number;
+			}
+			set
+			{
+				SetProperty(ref _number, value, nameof(Number));
+			}
+		}
 
 		[Column("Number2")]
 		public string Number2 { get; set; }
@@ -44,44 +95,186 @@ namespace Capp2
 		[Column("Playlist")]
 		public string Playlist { get; set; }
 
+		string _oldplaylist = Values.TODAYSCALLSUNDEFINED;
 		[Column("OldPlaylist")]
-		public string OldPlaylist { get; set; } = Values.TODAYSCALLSUNDEFINED;
+		public string OldPlaylist{
+			get
+			{
+				return _oldplaylist;
+			}
+			set
+			{
 
+				SetProperty(ref _oldplaylist, value, nameof(OldPlaylist));
+			}
+		}
+
+		DateTime _called;
 		[Column("Called")]
-		public DateTime Called{ get; set;}
+		public DateTime Called{
+			get
+			{
+				return _called;
+			}
+			set
+			{
+				SetProperty(ref _called, value, nameof(Called));
+			}
+		}
+
+		DateTime _appointed;
 		[Column("Appointed")]
-		public DateTime Appointed{ get; set;}
+		public DateTime Appointed{
+			get
+			{
+				return _appointed;
+			}
+			set
+			{
+				SetProperty(ref _appointed, value, nameof(Appointed));
+			}
+		}
+
+		DateTime _presented;
 		[Column("Presented")]
-		public DateTime Presented{ get; set;}
+		public DateTime Presented{
+			get
+			{
+				return _presented;
+			}
+			set
+			{
+				SetProperty(ref _presented, value, nameof(Presented));
+			}
+		}
+
+		DateTime _purchased;
 		[Column("Purchased")]
-		public DateTime Purchased{ get; set;}
+		public DateTime Purchased{
+			get
+			{
+				return _purchased;
+			}
+			set
+			{
+				SetProperty(ref _purchased, value, nameof(Purchased));
+			}
+		}
 
+		string _nextmeetingID;
 		[Column("NextMeetingID")]
-		public string NextMeetingID{ get; set;}
+		public string NextMeetingID{
+			get
+			{
+				return _nextmeetingID;
+			}
+			set
+			{
 
+				SetProperty(ref _nextmeetingID, value, nameof(NextMeetingID));
+			}
+		}
+
+		DateTime _nextcall;
 		[Column("NextCall")]
-		public DateTime NextCall{ get; set;}
+		public DateTime NextCall{
+			get
+			{
+				return _nextcall;
+			}
+			set
+			{
 
+				SetProperty(ref _nextcall, value, nameof(NextCall));
+			}
+		}
+
+		bool _isselected;
 		[Column("IsSelected")]
-		public bool IsSelected{ get; set;}
+		public bool IsSelected{
+			get
+			{
+				return _isselected;
+			}
+			set
+			{
+				SetProperty(ref _isselected, value, nameof(IsSelected));
+			}
+		}
 
 		[Column("AzureID")]
 		public string AzureID{ get; set;}
 
+		string _smallpic = UIBuilder.ChooseRandomProfilePicBackground(
+			App.ProfileBackground);
 		[Column("PicStringBase64")]
-		public string PicStringBase64 { get; set;} = UIBuilder.ChooseRandomProfilePicBackground(App.ProfileBackground);//"profile-blue.png";
+		public string PicStringBase64 {
+			get
+			{
+				return _smallpic;
+			}
+			set
+			{
+				SetProperty(ref _smallpic, value, nameof(PicStringBase64));
+			}
+		}
 
+		string _largepic = UIBuilder.ChooseRandomProfilePicBackground(
+			App.ProfileBackground);
 		[Column("LargePic")]
-		public string LargePic{ get; set;} = UIBuilder.ChooseRandomProfilePicBackground(App.ProfileBackground);
+		public string LargePic
+		{
+			get
+			{
+				return _largepic;
+			}
+			set
+			{
+				SetProperty(ref _largepic, value, nameof(LargePic));
+			}
+		}
 
+		bool _isconfirmedtomorrow = false;
 		[Column("IsConfirmedTomorrow")]
-		public bool IsConfirmedTomorrow{ get; set;} = false;
+		public bool IsConfirmedTomorrow
+		{
+			get
+			{
+				return _isconfirmedtomorrow;
+			}
+			set
+			{
+				SetProperty(ref _isconfirmedtomorrow, value, nameof(IsConfirmedTomorrow));
+			}
+		}
 
+		bool _isconfirmedtoday = false;
 		[Column("IsConfirmedToday")]
-		public bool IsConfirmedToday{ get; set;} = false;
+		public bool IsConfirmedToday
+		{
+			get
+			{
+				return _isconfirmedtoday;
+			}
+			set
+			{
+				SetProperty(ref _isconfirmedtoday, value, nameof(IsConfirmedToday));
+			}
+		}
 
+		string _initials;
 		[Column("Initials")]
-		public string Initials{ get; set;}
+		public string Initials
+		{
+			get
+			{
+				return _initials;
+			}
+			set
+			{
+				SetProperty(ref _initials, value, nameof(Initials));
+			}
+		}
 
 		public bool IsAppointed{
 			get{ return (Appointed.Date == DateTime.MinValue) ? false : true; }
@@ -99,12 +292,6 @@ namespace Capp2
 		public bool HasDefaultImage_Large{
 			get{ 
 				_usesDefaultImage = false;
-				/*for (int c = 0; c < App.ProfileBackground.Length; c++) {
-					if (string.Equals (LargePic, App.ProfileBackground [c])) {
-						Debug.WriteLine ("LargePic: {0}, placeholder {1}: {2}", LargePic, c, App.ProfileBackground[c]);
-						_usesDefaultImage = true;
-					}
-				}*/
 				if(LargePic.Contains("profile-")){
 					_usesDefaultImage = true;
 				}
@@ -115,12 +302,6 @@ namespace Capp2
 		public bool HasDefaultImage_Small{
 			get{ 
 				_usesDefaultImage = false;
-				/*for (int c = 0; c < App.ProfileBackground.Length; c++) {
-					if (string.Equals (PicStringBase64, App.ProfileBackground [c])) {
-						Debug.WriteLine ("SmallPic: {0}, placeholder {1}: {2}", PicStringBase64, c, App.ProfileBackground[c]);
-						_usesDefaultImage = true;
-					}
-				}*/
 				if(PicStringBase64.Contains("profile-")){
 					_usesDefaultImage = true;
 				}

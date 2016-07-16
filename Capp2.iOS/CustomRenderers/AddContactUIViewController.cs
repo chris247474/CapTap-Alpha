@@ -14,6 +14,11 @@ namespace Capp2.iOS
 {
 	public class AddContactUIViewController:PageRenderer
 	{
+		public override void ViewDidDisappear(bool animated)
+		{
+			base.ViewDidDisappear(animated);
+			MessagingCenter.Unsubscribe<CNViewControllerDelegate>(this, Values.DONEADDINGCONTACTNATIVE);
+		}
 		public override void ViewDidLoad ()
 		{
 			Console.WriteLine ("AddContactUIViewController Viewdidload");

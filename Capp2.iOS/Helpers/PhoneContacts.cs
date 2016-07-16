@@ -120,39 +120,38 @@ namespace Capp2.iOS.Helpers
 			ABAddressBook ab = new ABAddressBook();
 			var contacts = ab.GetPeople();
 			var contactListArr = contactList.ToArray ();
-			int c = 0;
+			//int c = 0;
 
 			try{
-				c = ContinueImportingFromLastImageIfNotDone(c);
-
-				for(;c < contactListArr.Length;c++){
+				//Settings.Count = ContinueImportingFromLastImageIfNotDone(Settings.Count);
+				for(;Settings.Count < contactListArr.Length;Settings.Count++){
 					for(int x = 0;x < contacts.Length;x++){
 						App.DeviceImageCtr = x;
-						if(string.Equals(contactListArr[c].FirstName, contacts[x].FirstName) && 
-							string.Equals(contactListArr[c].LastName, contacts[x].LastName) && 
+						if(string.Equals(contactListArr[Settings.Count].FirstName, contacts[x].FirstName) && 
+							string.Equals(contactListArr[Settings.Count].LastName, contacts[x].LastName) && 
 							contacts[x].HasImage)
 						{
-							//Console.WriteLine("starting inner loop");
+							Console.WriteLine("starting inner loop iteration: {0} for contacts index {1}", x, Settings.Count);
 							//for listview row
-							contactListArr[c].PicStringBase64 = 
-								SaveImageThenGetPath(contactListArr[c], 
+							contactListArr[Settings.Count].PicStringBase64 = 
+								SaveImageThenGetPath(contactListArr[Settings.Count], 
 									contacts[x].GetImage(ABPersonImageFormat.Thumbnail), 
 									ABPersonImageFormat.Thumbnail);
 							//Console.WriteLine("assigned small pic");
 
 							//for single page
-							contactListArr[c].LargePic = 
-								SaveImageThenGetPath(contactListArr[c],
+							contactListArr[Settings.Count].LargePic = 
+								SaveImageThenGetPath(contactListArr[Settings.Count],
 									contacts[x].GetImage(ABPersonImageFormat.OriginalSize), 
 									ABPersonImageFormat.OriginalSize);
 							//Console.WriteLine("assigned big pic");
 							//update db for bindings
-							App.Database.UpdateItem(contactListArr[c]);
+							App.Database.UpdateItem(contactListArr[Settings.Count]);
 						}
 					}
 				}
-				App.DeviceImageCtr = 0;
-				//Console.WriteLine("Done w all images, {0}", App.DeviceImageCtr);
+				Console.WriteLine("Done w all images, {0}", Settings.Count);//App.DeviceImageCtr);
+				Settings.Count = 0;
 				App.ImageImportingDone = true;
 				return contactListArr.ToList<ContactData>();
 			}catch(Exception e){
@@ -161,13 +160,13 @@ namespace Capp2.iOS.Helpers
 			return contactList;
 		}
 
-		int ContinueImportingFromLastImageIfNotDone(int c){
+		/*int ContinueImportingFromLastImageIfNotDone(int c){
 			if(!IsImageImportingDone()){
 				Console.WriteLine("Resuming background image importing at index {0}", c);
-				return App.DeviceImageCtr;
+				return Settings.Count;
 			}
 			return c;
-		}
+		}*/
 
 		bool IsImageImportingDone(){
 			if (App.DeviceImageCtr == 0)

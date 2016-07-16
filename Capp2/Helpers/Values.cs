@@ -7,6 +7,10 @@ namespace Capp2
 		//public const string STARTINGCONFIRMCHECK = "startconfirmcheck";
 		//public const string ENDINGCONFIRMCHECK = "endconfirmcheck";
 
+		public const string AUTOCALLICON = "lightning.png";
+
+		public const int XDAYSTOWAITAFTERINSTALLINGTOASKFOREMAIL = 2;
+
 		public const string NEXTTIME = "Next Time";
 		public const string DONTREMIND = "Don't ask again";
 

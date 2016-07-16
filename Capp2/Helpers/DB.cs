@@ -17,6 +17,7 @@ namespace Capp2
 		SQLite.SQLiteConnection database; 
 		List<ContactData> list;
 		ContactViewModel contactViewModel;
+		bool contactsSelected = false;
 
 		public DB () 
 		{
@@ -29,7 +30,7 @@ namespace Capp2
 			if (playlist == "All") {
 				//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
 				list = (from x in (database.Table<ContactData> ().OrderBy (x => x.FirstName))
-					select x).ToList<ContactData> ();
+					select x).ToList<ContactData>();
 				App.lastIndex = list.Count+1;
 			} else if(playlist == Values.TODAYSCALLS){
 				//all contacts regardless of playlist, marked for callback today
@@ -94,6 +95,91 @@ namespace Capp2
 			return list;
 		}
 
+
+		public ObservableCollection<ContactData> GetObservableItems(string playlist)
+		{
+			Debug.WriteLine("Fetching list {0}", playlist);
+			var observableList = new ObservableCollection<ContactData>();
+			if (playlist == "All")
+			{
+				//dont choose which playlist, display all contacts including those marked as different playlists because "All" will be understood as a separate namelist
+				list = (from x in (database.Table<ContactData>().OrderBy(x => x.FirstName))
+						select x).ToList<ContactData>();
+				App.lastIndex = list.Count + 1;
+			}
+			else if (playlist == Values.TODAYSCALLS)
+			{
+				//all contacts regardless of playlist, marked for callback today
+				list = (from x in (database.Table<ContactData>().
+					Where(c => c.OldPlaylist == Values.CALLTODAY && c.NextCall == DateTime.Today.Date).
+								   OrderBy(x => x.FirstName))
+						select x).ToList<ContactData>();
+				App.lastIndex = list.Count + 1;
+			}
+			else {
+				try
+				{
+					//get list of namelists, compare to playlist param. 
+					var matchingNamelist = FindMatchingNamelist(playlist);
+					list = (from x in (database.Table<ContactData>().Where(x => x.Playlist.Contains(matchingNamelist))
+									   .OrderBy(x => x.FirstName))
+							select x).ToList<ContactData>();
+					App.lastIndex = list.Count + 1;
+				}
+				catch (Exception e)
+				{
+					Debug.WriteLine(e.Message + " --------------------------- EMPTYEXCEPTION");
+					UserDialogs.Instance.Alert("No contacts yet", "This namelist is still empty", "I'll add some in a bit");
+					list = null;
+				}
+			}
+
+			if (list == null)
+			{
+				list = new ContactData[] { }.ToList();
+			}
+			var listarr = list.ToArray();
+
+			for (int c = 0; c < listarr.Length; c++)
+			{
+				var firstinitial = listarr[c].FirstName[0];
+				var secondinitial = listarr[c].LastName[0];
+				if (listarr[c].HasDefaultImage_Small)
+				{
+					listarr[c].Initials = firstinitial.ToString() + secondinitial.ToString();
+				}
+				else {
+					listarr[c].Initials = string.Empty;
+				}
+
+				/*Need to do this before populating every list - for some reason, string ContactData.Number doesn't
+				 keep the callable format after being stored in the db.
+				 Additionally, searching the namelist only returns literal/exact matches and not similar matches,
+				 ex: searching for 09163247357 will not show 0916(324)7357 to the user if we don't call Util.MakeDBContactCallable
+				 ,because formats are lost while storing into SQLite*/
+				listarr[c].Number = Util.MakeDBContactCallable(listarr[c].Number, false);
+				if (!string.IsNullOrWhiteSpace(listarr[c].Number2))
+				{
+					listarr[c].Number2 = Util.MakeDBContactCallable(listarr[c].Number2, false);
+					if (!string.IsNullOrWhiteSpace(listarr[c].Number3))
+					{
+						listarr[c].Number3 = Util.MakeDBContactCallable(listarr[c].Number3, false);
+						if (!string.IsNullOrWhiteSpace(listarr[c].Number4))
+						{
+							listarr[c].Number4 = Util.MakeDBContactCallable(listarr[c].Number4, false);
+							if (!string.IsNullOrWhiteSpace(listarr[c].Number5))
+							{
+								listarr[c].Number5 = Util.MakeDBContactCallable(listarr[c].Number5, false);
+							}
+						}
+					}
+				}
+				//Debug.WriteLine ("{0}'s number is {1}", listarr[c].Name, listarr[c].Number);
+
+				observableList.Add(listarr[c]);
+			}
+			return observableList;
+		}
 		string FindMatchingNamelist(string playlist){
 			var playlists = GetPlaylistNames(); 
 			for(int c = 0;c < playlists.Length;c++){
@@ -416,6 +502,36 @@ namespace Capp2
             Debug.WriteLine(App.lastIndex + ": lastIndex");
             return list;
         }
+
+		public ObservableCollection<Playlist> GetObservablePlaylistItems()
+		{
+			Debug.WriteLine("in playlist GetItems()");
+			var observableList = new ObservableCollection<Playlist>();
+			int ctr = 0;
+			List<Playlist> list = (from i in (database.Table<Playlist>().OrderBy(i => i.PlaylistName)) select i).ToList<Playlist>();
+			foreach (Playlist c in list)
+			{
+				ctr++;
+				Debug.WriteLine(c.PlaylistName);
+				if (string.IsNullOrWhiteSpace(c.Icon))
+				{
+					if (string.Equals(c.PlaylistName, Values.ALLPLAYLISTPARAM))
+					{
+						c.Icon = "people.png";
+					}
+					else if (string.Equals(c.PlaylistName, Values.TODAYSCALLS))
+					{
+						c.Icon = "todo.png";
+					}
+				}
+
+				observableList.Add(c);
+			}
+			App.lastIndex = ctr + 1;
+			Debug.WriteLine(App.lastIndex + ": lastIndex");
+			return observableList;
+		}
+
 		public string[] GetPlaylistNames(){
 			try{
 				var playlists = GetPlaylistItems();
@@ -462,7 +578,7 @@ namespace Capp2
             }
         }
 
-		public bool PlaylistNameAlreadyExists(string name){
+		/*public bool PlaylistNameAlreadyExists(string name){
 			var playlistarr = GetPlaylistItems ().ToArray();
 			for(int x = 0;x < playlistarr.Length;x++){
 				if(string.Equals(playlistarr[x].PlaylistName, name)){
@@ -470,7 +586,7 @@ namespace Capp2
 				}
 			}
 			return false;
-		}
+		}*/
 
         public int SavePlaylistItem(Playlist item)
         {
@@ -489,26 +605,41 @@ namespace Capp2
             }
         }
 
+		/*public void SelectAll(IEnumerable<ContactData> list, bool refresh = true, bool IsModal = false)
+		{
+			Debug.WriteLine("In SelectAll()");
+			var contacts = list.ToArray();
+			var count = contacts.Length;
+			for (int c = 0; c < count; c++)
+			{
+				contacts[c].IsSelected = true;
+			}
+			App.Database.UpdateAll(list);
+			if (refresh)
+			{
+				if (IsModal) App.CapModal.refresh();
+				else App.CapPage.refresh();
+			}
+			contactsSelected = true;
+		}
 
-		public async Task<int> DeselectAll(IEnumerable<ContactData> list, CAPPBase capp, bool refresh = true){
+		public void SelectDeselectAll(IEnumerable<ContactData> list, bool refresh = true, bool IsModal = false) {
+			if (contactsSelected) DeselectAll(list, null, refresh, IsModal);
+			else SelectAll(list, refresh, IsModal);
+		}*/
+
+		public async Task<int> DeselectAll(IEnumerable<ContactData> list, CAPPBase capp, bool refresh = true
+		                                   , bool IsModal = false){
 			ContactData[] arr = list.ToArray ();
 			for(int c = 0;c < arr.Length;c++){
 				arr [c].IsSelected = false;
 			}
 			var updateResult = App.Database.UpdateAll (arr.AsEnumerable ());
 			if (refresh) {
-				App.CapPage.refresh ();
+				App.CapPage.refresh();
 			}
+			contactsSelected = false;
 			return updateResult;
-		}
-
-		public void EnableAll(IEnumerable<ContactData> list, CAPPBase capp){
-			ContactData[] arr = list.ToArray ();
-			for(int c = 0;c < arr.Length;c++){
-				arr [c].IsSelected = true;
-			}
-			App.Database.UpdateAll (arr.AsEnumerable ());
-			capp.refresh ();
 		}
     }
 }
