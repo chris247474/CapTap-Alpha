@@ -187,6 +187,7 @@ namespace Capp2
 				{
 					//await Navigation.PushModalAsync(new AddContactPage(this));
 					await Navigation.PushAsync(new AddEditContactNativePage());
+					await App.NavPage.Navigation.PopAsync(false);
 				}
 				else if (importResult == Values.IMPORTCHOICEGDRIVE)
 				{
@@ -355,7 +356,7 @@ namespace Capp2
 
 
 		void CreateTBIs(){
-			AddTBI = new ToolbarItem("Add", "", async () =>
+			AddTBI = new ToolbarItem("Add", "Plus-blue.png", async () =>
 				{
 					TutorialHelper.RemoveHowToAddContactsTipIfNeeded(this);
 					await AddContacts();
@@ -364,7 +365,7 @@ namespace Capp2
 				this.ToolbarItems.Add(AddTBI);
 			}
 
-			CopyToTBI = new ToolbarItem("Copy To", "", async () =>
+			CopyToTBI = new ToolbarItem("Copy To", "Copy.png", async () =>
 				{
 					var enumerableList = App.Database.GetItems (this.playlist);
 					var contactsArr = enumerableList.ToArray ();
@@ -404,7 +405,7 @@ namespace Capp2
 
 					UpdateUI_EnableAutoCallingAfterEditing();
 				});
-			DeleteTBI = new ToolbarItem("Delete", "", async () =>
+			DeleteTBI = new ToolbarItem("Delete", "Trash.png", async () =>
 				{
 					var enumerableList = App.Database.GetItems (this.playlist);
 					var contactsArr = enumerableList.ToArray ();
@@ -549,7 +550,8 @@ namespace Capp2
 			MessagingCenter.Subscribe<string>(this, Values.READYFOREXTRATIPS, async (args) =>{ 
 				TutorialHelper.ReadyForExtraTips = true;
 			});
-			MessagingCenter.Subscribe<string>(this, Values.DONEADDINGCONTACT, async (args) =>{ 
+			MessagingCenter.Subscribe<string>(this, Values.DONEADDINGCONTACT, async (args) =>{
+				Debug.WriteLine("Receieved DONEADDINGCONTACT");
 				if(App.InTutorialMode && TutorialHelper.HowToAddContactsDone && !TutorialHelper.ReadyForAutoCallTipDone){
 					if(App.Database.GetItems(playlist).Count() > 0){
 						TutorialHelper.ReadyForAutoCallTip(this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Purple));

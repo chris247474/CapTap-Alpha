@@ -31,7 +31,7 @@ namespace Capp2.iOS
 
 			/*var list = new List<UIBarButtonItem>();
 
-			foreach (var item in TopViewController.NavigationItem.RightBarButtonItems)
+			/*foreach (var item in TopViewController.NavigationItem.RightBarButtonItems)
 			{
 				if(string.IsNullOrEmpty(item.Title))
 				{

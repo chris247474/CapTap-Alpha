@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -14,6 +14,21 @@ namespace Capp2
 		string namelist;
 		public bool AllContactsSelected { get; set; } = false;
 		public bool ContactsAlreadyDeselected { get; set; } = false;
+
+		string _contactscount;
+		public string ContactsCount { 
+			get {
+				return _contactscount;
+			} 
+			set {
+				_contactscount = value;
+			}
+		}
+
+		void UpdateContactCount() { 
+			var numberofcontacts = Contacts.Count;
+			_contactscount = (numberofcontacts > 1) ? numberofcontacts + " Contacts" : numberofcontacts + " Contact";
+		}
 
 		string _contactscount;
 		public string ContactsCount { 
@@ -55,9 +70,14 @@ namespace Capp2
 				_list = App.Database.GetObservableItems(namelist);
 			}
 		}
+<<<<<<< Updated upstream
 		public void Refresh() {
 			Contacts = App.Database.GetObservableItems(namelist);
 			App.CapPage.listView.ItemsSource = GroupedContacts;
+=======
+		public void Refresh() { 
+			Contacts = App.Database.GetObservableItems(namelist);
+>>>>>>> Stashed changes
 		}
 		public ContactsViewModel(string namelist)
 		{
@@ -174,20 +194,33 @@ namespace Capp2
 
 		public async Task RemoveAllSelectedContactsFromNamelist(bool save = true) {
 			int GroupCtr = GroupedContacts.Count;
+<<<<<<< Updated upstream
 			//int ContactInGroupCtr;
+=======
+			int ContactInGroupCtr = 0;
+>>>>>>> Stashed changes
 			ContactData person;
 			List<ContactData> contactsToUpdateInDB = new List<ContactData>();
 
 			try {
+<<<<<<< Updated upstream
 				for (int c = 0; c < GroupedContacts.Count; c++)
 				{
 					var contactGroup = GroupedContacts.ElementAt(c);
 					//ContactInGroupCtr = contactGroup.Count;
 					for (int n = 0; n < contactGroup.Count; n++)
+=======
+				for (int c = 0; c < GroupCtr; c++)
+				{
+					var contactGroup = GroupedContacts.ElementAt(c);
+					ContactInGroupCtr = contactGroup.Count;
+					for (int n = 0; n < ContactInGroupCtr; n++)
+>>>>>>> Stashed changes
 					{
 						person = contactGroup.ElementAt(n);
 						if (person.IsSelected)
 						{
+<<<<<<< Updated upstream
 							Debug.WriteLine("Removing namelist {0} from {1}: number {2}/{5} in group#{3}/{4}", 
 							                this.namelist, person.Name, n, c, GroupedContacts.Count, contactGroup.Count);
 							RemoveNamelistFromContact(person, this.namelist);
@@ -209,6 +242,18 @@ namespace Capp2
 				ContactsAlreadyDeselected = true;
 				//Refresh();
 
+=======
+							Debug.WriteLine("Removing namelist {0} from {1}", this.namelist, person.Name);
+							RemoveNamelistFromContact(person, this.namelist);
+							person.IsSelected = false;//no need for separate deselect call
+							contactGroup.Remove(person);
+							Contacts.Remove(person);
+							n--;//adjust size so loop avoids crashing and processes the rest of the collections for deletion	
+							contactsToUpdateInDB.Add(person);
+						}
+					}
+				}
+>>>>>>> Stashed changes
 			} catch (ArgumentOutOfRangeException ie) {
 				Debug.WriteLine("ContactsViewModel.RemoveAllSelectedContactsFromNamelist expected error:D {0}", ie.Message);
 			}
@@ -217,6 +262,7 @@ namespace Capp2
 			contactsToUpdateInDB = null;
 			person = null;
 		}
+<<<<<<< Updated upstream
 
 		void RemoveNamelistFromContact(ContactData contact, string namelistToRemove) { 
 			contact.Playlist = contact.Playlist.Replace(FormatNamelist(namelistToRemove), 
@@ -225,6 +271,16 @@ namespace Capp2
 							 contact.Name, contact.Playlist);
 		}
 
+=======
+
+		void RemoveNamelistFromContact(ContactData contact, string namelistToRemove) { 
+			contact.Playlist = contact.Playlist.Replace(FormatNamelist(namelistToRemove), 
+			                                            Values.FORMATSEPARATOR);
+			Debug.WriteLine("removed {0} from {1}'s namelists. result: {2}", namelistToRemove,
+							 contact.Name, contact.Playlist);
+		}
+
+>>>>>>> Stashed changes
 		public static ObservableCollection<ContactData> FilterNameNumberOrg(
 			ObservableCollection<ContactData> list, string filter)
 		{
@@ -261,7 +317,10 @@ namespace Capp2
 		public async Task CopySelectedItemsToNamelistChosenByUser() {
 			var MoveToResult = await UserDialogs.Instance.ActionSheetAsync(
 				"Move to Namelist", "Cancel", null, PlaylistsIntoStringArr());
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 			var contactsToSave = new List<ContactData>();
 
 			if (!string.Equals(MoveToResult, "Cancel"))
@@ -287,7 +346,10 @@ namespace Capp2
 					UserDialogs.Instance.WarnToast("Oops! You didn't choose a new namelist. Please try again", null, 2000);
 				}
 			}
+<<<<<<< Updated upstream
 			ContactsAlreadyDeselected = true;
+=======
+>>>>>>> Stashed changes
 		}
 		public ContactData AddNamelistsToContactThenReturn(ContactData contact, string[] namelists, bool save = true)
 		{
@@ -389,9 +451,15 @@ namespace Capp2
 			{
 				if (importResult == Values.IMPORTCHOICEMANUAL)
 				{
+<<<<<<< Updated upstream
 					//await App.NavPage.Navigation.PushAsync(new AddEditContactNativePage());
 					//await App.NavPage.Navigation.PopAsync(false);
 					await AddEditContactNativePage.OpenNativeContactsUI();
+=======
+					await App.NavPage.Navigation.PushAsync(new AddEditContactNativePage());
+					await App.NavPage.Navigation.PopAsync(false);
+					//await AddEditContactNativePage.OpenNativeContactsUI();
+>>>>>>> Stashed changes
 				}
 				else if (importResult == Values.IMPORTCHOICEGDRIVE)
 				{
@@ -410,8 +478,13 @@ namespace Capp2
 						AlertHelper.Alert("Empty Namelist", importResult + " has no contacts", "OK");
 					}
 					else {
+<<<<<<< Updated upstream
 						await App.NavPage.Navigation.PushModalAsync(new CappModal(importResult,
 						    this.namelist, Group(list), list/*, Contacts*/));
+=======
+						//await App.NavPage.Navigation.PushModalAsync(new CappModal(importResult,
+						//    this.namelist, Group(list), list/*, Contacts*/));
+>>>>>>> Stashed changes
 					}
 				}
 			}
@@ -420,9 +493,12 @@ namespace Capp2
 
 		public void DeselectAll(bool modal = false)
 		{
+<<<<<<< Updated upstream
 			/*Debug.WriteLine("Sending DESELECTALLMESSAGE");
 			if(modal) MessagingCenter.Send("", Values.DESELECTALLMESSAGECAPPMODAL);
 			else MessagingCenter.Send("", Values.DESELECTALLMESSAGE);*/
+=======
+>>>>>>> Stashed changes
 			int GroupCtr = GroupedContacts.Count;
 			int ContactInGroupCtr = 0;
 			var contactsToUpdate = new List<ContactData>();
@@ -442,8 +518,14 @@ namespace Capp2
 				}
 			}
 
+<<<<<<< Updated upstream
 			AllContactsSelected = false;
 			//if (updateDB) App.Database.UpdateAll(contactsToUpdate);
+=======
+			allSelected = false;
+			if (updateDB) App.Database.UpdateAll(contactsToUpdate);
+				 //UngroupListButRetainOrder(GroupedContacts));
+>>>>>>> Stashed changes
 		}
 
 		public void SelectAll(bool modal = false)
@@ -476,6 +558,7 @@ namespace Capp2
 		public ObservableCollection<ContactData> UngroupListButRetainOrder(
 			ObservableCollection<Grouping<string, ContactData>> group)
 		{
+<<<<<<< Updated upstream
 			ObservableCollection<ContactData> UngroupedOrderedList = 
 				new ObservableCollection<ContactData>();
 			int GroupCtr = group.Count;
@@ -495,6 +578,54 @@ namespace Capp2
 				}
 			}
 
+=======
+			int GroupCtr = GroupedContacts.Count;
+			int ContactInGroupCtr = 0;
+			var contactsToUpdate = new List<ContactData>();
+			ContactData person;
+
+			for (int c = 0; c < GroupCtr; c++)
+			{
+				var contactGroup = GroupedContacts.ElementAt(c);
+				ContactInGroupCtr = contactGroup.Count;
+				for (int n = 0; n < ContactInGroupCtr; n++)
+				{
+					person = contactGroup.ElementAt(n);
+					Debug.WriteLine("SelectAll Looping {0}", person.Name);
+					person.IsSelected = true;
+					Debug.WriteLine("{0} IsSelected: {1}", person.Name, person.IsSelected);
+					contactsToUpdate.Add(person);
+				}
+			}
+
+			allSelected = true;
+			if (updateDB) App.Database.UpdateAll(contactsToUpdate);
+				//UngroupListButRetainOrder(GroupedContacts));
+		}
+
+		public ObservableCollection<ContactData> UngroupListButRetainOrder(
+			ObservableCollection<Grouping<string, ContactData>> group)
+		{
+			ObservableCollection<ContactData> UngroupedOrderedList = 
+				new ObservableCollection<ContactData>();
+			int GroupCtr = group.Count;
+			int ContactInGroupCtr = 0;
+
+			if (group == null)
+				throw new NullReferenceException("UngroupListButRetainOrder has null param");
+
+			for (int c = 0; c < GroupCtr; c++)
+			{
+				var contactGroup = group.ElementAt(c);
+				ContactInGroupCtr = contactGroup.Count;
+				for (int n = 0; n < ContactInGroupCtr; n++)
+				{
+					Debug.WriteLine("Adding {0} to UngroupedOrderedList", contactGroup.ElementAt(n));
+					UngroupedOrderedList.Add(contactGroup.ElementAt(n));
+				}
+			}
+
+>>>>>>> Stashed changes
 			return UngroupedOrderedList;
 		}
 

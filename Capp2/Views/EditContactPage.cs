@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Xamarin.Forms;
 using System.Diagnostics;
 using System.ServiceModel.Channels;
@@ -21,6 +21,7 @@ namespace Capp2
 		//Label numberLabel, number2Label, number3Label, number4Label, number5Label, firstNameLabel, lastNameLabel, affLabel, playlistLabel;
 		//Entry numberEntry, number2Entry, number3Entry, number4Entry, number5Entry, firstNameEntry, lastNameEntry, affEntry;
 		//Picker playlistPicker;
+		Label firstNameLabel;
 		Image phoneImg = new Image(), messageImg = new Image(),
 			dome = new Image();
 		CachedImage backgroundImage = new CachedImage ();
@@ -44,7 +45,12 @@ namespace Capp2
 
 			this.Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "Edit.png", 
 			    new Command(async () => {
+<<<<<<< Updated upstream
 					await AddEditContactNativePage.OpenNativeContactsUI(contact);
+=======
+					Navigation.PushAsync(new AddEditContactNativePage(contact));
+					await App.NavPage.Navigation.PopAsync(false);
+>>>>>>> Stashed changes
 				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE)/*, "Checkmark.png"*/);
 
 			UIAnimationHelper.FlyDown (relativeLayout);
@@ -198,8 +204,8 @@ namespace Capp2
 			ContactPic.BackgroundColor = Color.White;
 			ContactPic.SetBinding(CircleImage.SourceProperty, new Xamarin.Forms.Binding{Path = "LargePic"});
 
-			/*firstNameLabel = new Label { Text = "First Name" };
-			firstNameLabel.HorizontalOptions = LayoutOptions.Center;
+			firstNameLabel = new Label { Text = "First Name" };
+			/*firstNameLabel.HorizontalOptions = LayoutOptions.Center;
 			firstNameEntry = new Entry ();
 			firstNameEntry.Text = contact.FirstName;
 
@@ -273,15 +279,15 @@ namespace Capp2
 				contact.Playlist = playlistArr[x];
 			};
 */
-			phoneImg = UIBuilder.CreateTappableImage ("Phone-blue-outline", LayoutOptions.Fill, Aspect.AspectFit,
+			phoneImg = UIBuilder.CreateTappableImage ("Phone-blue-outline-100", LayoutOptions.Fill, Aspect.AspectFit,
 				new Command (async () => {
 					await CallHelper.call (contact, false);
-				})/*, firstNameLabel.FontSize * 2*/);
+				}), firstNameLabel.FontSize * 2);
 
-			messageImg = UIBuilder.CreateTappableImage ("message-blue-outline"/*"Message-green-100"*/, LayoutOptions.Fill, Aspect.AspectFit,
+			messageImg = UIBuilder.CreateTappableImage ("message-blue-outline-100", LayoutOptions.Fill, Aspect.AspectFit,
 				new Command (async () => {
 					DependencyService.Get<IPhoneContacts> ().SendSMS (await CallHelper.HandleMutlipleNumbers (contact));
-				})/*, firstNameLabel.FontSize * 2*/);
+				}), firstNameLabel.FontSize * 2);
 
 			details = new DetailsView (contact);
 

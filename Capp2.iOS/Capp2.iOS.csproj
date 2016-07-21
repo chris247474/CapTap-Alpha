@@ -246,6 +246,17 @@
     <BundleResource Include="Resources\Phone-blue-outline%403x.png" />
     <BundleResource Include="Resources\message-blue-outline%402x.png" />
     <BundleResource Include="Resources\message-blue-outline%403x.png" />
+    <BundleResource Include="Resources\Copy.png" />
+    <BundleResource Include="Resources\Copy%402x.png" />
+    <BundleResource Include="Resources\Copy%403x.png" />
+    <BundleResource Include="Resources\Trash.png" />
+    <BundleResource Include="Resources\Trash%402x.png" />
+    <BundleResource Include="Resources\Trash%403x.png" />
+    <BundleResource Include="Resources\Plus-blue.png" />
+    <BundleResource Include="Resources\Plus-blue%402x.png" />
+    <BundleResource Include="Resources\Plus-blue%403x.png" />
+    <BundleResource Include="Resources\message-blue-outline-100.png" />
+    <BundleResource Include="Resources\Phone-blue-outline-100.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
