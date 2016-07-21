@@ -7,6 +7,11 @@ namespace Capp2
 		//public const string STARTINGCONFIRMCHECK = "startconfirmcheck";
 		//public const string ENDINGCONFIRMCHECK = "endconfirmcheck";
 
+		public const string SELECTALLMESSAGE = "selectall";
+		public const string DESELECTALLMESSAGE = "deselectall";
+		public const string SELECTALLMESSAGECAPPMODAL = "selectallCAPPMODAL";
+		public const string DESELECTALLMESSAGECAPPMODAL = "deselectallCAPPMODAL";
+
 		public const string AUTOCALLICON = "lightning.png";
 
 		public const int XDAYSTOWAITAFTERINSTALLINGTOASKFOREMAIL = 2;

@@ -34,7 +34,7 @@ namespace Capp2
 		public EditContactPage (ContactData contact, CAPP page)  
 		{
 			NavigationPage.SetHasNavigationBar (this, true);
-			App.EditPage = this;
+			//App.EditPage = this;
 			ShowPage (contact, page);
 		}
 		async void ShowPage(ContactData contact, CAPP page){
@@ -43,17 +43,14 @@ namespace Capp2
 			CreateLayouts (contact);
 
 			this.Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "Edit.png", 
-				new Command(() => {
-					//SwitchEditViewMode(page, contact);
-					Navigation.PushAsync(new AddEditContactNativePage(contact));
+			    new Command(async () => {
+					await AddEditContactNativePage.OpenNativeContactsUI(contact);
 				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE)/*, "Checkmark.png"*/);
 
 			UIAnimationHelper.FlyDown (relativeLayout);
 		}
 		void CreateLayouts(ContactData contact){
-			
 			relativeLayout = new RelativeLayout ();
-
 			relativeLayout.Children.Add (
 				backgroundImage,
 				Constraint.Constant (0),
@@ -62,7 +59,7 @@ namespace Capp2
 					return parent.Width;
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return parent.Height * .4;
+					return parent.Height * .35;
 				})
 			);
 
@@ -77,16 +74,16 @@ namespace Capp2
 				}),
 				Constraint.RelativeToParent((parent) =>
 				{
-					return parent.Height * .4;
+					return parent.Height * .35;//0.4
 				})
 			);
 			}
 
 			relativeLayout.Children.Add (
 				dome,
-				Constraint.Constant (-10),
+				Constraint.Constant (0),
 				Constraint.RelativeToParent ((parent) => {
-					return (parent.Height * 0.4) - 50;
+					return (parent.Height * 0.28);// - 25;
 				}),
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Width + 10;
@@ -103,7 +100,7 @@ namespace Capp2
 					}),
 					Constraint.RelativeToParent((parent) =>
 					{
-						return parent.Height * .22;
+						return parent.Height * .17;//.22;
 					}),
 					Constraint.RelativeToParent((parent) =>
 					{
@@ -140,7 +137,7 @@ namespace Capp2
 					return parent.Width * .1;
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return (parent.Height * .45);
+					return (parent.Height * 0.4);//.45);
 				}),
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Width * .10;
@@ -156,7 +153,7 @@ namespace Capp2
 					return parent.Width * .95 - (parent.Width * .15);
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return (parent.Height * .46);
+					return (parent.Height * .41);//0.46
 				}),
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Width * .09;
@@ -175,13 +172,6 @@ namespace Capp2
 
 		async Task InitUI(ContactData contact){
 			BindingContext = contact;
-
-			EditTBI = new ToolbarItem("More", "", async () =>
-				{
-					await Navigation.PushAsync(new AddEditContactNativePage(contact));
-				});
-			
-			this.ToolbarItems.Add (EditTBI);
 
 			backgroundImage = new CachedImage () {
 				DownsampleToViewSize = true,

@@ -47,10 +47,10 @@ namespace Capp2
                 {
 					BackgroundColor = Color.Transparent,
                     Children = {
-						UIBuilder.CreateEmptyStackSpace(),
-						UIBuilder.CreateEmptyStackSpace(),
+						//UIBuilder.CreateEmptyStackSpace(),
+						//UIBuilder.CreateEmptyStackSpace(),
 						new StackLayout{
-							Padding = new Thickness(0, 10, 0, 0),
+							//Padding = new Thickness(0, 10, 0, 0),
 							Children = {searchBar}
 						},
                         new StackLayout{
@@ -87,6 +87,8 @@ namespace Capp2
 
 			listView.Opacity = 0;
 		}
+
+
 			
 		public void CreateListView(){
 			listView = new ListView
@@ -118,8 +120,6 @@ namespace Capp2
 		protected override void OnAppearing ()
 		{
 			base.OnAppearing ();
-
-			//listView.ItemsSource = PlaylistVM.ObservableNamelists;
 
 			listView.FadeTo (1, 125, Easing.CubicIn);
 			UIAnimationHelper.FlyFromLeft (listView, 400);
@@ -251,8 +251,8 @@ namespace Capp2
 				var contacts = App.Database.GetItems(oldPlaylistName).ToArray();
                 for (int c = 0; c < contacts.Length; c++)
                 {
-					contacts[c].Playlist = contacts[c].Playlist.Replace(ContactViewModel.FormatNamelist(oldPlaylistName), 
-					                                                    ContactViewModel.FormatNamelist(newPlaylistName));
+					contacts[c].Playlist = contacts[c].Playlist.Replace(ContactsViewModel.FormatNamelist(oldPlaylistName), 
+					                                                    ContactsViewModel.FormatNamelist(newPlaylistName));
                     contactsToMove.Add(contacts[c]);
                 }
 
@@ -270,7 +270,7 @@ namespace Capp2
 				var contacts = App.Database.GetItems(namelist).ToArray();
 				for (int c = 0; c < contacts.Length; c++)
 				{
-					contacts[c].Playlist = contacts[c].Playlist.Replace(ContactViewModel.FormatNamelist(namelist),
+					contacts[c].Playlist = contacts[c].Playlist.Replace(ContactsViewModel.FormatNamelist(namelist),
 					                                                    Values.FORMATSEPARATOR);
 					contactsToMove.Add(contacts[c]);
 				}

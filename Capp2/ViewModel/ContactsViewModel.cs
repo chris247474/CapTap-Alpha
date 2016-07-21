@@ -5,13 +5,30 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
+using Xamarin.Forms;
 
 namespace Capp2
 {
 	public class ContactsViewModel:BaseViewModel
 	{
 		string namelist;
-		bool allSelected = false;
+		public bool AllContactsSelected { get; set; } = false;
+		public bool ContactsAlreadyDeselected { get; set; } = false;
+
+		string _contactscount;
+		public string ContactsCount { 
+			get {
+				return _contactscount;
+			} 
+			set {
+				_contactscount = value;
+			}
+		}
+
+		void UpdateContactCount() { 
+			var numberofcontacts = Contacts.Count;
+			_contactscount = (numberofcontacts > 1) ? numberofcontacts + " Contacts" : numberofcontacts + " Contact";
+		}
 
 		ObservableCollection<ContactData> _list;
 		public ObservableCollection<ContactData> Contacts {
@@ -20,6 +37,8 @@ namespace Capp2
 			}
 			set {
 				SetProperty(ref _list, value, nameof(_list));
+				UpdateContactCount();
+				_groupedlist = Group(_list);
 			}
 		}
 
@@ -33,28 +52,36 @@ namespace Capp2
 			set
 			{
 				SetProperty(ref _groupedlist, value, nameof(_groupedlist));
+				_list = App.Database.GetObservableItems(namelist);
 			}
 		}
-
+		public void Refresh() {
+			Contacts = App.Database.GetObservableItems(namelist);
+			App.CapPage.listView.ItemsSource = GroupedContacts;
+		}
 		public ContactsViewModel(string namelist)
 		{
 			this.namelist = namelist;
-			Task.Run(() => {
-				_list = App.Database.GetObservableItems(namelist);
-				_groupedlist = Group(_list);
-			});
+			Contacts = App.Database.GetObservableItems(namelist);
+		}
+		public ContactsViewModel(string namelist, ObservableCollection<Grouping<string, ContactData>> groupedcontacts, 
+		                        ObservableCollection<ContactData> contacts)
+		{
+			this.namelist = namelist;
+			_list = contacts;
+			_groupedlist = groupedcontacts;
 		}
 
-		ObservableCollection<Grouping<string, ContactData>> Group(ObservableCollection<ContactData> list) { 
-			var group =  list.OrderBy(p => p.FirstName)
+		public ObservableCollection<Grouping<string, ContactData>> Group(ObservableCollection<ContactData> list) {
+			Debug.WriteLine("in ContactsViewModel.Group");
+			var group = list.OrderBy(p => p.FirstName)
 						.GroupBy(p => p.FirstName[0].ToString())
-						.Select(p => new Grouping<string, ContactData>(p))
-			                 .ToArray();
-			var observableGroup = new ObservableCollection<Grouping<string, ContactData>>();
-			for (int c = 0; c < group.Length; c++) {
+						.Select(p => new Grouping<string, ContactData>(p));
+			//var observableGroup = new ObservableCollection<Grouping<string, ContactData>>();
+			/*for (int c = 0; c < group.Length; c++) {
 				observableGroup.Add(group[c]);
-			}
-			return observableGroup;
+			}*/
+			return new ObservableCollection<Grouping<string, ContactData>>(group);
 		}
 
 		ContactData FindContact(int ID)
@@ -68,10 +95,35 @@ namespace Capp2
 			return null;
 		}
 
-		ContactData FindObservableContact(int ID)
+		public void AddContactToGroupedContactsThenReorder(ContactData contact) {//Grouping class doesn't reflect changes
+			var templist = _list;
+			templist.Add(contact);
+			GroupedContacts = Group(templist);
+		}
+
+		public ContactData FindObservableContact(int ID)
 		{
 			foreach (ContactData contact in Contacts) {
 				if (contact.ID == ID) return contact;
+			}
+			return null;
+		}
+
+		public ContactData FindObservableGroupedContact(int ID)
+		{
+			int GroupCtr = GroupedContacts.Count;
+			int ContactInGroupCtr = 0;
+			ContactData person;
+
+			for (int c = 0; c < GroupCtr; c++)
+			{
+				var contactGroup = GroupedContacts.ElementAt(c);
+				ContactInGroupCtr = contactGroup.Count;
+				for (int n = 0; n < ContactInGroupCtr; n++)
+				{
+					person = contactGroup.ElementAt(n);
+					if (person.ID == ID) return person;
+				}
 			}
 			return null;
 		}
@@ -84,6 +136,12 @@ namespace Capp2
 				if (yescall)
 				{
 					matchingContact.OldPlaylist = Values.TODAYSCALLSUNDEFINED;
+					Contacts.Remove(matchingContact);
+					foreach (Grouping<string, ContactData> grouping in GroupedContacts) {
+						var result = grouping.Remove(matchingContact);
+						Debug.WriteLine("MarkForTodaysCalls Found a match: {0}", result);
+						if (result) return;//doesn't reflect in UI
+					}
 				}
 				else {
 					matchingContact.NextCall = date.Date;
@@ -98,8 +156,231 @@ namespace Capp2
 
 		void SaveContact(ContactData contact) {
 		}
+		public string[] PlaylistsIntoStringArr()
+		{
+			Playlist[] list = App.Database.GetPlaylistItems().ToArray();
+			List<string> finalList = new List<string>();
 
-		async Task AddContacts()
+			for (int c = 0; c < list.Length; c++)
+			{
+				if (!string.Equals(list[c].PlaylistName, Values.ALLPLAYLISTPARAM) &&
+				   !string.Equals(list[c].PlaylistName, Values.TODAYSCALLS))
+				{
+					finalList.Add(list[c].PlaylistName);
+				}
+			}
+			return finalList.ToArray();
+		}
+
+		public async Task RemoveAllSelectedContactsFromNamelist(bool save = true) {
+			int GroupCtr = GroupedContacts.Count;
+			//int ContactInGroupCtr;
+			ContactData person;
+			List<ContactData> contactsToUpdateInDB = new List<ContactData>();
+
+			try {
+				for (int c = 0; c < GroupedContacts.Count; c++)
+				{
+					var contactGroup = GroupedContacts.ElementAt(c);
+					//ContactInGroupCtr = contactGroup.Count;
+					for (int n = 0; n < contactGroup.Count; n++)
+					{
+						person = contactGroup.ElementAt(n);
+						if (person.IsSelected)
+						{
+							Debug.WriteLine("Removing namelist {0} from {1}: number {2}/{5} in group#{3}/{4}", 
+							                this.namelist, person.Name, n, c, GroupedContacts.Count, contactGroup.Count);
+							RemoveNamelistFromContact(person, this.namelist);
+							person.IsSelected = false;//no need for separate deselect call
+							//contactGroup.Remove(person);
+							//Contacts.Remove(person);
+							//n--;//adjust size so loop avoids crashing and processes the rest of the collections for deletion	
+							contactsToUpdateInDB.Add(person);
+						}
+						else {
+							Debug.WriteLine("{0} is not selected", person.Name);
+						}
+					}
+					/*if (contactGroup.Count < 1) { 
+						GroupedContacts.Remove(contactGroup);
+						c--;
+					}*/
+				}
+				ContactsAlreadyDeselected = true;
+				//Refresh();
+
+			} catch (ArgumentOutOfRangeException ie) {
+				Debug.WriteLine("ContactsViewModel.RemoveAllSelectedContactsFromNamelist expected error:D {0}", ie.Message);
+			}
+
+			if (save) App.Database.UpdateAll(contactsToUpdateInDB);
+			contactsToUpdateInDB = null;
+			person = null;
+		}
+
+		void RemoveNamelistFromContact(ContactData contact, string namelistToRemove) { 
+			contact.Playlist = contact.Playlist.Replace(FormatNamelist(namelistToRemove), 
+			                                            Values.FORMATSEPARATOR);
+			Debug.WriteLine("removed {0} from {1}'s namelists. result: {2}", namelistToRemove,
+							 contact.Name, contact.Playlist);
+		}
+
+		public static ObservableCollection<ContactData> FilterNameNumberOrg(
+			ObservableCollection<ContactData> list, string filter)
+		{
+			var results = new ObservableCollection<ContactData>();
+				
+			if (list == null)
+			{
+				Debug.WriteLine("input to filter by array is null");
+				return null;
+			}
+
+			try
+			{
+				/*return list
+					.Where(x => x.Name.ToLower().Contains(filter.ToLower())
+					       || x.Number.ToLower().Contains(filter.ToLower())).ToList();*/
+				var arr = list.ToArray();
+				for (int c = 0; c < arr.Length; c++) {
+					if (arr[c].Name.ToLower().Contains(filter.ToLower()) || 
+					    arr[c].Number.ToLower().Contains(filter.ToLower())) 
+					{
+						results.Add(arr[c]);
+					}
+				}
+				return results;
+			}
+			catch (Exception e)
+			{
+				Debug.WriteLine("filterbyArray error: {0}", e.Message);
+			}
+			return null;
+		}
+
+		public async Task CopySelectedItemsToNamelistChosenByUser() {
+			var MoveToResult = await UserDialogs.Instance.ActionSheetAsync(
+				"Move to Namelist", "Cancel", null, PlaylistsIntoStringArr());
+
+			var contactsToSave = new List<ContactData>();
+
+			if (!string.Equals(MoveToResult, "Cancel"))
+			{
+				if (!string.IsNullOrWhiteSpace(MoveToResult))
+				{
+					Debug.WriteLine("ABOUT TO LOOP");
+
+					foreach (ContactData contact in Contacts)
+					{
+						if (contact.IsSelected)
+						{
+							AddNamelistsToContact(contact, new string[] { MoveToResult }, false);
+							Debug.WriteLine(contact.Name + " is being copied to " + MoveToResult);
+							contact.IsSelected = false;
+							contactsToSave.Add(contact);
+						}
+					}
+					App.Database.UpdateAll(contactsToSave);
+					UserDialogs.Instance.ShowSuccess("Copied!", 2000);
+				}
+				else {
+					UserDialogs.Instance.WarnToast("Oops! You didn't choose a new namelist. Please try again", null, 2000);
+				}
+			}
+			ContactsAlreadyDeselected = true;
+		}
+		public ContactData AddNamelistsToContactThenReturn(ContactData contact, string[] namelists, bool save = true)
+		{
+			for (int c = 0; c < namelists.Length; c++)
+			{
+				if (!string.IsNullOrWhiteSpace(namelists[c]))
+				{
+					if (contact.Playlist.EndsWith(FormatNamelist(namelists[c])))
+					{
+						//already part of this namelist
+					}
+					else if (contact.Playlist.EndsWith(Values.FORMATSEPARATOR))
+					{
+						Debug.WriteLine("previous namelist was added: ends with separator");
+						contact.Playlist += namelists[c] + Values.FORMATSEPARATOR;
+					}
+					else {
+						Debug.WriteLine("No previous namelist added");
+						contact.Playlist += Values.FORMATSEPARATOR + namelists[c] + Values.FORMATSEPARATOR;
+					}
+					Debug.WriteLine("Added a namelist to {0}: {1}", contact.Name, contact.Playlist);
+				}
+			}
+			if (save)
+			{
+				App.Database.UpdateItem(contact);
+			}
+			return contact;
+		}
+		public void AddNamelistsToContact(ContactData contact, string[] namelists, bool save = true)
+		{
+			for (int c = 0; c < namelists.Length; c++)
+			{
+				if (!string.IsNullOrWhiteSpace(namelists[c]))
+				{
+					if (contact.Playlist.EndsWith(FormatNamelist(namelists[c])))
+					{
+						//already part of this namelist
+					}
+					else if (contact.Playlist.EndsWith(Values.FORMATSEPARATOR))
+					{
+						Debug.WriteLine("previous namelist was added: ends with separator");
+						contact.Playlist += namelists[c] + Values.FORMATSEPARATOR;
+					}
+					else {
+						Debug.WriteLine("No previous namelist added");
+						contact.Playlist += Values.FORMATSEPARATOR + namelists[c] + Values.FORMATSEPARATOR;
+					}
+					Debug.WriteLine("Added a namelist to {0}: {1}", contact.Name, contact.Playlist);
+				}
+			}
+			if (save)
+			{
+				App.Database.UpdateItem(contact);
+			}
+			//return contact;
+		}
+		public static string FormatNamelist(string namelist)
+		{
+			return Values.FORMATSEPARATOR + namelist + Values.FORMATSEPARATOR;
+		}
+
+		public static string AddContactsToNamelist(string namelistData, string[] namelists)//, bool save = true)
+		{
+			for (int c = 0; c < namelists.Length; c++)
+			{
+				if (!string.IsNullOrWhiteSpace(namelists[c]))
+				{
+					if (namelistData.Contains(Values.FORMATSEPARATOR + namelists[c] + Values.FORMATSEPARATOR))
+					{
+						//already part of this namelist
+					}
+					else if (namelistData.EndsWith(Values.FORMATSEPARATOR))
+					{
+						Debug.WriteLine("previous namelist was added: ends with separator");
+						namelistData += namelists[c] + Values.FORMATSEPARATOR;
+					}
+					else {
+						Debug.WriteLine("No previous namelist added");
+						namelistData += Values.FORMATSEPARATOR + namelists[c] + Values.FORMATSEPARATOR;
+					}
+					Debug.WriteLine("returning new namelist string {0}", namelistData);
+				}
+			}
+
+			/*if (save)
+			{
+				App.Database.UpdateItem(person);
+			}*/
+			return namelistData;
+		}
+
+		public async Task AddContacts()
 		{
 			var import = Util.ImportChoices(namelist);
 			var importResult = await UserDialogs.Instance.ActionSheetAsync(
@@ -108,7 +389,9 @@ namespace Capp2
 			{
 				if (importResult == Values.IMPORTCHOICEMANUAL)
 				{
-					await App.NavPage.Navigation.PushAsync(new AddEditContactNativePage());
+					//await App.NavPage.Navigation.PushAsync(new AddEditContactNativePage());
+					//await App.NavPage.Navigation.PopAsync(false);
+					await AddEditContactNativePage.OpenNativeContactsUI();
 				}
 				else if (importResult == Values.IMPORTCHOICEGDRIVE)
 				{
@@ -121,53 +404,110 @@ namespace Capp2
 				else
 				{
 					Debug.WriteLine("Importing from {0}", importResult);
-					var list = App.Database.GetItems(importResult).ToList<ContactData>();
+					var list = App.Database.GetObservableItems(importResult);//App.Database.GetItems(importResult).ToList<ContactData>();
 					if (list.Count == 0)
 					{
 						AlertHelper.Alert("Empty Namelist", importResult + " has no contacts", "OK");
 					}
 					else {
 						await App.NavPage.Navigation.PushModalAsync(new CappModal(importResult,
-							this.namelist, App.Database.GetGroupedItems(importResult),
-						    list, App.Database.GetItems(this.namelist).ToList<ContactData>()));
+						    this.namelist, Group(list), list/*, Contacts*/));
 					}
 				}
 			}
 			catch (Exception) { }
 		}
 
-		public void DeselectAll(bool updateDB = false)
+		public void DeselectAll(bool modal = false)
 		{
-			foreach (ContactData c in Contacts) {
-				c.IsSelected = false;
-			}
-			allSelected = false;
-			if(updateDB) App.Database.UpdateAll(Contacts.AsEnumerable());
-		}
+			/*Debug.WriteLine("Sending DESELECTALLMESSAGE");
+			if(modal) MessagingCenter.Send("", Values.DESELECTALLMESSAGECAPPMODAL);
+			else MessagingCenter.Send("", Values.DESELECTALLMESSAGE);*/
+			int GroupCtr = GroupedContacts.Count;
+			int ContactInGroupCtr = 0;
+			var contactsToUpdate = new List<ContactData>();
+			ContactData person;
 
-		public void Deselect(ContactData[] contacts) {//faster to just deselectall?
-			
-		}
-
-		public void SelectAll(bool updateDB = false)
-		{
-			foreach (ContactData c in Contacts)
+			for (int c = 0; c < GroupCtr; c++)
 			{
-				c.IsSelected = true;
+				var contactGroup = GroupedContacts.ElementAt(c);
+				ContactInGroupCtr = contactGroup.Count;
+				for (int n = 0; n < ContactInGroupCtr; n++)
+				{
+					person = contactGroup.ElementAt(n);
+					Debug.WriteLine("DeSelectAll Looping {0}", person.Name);
+					person.IsSelected = false;
+					Debug.WriteLine("{0} IsSelected: {1}", person.Name, person.IsSelected);
+					contactsToUpdate.Add(person);
+				}
 			}
-			allSelected = true;
-			if(updateDB) App.Database.UpdateAll(Contacts.AsEnumerable());
+
+			AllContactsSelected = false;
+			//if (updateDB) App.Database.UpdateAll(contactsToUpdate);
 		}
 
-		public void SelectDeselectAll(bool updateDB = false)
+		public void SelectAll(bool modal = false)
 		{
-			if (allSelected) DeselectAll(updateDB);
-			else SelectAll(updateDB);
+			//if(modal) MessagingCenter.Send("", Values.SELECTALLMESSAGECAPPMODAL);
+			//else MessagingCenter.Send("", Values.SELECTALLMESSAGE);
+			int GroupCtr = GroupedContacts.Count;
+			int ContactInGroupCtr = 0;
+			var contactsToUpdate = new List<ContactData>();
+			ContactData person;
+
+			for (int c = 0; c < GroupCtr; c++)
+			{
+				var contactGroup = GroupedContacts.ElementAt(c);
+				ContactInGroupCtr = contactGroup.Count;
+				for (int n = 0; n < ContactInGroupCtr; n++)
+				{
+					person = contactGroup.ElementAt(n);
+					Debug.WriteLine("SelectAll Looping {0}", person.Name);
+					person.IsSelected = true;
+					Debug.WriteLine("{0} IsSelected: {1}", person.Name, person.IsSelected);
+					contactsToUpdate.Add(person);
+				}
+			}
+
+			AllContactsSelected = true;
+			//if (updateDB) App.Database.UpdateAll(contactsToUpdate);
+		}
+
+		public ObservableCollection<ContactData> UngroupListButRetainOrder(
+			ObservableCollection<Grouping<string, ContactData>> group)
+		{
+			ObservableCollection<ContactData> UngroupedOrderedList = 
+				new ObservableCollection<ContactData>();
+			int GroupCtr = group.Count;
+			int ContactInGroupCtr = 0;
+
+			if (group == null)
+				throw new NullReferenceException("UngroupListButRetainOrder has null param");
+
+			for (int c = 0; c < GroupCtr; c++)
+			{
+				var contactGroup = group.ElementAt(c);
+				ContactInGroupCtr = contactGroup.Count;
+				for (int n = 0; n < ContactInGroupCtr; n++)
+				{
+					Debug.WriteLine("Adding {0} to UngroupedOrderedList", contactGroup.ElementAt(n));
+					UngroupedOrderedList.Add(contactGroup.ElementAt(n));
+				}
+			}
+
+			return UngroupedOrderedList;
+		}
+
+		public void SelectDeselectAll(bool modal = false)
+		{
+			if (AllContactsSelected) DeselectAll(modal);
+			else SelectAll(modal);
 		}
 
 		public ObservableCollection<ContactData> GetSelectedItems()
 		{
-			var selectedItems = new ObservableCollection<ContactData>();
+			/*var selectedItems = new ObservableCollection<ContactData>();
+
 			var arr = Contacts.ToArray();
 			for (int c = 0; c < arr.Length; c++)
 			{
@@ -176,7 +516,9 @@ namespace Capp2
 					selectedItems.Add(arr[c]);
 				}
 			}
-			return selectedItems;
+			return selectedItems;*/
+			return new ObservableCollection<ContactData>(
+				UngroupListButRetainOrder(GroupedContacts).Where(contact => contact.IsSelected == true));
 		}
 	}
 }

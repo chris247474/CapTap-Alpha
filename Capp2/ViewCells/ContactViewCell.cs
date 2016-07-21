@@ -8,6 +8,7 @@ using Acr.UserDialogs;
 using FFImageLoading.Forms;
 using FFImageLoading.Work;
 using FFImageLoading.Transformations;
+using System.Threading.Tasks;
 
 namespace Capp2
 {
@@ -65,14 +66,16 @@ namespace Capp2
             
 			checkbox.SetBinding (CheckBox.CheckedProperty, "IsSelected");
 			checkbox.CheckedChanged += (sender, e) => {
-				personCalled = (sender as CheckBox).Parent.Parent/*.Parent*/.BindingContext as ContactData;
+				personCalled = (sender as CheckBox).Parent.Parent.BindingContext as ContactData;
 				Debug.WriteLine (personCalled.Name+"' selected value is "+personCalled.IsSelected.ToString ());
 				Debug.WriteLine("checkbox value is {0}", checkbox.Checked);
-				App.Database.UpdateItem(personCalled);
+				if (personCalled.IsSelected) App.CapPage.ContactsVM.ContactsAlreadyDeselected = false;
+				//App.Database.UpdateItem(personCalled);
 
-				var person = (from x in (App.Database.GetItems (Values.ALLPLAYLISTPARAM).Where(x => x.Name == personCalled.Name && x.Playlist == personCalled.Playlist))
+				/*var person = (from x in (App.Database.GetItems (Values.ALLPLAYLISTPARAM).Where(x => x.Name == personCalled.Name && x.Playlist == personCalled.Playlist))
 					select x);
 				Debug.WriteLine (person.ElementAtOrDefault (0).Name+"' selected value is "+person.ElementAtOrDefault (0).IsSelected.ToString ()); 
+				*/
 			};
 
 			phone = new Image {
@@ -152,15 +155,10 @@ namespace Capp2
 			// add context actions to the cell
 			ContextActions.Add(nextAction);
 			ContextActions.Add(sched);
-			//ContextActions.Add (appointedAction);
-			//ContextActions.Add (presentedAction);
-			//ContextActions.Add (purchasedAction);
 		}
 		protected override void OnBindingContextChanged ()
 		{
 			base.OnBindingContextChanged ();
-			//Debug.WriteLine ("OnBindingContextChanged");
-
 			var item = BindingContext as ContactData;
 			if (item != null) {
 				nameLabel.Text = item.Name;
@@ -169,15 +167,14 @@ namespace Capp2
 				initials.Text = item.Initials;
 			}
 		}
-		void SwitchToEditingOrNotEditingMode(){
+		async Task SwitchToEditingOrNotEditingMode(){
 			Debug.WriteLine ("In SwitchToEditOrNotEditingMode()");
 			if (App.IsEditing) {
 				Debug.WriteLine ("Editing in CustomViewCell - OnBindingContextChanged");
-				layout.Children/*.RemoveAt (layout.Children.Count - 1);*/.Remove (phone);
+				layout.Children.Remove (phone);
 				AddCheckboxToLayout ();
 			} else {
 				Debug.WriteLine ("Not editing in CustomViewCell - OnBindingContextChanged");
-				//layout.Children.RemoveAt (layout.Children.Count - 1);
 				layout.Children.Remove (checkbox);
 				AddPhoneToLayout ();
 			}
@@ -365,6 +362,14 @@ namespace Capp2
 			MessagingCenter.Subscribe<CAPP> (this, Values.DONEEDITING, (args) => { 
 				Debug.WriteLine ("ContactViewCell - DONEEDITING MESSAGE RECEIVED");
 				SwitchToEditingOrNotEditingMode ();
+			});
+			MessagingCenter.Subscribe<string>(this, Values.DESELECTALLMESSAGE, (args) =>
+			{
+				checkbox.Checked = false;
+			});
+			MessagingCenter.Subscribe<string>(this, Values.SELECTALLMESSAGE, (args) =>
+			{
+				checkbox.Checked = true;
 			});
 		}
 	}

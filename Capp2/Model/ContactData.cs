@@ -49,7 +49,6 @@ namespace Capp2
 			}
 			set
 			{
-
 				SetProperty(ref _lastname, value, nameof(LastName));
 			}
 		}
@@ -92,8 +91,18 @@ namespace Capp2
 		[Column("Number5")]
 		public string Number5 { get; set; }
 
+		string _playlist;
 		[Column("Playlist")]
-		public string Playlist { get; set; }
+		public string Playlist { 
+			get
+			{
+				return _playlist;
+			}
+			set
+			{
+				SetProperty(ref _playlist, value, nameof(Playlist));
+			}
+		}
 
 		string _oldplaylist = Values.TODAYSCALLSUNDEFINED;
 		[Column("OldPlaylist")]
@@ -104,7 +113,6 @@ namespace Capp2
 			}
 			set
 			{
-
 				SetProperty(ref _oldplaylist, value, nameof(OldPlaylist));
 			}
 		}

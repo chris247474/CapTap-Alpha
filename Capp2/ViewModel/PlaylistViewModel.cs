@@ -29,6 +29,7 @@ namespace Capp2
 			_list = App.Database.GetObservablePlaylistItems();//App.Database.GetPlaylistItems().ToList();
 		}
 
+
 		public void UpdateNamelistLabel(string oldName, string newName) {
 			int pos = -1;
 			Playlist item = null;

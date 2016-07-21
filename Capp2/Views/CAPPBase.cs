@@ -63,7 +63,7 @@ namespace Capp2
 		}
 
 		protected async Task ShowSelectAllFAB(RelativeLayout layout, FAB.Forms.FloatingActionButton fab, Image img,
-		                                     double xAdjustment = 0, double yAdjustment = 0)
+		                                     double xAdjustment = -15, double yAdjustment = 0)
 		{
 			fab.Opacity = 0;
 			img.Opacity = 0;
@@ -72,16 +72,16 @@ namespace Capp2
 			//add to layout then remove it from layout to 'skip' that situation
 			layout.Children.Add(fab,
 								Constraint.RelativeToParent(parent =>
-			                                                (parent.Width - fab.Width) - 37 + xAdjustment),
+			                                                (parent.Width - fab.Width*1.5) /*- 37*/ + xAdjustment),
 								Constraint.RelativeToParent(parent =>
-			                                                (parent.Height - fab.Height) - 100 + yAdjustment)
+			                                                (parent.Height - fab.Height*2.8) - 100 + yAdjustment)
 							   );
 			layout.Children.Remove(fab);
 			layout.Children.Add(fab,
 								Constraint.RelativeToParent(parent =>
-			                                                (parent.Width - fab.Width) - 37+ xAdjustment),
+			                                                (parent.Width - fab.Width*1.5) /*- 37*/+ xAdjustment),
 								Constraint.RelativeToParent(parent =>
-			                                                (parent.Height - fab.Height) - 100+yAdjustment)
+			                                                (parent.Height - fab.Height*2.8) - 100+yAdjustment)
 							   );
 
 			layout.Children.Add(img,

@@ -11,6 +11,8 @@ namespace Capp2
 
 			Device.OnPlatform(
 				() => App.NavPage = new NavigationPage(new PlaylistPage()){
+					//BarBackgroundColor = Color.FromHex(Values.GOOGLEBLUE),
+					//BarTextColor = Color.White,
 				}, 
 				() => App.NavPage = new NavigationPage(new PlaylistPage()){
 					BarBackgroundColor = Color.FromHex (Values.GOOGLEBLUE),

@@ -2,6 +2,7 @@
 
 using Xamarin.Forms;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Capp2
 {
@@ -11,6 +12,11 @@ namespace Capp2
 		{
 			Debug.WriteLine ("AddContactNativePage");
 			App.CurrentContact = contact;
+		}
+
+		public static async Task OpenNativeContactsUI(ContactData contact = null) { 
+			await App.NavPage.PushAsync(new AddEditContactNativePage(contact));
+			await App.NavPage.PopAsync(false);
 		}
 	}
 }

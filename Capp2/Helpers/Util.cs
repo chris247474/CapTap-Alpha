@@ -159,31 +159,11 @@ namespace Capp2
                 return null;
             }
 
-            //List<ContactData> filteredList = new List<ContactData>();
             try
             {
 				return list
 					.Where(x => x.Name.ToLower().Contains(filter.ToLower())
 						|| x.Number.ToLower().Contains(filter.ToLower()));
-               /* if (Device.OS == TargetPlatform.iOS)//arrays are processed faster than linq 
-                { 
-                    var arr = list.ToArray();
-                    for (int c = 0; c < arr.Length; c++)
-                    {
-                        if (arr[c].Name.ToLower().Contains(filter.ToLower()) || arr[c].Number.Contains(filter.ToLower()))
-                        {
-                            filteredList.Add(arr[c]);
-                        }
-                    }
-                    return filteredList;
-                }
-                else if (Device.OS == TargetPlatform.Android)//slower approach but avoids android layout differences
-                {
-                    return list
-                    .Where(x => x.Name.ToLower().Contains(filter.ToLower())
-							|| x.Number.ToLower().Contains(filter.ToLower())).ToList<ContactData>();//including aff field causes crashes in android layout
-                }
-			*/
 
             }
             catch (Exception e)
@@ -584,15 +564,9 @@ namespace Capp2
 		}
 
 		public static bool duplicateExists(ContactData contact, ContactData[] contactsArr){
-			//var contactsArr = currentContacts.ToArray ();
 			bool match = false;
-			/*foreach(ContactData i in currentContacts){
-				if ((contact.FirstName == i.FirstName) && (contact.LastName == i.LastName) && (contact.Playlist == i.Playlist)) {
-					match = true;
-				}
-			}*/
 			for(int c = 0;c < contactsArr.Length;c++){
-				if ((contact.FirstName == contactsArr[c].FirstName) && (contact.LastName == contactsArr[c].LastName) && (contact.Playlist == contactsArr[c].Playlist)) {
+				if ((contact.FirstName == contactsArr[c].FirstName) && (contact.LastName == contactsArr[c].LastName)/* && (contact.Playlist == contactsArr[c].Playlist)*/) {
 					match = true;
 				}
 			}
@@ -727,7 +701,6 @@ namespace Capp2
 							}
 						}
 
-						//contact = await PhoneContacts.GetProfilePic(contact);
 						formattedList.Add(contact);
 
 					} catch (NullReferenceException) {

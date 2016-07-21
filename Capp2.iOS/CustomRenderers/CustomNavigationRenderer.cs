@@ -14,10 +14,10 @@ namespace Capp2.iOS
 		public override void PushViewController(UIKit.UIViewController viewController, bool animated)
 		{
 			base.PushViewController(viewController, animated);
-			NavigationBar.Translucent = true;
-			NavigationBar.BarTintColor = UIColor.White;
-			NavigationBar.ShadowImage = new UIImage ();
-			NavigationBar.BackgroundColor = UIColor.Clear;
+			//NavigationBar.Translucent = true;
+			//NavigationBar.BarTintColor = UIColor.White;
+			//NavigationBar.ShadowImage = new UIImage ();
+			//NavigationBar.BackgroundColor = UIColor.Clear;
 
 			UIStringAttributes myTextAttrib = new UIStringAttributes();
 			myTextAttrib.Font = UIFont.SystemFontOfSize(15);
@@ -29,7 +29,7 @@ namespace Capp2.iOS
 			//NavigationBar.SetBackgroundImage (new UIImage (), UIBarMetrics.Default);//completely see through navbar
 			//NavigationBar.TintColor = UIColor.White;
 
-			var list = new List<UIBarButtonItem>();
+			/*var list = new List<UIBarButtonItem>();
 
 			foreach (var item in TopViewController.NavigationItem.RightBarButtonItems)
 			{
@@ -38,16 +38,7 @@ namespace Capp2.iOS
 					continue;
 				}
 
-				if (item.Title.ToLower() == "add")
-				{
-					var newItem = new UIBarButtonItem(UIBarButtonSystemItem.Add)
-					{
-						Action = item.Action,
-						Target = item.Target
-					};
 
-					list.Add(newItem);
-				}
 				if (item.Title.ToLower() == "done")
 				{
 					var newItem = new UIBarButtonItem(UIBarButtonSystemItem.Done)
@@ -68,16 +59,6 @@ namespace Capp2.iOS
 
 					list.Add(newItem);
 				}
-				/*if (item.Title.ToLower() == "menu")
-				{
-					var newItem = new UIBarButtonItem(UIBarButtonSystemItem.)
-					{
-						Action = item.Action,
-						Target = item.Target
-					};
-
-					list.Add(newItem);
-				}*/
 
 				if (item.Title.ToLower() == "camera")
 				{
@@ -91,7 +72,7 @@ namespace Capp2.iOS
 				}
 
 				TopViewController.NavigationItem.RightBarButtonItems = list.ToArray();
-			}
+			}*/
 		}
 
 		public override void ViewDidLayoutSubviews ()
