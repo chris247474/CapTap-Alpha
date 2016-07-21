@@ -88,7 +88,7 @@ namespace Capp2
 				return "GreenGradientBackground.png";
 			}*/
 
-			return "OrangeGradientBackground.png";
+			return "BlueGradientBackground.png";
 		}
 
 		public static string ExtractInitials(ContactData contact){
@@ -132,16 +132,14 @@ namespace Capp2
 			};
 			label.Opacity = label.Opacity / 2;
 
-			layout.Children.Add(//change to relativetoview
+			layout.Children.Add(
 				label,
 				xConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
-					return view.X*1.2;// - (label.Width*0.50);
+					return view.X*1.2;
 				}),
-				//Constraint.RelativeToParent(parent => circleImage.Width*0.59),
 				yConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
-					return view.Y*1.35;
+					return view.Y*1.5;//1.37
 				}),
-				//Constraint.RelativeToParent(parent => circleImage.Height*0.37)
 				widthConstraint: Constraint.RelativeToView (circleImage, (parent, view) => {
 					return view.Width*0.8;
 				}),
@@ -326,9 +324,83 @@ namespace Capp2
 			}
 		} 
 
+		public static void AddFABToRelativeLayout_AvoidIsolatedNullReferenceException(RelativeLayout parentlayout, FloatingActionButton child, string icon,
+			Command FabTapped = null)
+		{
+			Debug.WriteLine("In AddFABToViewWrapRelativeLayout");
+			//RelativeLayout parentlayout = viewToAddTo;//new RelativeLayout();
+
+			child.Source = icon;
+			parentlayout.VerticalOptions = LayoutOptions.FillAndExpand;
+			parentlayout.HorizontalOptions = LayoutOptions.FillAndExpand;
+			/*parentlayout.Children.Add(
+				viewToAddTo,
+				xConstraint: Constraint.Constant(0),
+				yConstraint: Constraint.Constant(0),
+				widthConstraint: Constraint.RelativeToParent(parent => parent.Width),
+				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
+			);*/
+
+			Debug.WriteLine("Added to parentlayout");
+
+			Image img = new Image();
+			img = CreateTappableImage(icon,
+				LayoutOptions.Fill, Aspect.AspectFit, new Command(() =>
+				{
+					UIAnimationHelper.ShrinkUnshrinkElement(child, 100);
+					UIAnimationHelper.ShrinkUnshrinkElement(img, 100);
+					FabTapped.Execute(null);
+				}));
+			img.InputTransparent = false;
+
+			Debug.WriteLine("Created img");
+
+			if (Device.OS == TargetPlatform.iOS)
+			{
+				parentlayout.Children.Add(
+					child,
+					xConstraint: Constraint.RelativeToParent((parent) => { return (parent.Width - child.Width * 1.5) /*- 30*/; }),
+					yConstraint: Constraint.RelativeToParent((parent) => { return (parent.Height - child.Height * 2.8) /*- 45*/; })
+				);
+				parentlayout.Children.Add(
+					img,
+					Constraint.RelativeToView(child, (parent, view) =>
+					{
+						return view.X + (view.Width * 0.25);//0.31
+					}),
+					Constraint.RelativeToView(child, (parent, view) =>
+					{
+						return view.Y + (view.Height * 0.25);//0.31
+					}),
+					Constraint.RelativeToView(child, (parent, view) =>
+					{
+						return view.Width * 0.5;
+					}),
+					Constraint.RelativeToView(child, (parent, view) =>
+					{
+						return view.Height * 0.5;
+					})
+				);
+			}
+			/*else {
+				parentlayout.Children.Add(
+					child,
+					xConstraint: Constraint.RelativeToParent((parent) => { return (parent.Width - child.Width) - 45; }),
+					yConstraint: Constraint.RelativeToParent((parent) => { return (parent.Height - child.Height) - 45; })
+				);
+			}*/
+			child.SizeChanged += (sender, args) => { parentlayout.ForceLayout(); };
+			child.SetBinding(FloatingActionButton.CommandProperty, new Binding() { Source = FabTapped });
+
+			Debug.WriteLine("fab added");
+
+			//return parentlayout;
+		}
+
 		public static RelativeLayout AddFABToViewWrapRelativeLayout(View viewToAddTo, FloatingActionButton child, string icon,
 			Command FabTapped = null)
 		{
+			Debug.WriteLine("In AddFABToViewWrapRelativeLayout");
 			RelativeLayout parentlayout = new RelativeLayout();
 
 			child.Source = icon;
@@ -342,6 +414,8 @@ namespace Capp2
 				heightConstraint: Constraint.RelativeToParent(parent => parent.Height)
 			);
 
+			Debug.WriteLine("Added to parentlayout");
+
 			Image img = new Image();
 			img = CreateTappableImage (icon, 
 				LayoutOptions.Fill, Aspect.AspectFit, new Command(()=>{
@@ -351,11 +425,13 @@ namespace Capp2
 				}));
 			img.InputTransparent = false;
 
+			Debug.WriteLine("Created img");
+
 			if (Device.OS == TargetPlatform.iOS) {
 				parentlayout.Children.Add(  
 					child,
-					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - child.Width) - 30; }), 
-					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - child.Height) - 45; }) 
+					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - child.Width*1.5) /*- 30*/; }), 
+					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - child.Height*2.8) /*- 45*/; }) 
 				);
 				parentlayout.Children.Add (
 					img,
@@ -382,10 +458,14 @@ namespace Capp2
 			child.SizeChanged += (sender, args) => { parentlayout.ForceLayout(); }; 
 			child.SetBinding (FloatingActionButton.CommandProperty, new Binding (){ Source = FabTapped });
 
+			Debug.WriteLine("fab added");
+
 			return parentlayout;
 		}
 
-		public static RelativeLayout AddFloatingActionButtonToViewWrapWithRelativeLayout(View view, string icon, Command FabTapped, Color NormalColor, Color PressedColor){
+		public static RelativeLayout AddFloatingActionButtonToViewWrapWithRelativeLayout(View view, string icon, 
+		    Command FabTapped, Color NormalColor, Color PressedColor)
+		{
 			var layout = new RelativeLayout ();
 			layout.VerticalOptions = LayoutOptions.FillAndExpand;
 			layout.HorizontalOptions = LayoutOptions.FillAndExpand;
@@ -475,14 +555,14 @@ namespace Capp2
 			if (Device.OS == TargetPlatform.iOS) {
 				layout.Children.Add(
 					normalFab,
-					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - normalFab.Width) - 30; }),
-					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - normalFab.Height) - 45; })
+					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - normalFab.Width*1.5) /*- 30*/; }),
+					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - normalFab.Height*2.8) /*- 70*/; })
 				);
 			} else {
 				layout.Children.Add(
 					normalFab,
-					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - normalFab.Width) - 45; }),
-					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - normalFab.Height) - 45; })
+					xConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Width - normalFab.Width* 1.5) /*- 45*/; }),
+					yConstraint: Constraint.RelativeToParent((parent) =>  { return (parent.Height - normalFab.Height* 2.8) /*- 45*/; })
 				);
 			}
 			normalFab.SizeChanged += (sender, args) => { layout.ForceLayout(); };
