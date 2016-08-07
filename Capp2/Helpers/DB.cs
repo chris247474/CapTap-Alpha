@@ -59,7 +59,13 @@ namespace Capp2
 			}
 			var listarr = list.ToArray();
 
-			for(int c = 0;c < listarr.Length;c++){
+			/*Need to do this before populating every list - for some reason, string ContactData.Number doesn't
+				 keep the callable format after being stored in the db.
+				 Additionally, searching the namelist only returns literal/exact matches and not similar matches,
+				 ex: searching for 09163247357 will not show 0916(324)7357 to the user if we don't call Util.MakeDBContactCallable
+				 ,because formats are lost while storing into SQLite*/
+			
+			for(int c = 0;c < listarr.Length;c++){ //test
 				var firstinitial = listarr[c].FirstName[0];
 				var secondinitial = listarr[c].LastName[0];
 				if(listarr[c].HasDefaultImage_Small){
@@ -67,12 +73,7 @@ namespace Capp2
 				}else{
 					listarr[c].Initials = string.Empty;
 				}
-
-				/*Need to do this before populating every list - for some reason, string ContactData.Number doesn't
-				 keep the callable format after being stored in the db.
-				 Additionally, searching the namelist only returns literal/exact matches and not similar matches,
-				 ex: searching for 09163247357 will not show 0916(324)7357 to the user if we don't call Util.MakeDBContactCallable
-				 ,because formats are lost while storing into SQLite*/
+				
 				listarr[c].Number = Util.MakeDBContactCallable (listarr[c].Number, false);
 				if (!string.IsNullOrWhiteSpace(listarr[c].Number2))
 				{

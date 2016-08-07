@@ -18,6 +18,12 @@ namespace Capp2
 		{
 		}
 
+		protected override void OnDisappearing()
+		{
+			base.OnDisappearing();
+			GC.Collect();
+		}
+
 		protected void SelectAll(IEnumerable<ContactData> list, bool refresh = true, bool IsModal = false)
 		{
 			Debug.WriteLine("In SelectAll()");

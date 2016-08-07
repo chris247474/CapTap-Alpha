@@ -530,6 +530,7 @@
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-App-76x76%402x.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-App-57x57%401x.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-App-57x57%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-App-57x57.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CustomRenderers\" />

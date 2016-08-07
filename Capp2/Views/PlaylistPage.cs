@@ -65,8 +65,8 @@ namespace Capp2
                 {
                     Padding = new Thickness(10),
                     Children = {
-						UIBuilder.CreateEmptyStackSpace(),
-						UIBuilder.CreateEmptyStackSpace(),
+						//UIBuilder.CreateEmptyStackSpace(),
+						//UIBuilder.CreateEmptyStackSpace(),
 						searchBar,
                         new StackLayout{
 							VerticalOptions = LayoutOptions.Start,

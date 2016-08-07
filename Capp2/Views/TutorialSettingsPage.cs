@@ -26,6 +26,11 @@ namespace Capp2
 			layout = await TutorialHelper.ShowExtraTips (this, Color.FromHex (Values.CAPPTUTORIALCOLOR_Orange), 
 				"A few extra tips...", false);
 		}
+
+		protected override void OnDisappearing()
+		{
+			base.OnDisappearing();
+			GC.Collect();
+		}
 	}
 }
-//"Tips and Tricks\nto help you burn through those call lists"

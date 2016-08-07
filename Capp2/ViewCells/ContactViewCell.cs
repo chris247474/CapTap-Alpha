@@ -69,7 +69,7 @@ namespace Capp2
 				personCalled = (sender as CheckBox).Parent.Parent.BindingContext as ContactData;
 				Debug.WriteLine (personCalled.Name+"' selected value is "+personCalled.IsSelected.ToString ());
 				Debug.WriteLine("checkbox value is {0}", checkbox.Checked);
-				if (personCalled.IsSelected) App.CapPage.ContactsVM.ContactsAlreadyDeselected = false;
+				//if (personCalled.IsSelected) App.CapPage.ContactsVM.ContactsAlreadyDeselected = false;
 				//App.Database.UpdateItem(personCalled);
 
 				/*var person = (from x in (App.Database.GetItems (Values.ALLPLAYLISTPARAM).Where(x => x.Name == personCalled.Name && x.Playlist == personCalled.Playlist))

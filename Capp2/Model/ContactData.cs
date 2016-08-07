@@ -37,6 +37,8 @@ namespace Capp2
 			set 
 			{
 				SetProperty(ref _firstname, value, nameof(FirstName));
+				//if(HasDefaultImage_Small) Initials = _firstname[0].ToString() + LastName[0].ToString();//test
+				//Name = _firstname + " " + LastName;
 			}
 		}
 
@@ -50,6 +52,8 @@ namespace Capp2
 			set
 			{
 				SetProperty(ref _lastname, value, nameof(LastName));
+				//if (HasDefaultImage_Small) Initials = FirstName[0].ToString() + _lastname[0].ToString();//test
+				//	Name = FirstName + " " + _lastname;
 			}
 		}
 
@@ -270,7 +274,7 @@ namespace Capp2
 			}
 		}
 
-		string _initials;
+		string _initials = string.Empty;
 		[Column("Initials")]
 		public string Initials
 		{

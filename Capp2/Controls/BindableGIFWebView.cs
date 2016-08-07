@@ -28,14 +28,15 @@ namespace Capp2
 		}
 		public static readonly BindableProperty GIFSourceProperty =
 			BindableProperty.Create("GIFSource", typeof(string), typeof(BindableGIFWebView), "", BindingMode.TwoWay
-			                        ,null, HandleGIFPropertyChanged);
+			                        ,null, HandleGIFPropertyChanged, HandleGIFPropertyChanging);
 
 		private static void HandleGIFPropertyChanged(BindableObject bindable, object oldValue, object newValue)
 		{
 			var GIFWebView = (BindableGIFWebView)bindable;
 			string html = @"<html>
 							<body style=""margin: 0; padding: 0"">
-								<img style=""position:fixed; height: 423.5; width: 240; top:0;left 0;"" src = """ + (string)GIFWebView.GetValue(GIFSourceProperty) + @"""/>
+								<img style=""position:fixed; height: 423.5; width: 240; top:0;left 0;"" src = """ + 
+									(string)GIFWebView.GetValue(GIFSourceProperty) + @"""/>
 							</body>
 						</html>";
 			Debug.WriteLine("BindableGIFWebView HtmlWebViewSource Html: {0}", html);
@@ -43,6 +44,17 @@ namespace Capp2
 			source.BaseUrl = DependencyService.Get<IBaseUrl>().Get();
 			source.Html = html;
 			GIFWebView.Source = source;
+
+			Debug.WriteLine("HandleGIFPropertyChanged - Total memory allocated: {0}", GC.GetTotalMemory(true));
+		}
+
+		private static void HandleGIFPropertyChanging(BindableObject bindable, object oldValue, object newValue) {
+			Debug.WriteLine("Clearing BindableGIFWebView sourceproperty, Memory allocated: {0}", GC.GetTotalMemory(true));
+			var GIFWebView = (BindableGIFWebView)bindable;
+			GIFWebView.ClearValue(SourceProperty);
+			GIFWebView = null;
+			GC.Collect();
+			Debug.WriteLine("Memory allocated: {0}", GC.GetTotalMemory(true));
 		}
 
 		public BindableGIFWebView()

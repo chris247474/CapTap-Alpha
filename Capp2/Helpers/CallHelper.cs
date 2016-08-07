@@ -73,10 +73,13 @@ namespace Capp2
 			var seconds = App.SingleCallTimeEllapsed.Seconds;
 
 			if (AutoCall) {
-				AlertHelper.Alert (page, "Total Call Time", 
-					string.Format ("You burned through that whole list in {0} minutes and {1} seconds!", min, seconds),
-					"OK"
-				);
+				if (!App.InTutorialMode)
+				{
+					AlertHelper.Alert(page, "Total Call Time",
+						string.Format("You burned through that whole list in {0} minutes and {1} seconds!", min, seconds),
+						"OK"
+					);
+				}
 			} else {
 				AlertHelper.Alert (page, "Yes Call + Booking Time", 
 					string.Format ("You did a Yes Call, recorded the appointment AND texted your prospect in {0} minutes and {1} seconds!", min, seconds),
@@ -266,7 +269,7 @@ namespace Capp2
 					numberToCall = PhoneUtil.ToNumber_Custom (numberToCall);
 					Debug.WriteLine ("About to call {0}", numberToCall);
 
-					if (await dialer.Dial (numberToCall)) {
+					if (await dialer.Dial (Util.MakeDBContactCallable(numberToCall, true))) {
 						Debug.WriteLine ("Call finished");
 						contact.Called = DateTime.Now;
 						App.Database.UpdateItem (contact);

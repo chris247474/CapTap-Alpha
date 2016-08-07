@@ -80,6 +80,8 @@ namespace Capp2
 				},*/
 			}, OnClosing);
 
+			var weakTipView = new WeakReference(TipView);
+
 			content = new ContentView();
 			stack = new StackLayout {
 				HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -90,7 +92,7 @@ namespace Capp2
 					background.B, 
 					0.9
 				),
-				Children = { TipView }
+				Children = { weakTipView.Target as CarouselView }//TipView }
 			};
 
 			content.Content = stack;
@@ -157,7 +159,7 @@ namespace Capp2
 						HorizontalOptions = LayoutOptions.Center,
 						Padding = new Thickness(60),
 						Children = {
-							UIBuilder.CreateEmptyStackSpace(),
+							//UIBuilder.CreateEmptyStackSpace(),
 							InfoLabel,
 							new StackLayout{
 								HorizontalOptions = LayoutOptions.End,
@@ -221,7 +223,7 @@ namespace Capp2
 						HorizontalOptions = LayoutOptions.Center,
 						Padding = new Thickness(60),
 						Children = {
-							UIBuilder.CreateEmptyStackSpace(),
+							//UIBuilder.CreateEmptyStackSpace(),
 							InfoLabel,
 							UIBuilder.CreateEmptyStackSpace(),
 							DoneLabel
@@ -286,7 +288,7 @@ namespace Capp2
 						HorizontalOptions = LayoutOptions.Center,
 						Padding = new Thickness(60),
 						Children = {
-							UIBuilder.CreateEmptyStackSpace(),
+							//UIBuilder.CreateEmptyStackSpace(),
 							new StackLayout{
 								Orientation = StackOrientation.Horizontal,
 								Children = {
@@ -352,7 +354,7 @@ namespace Capp2
 						HorizontalOptions = LayoutOptions.Center,
 						Padding = new Thickness(60),
 						Children = {
-							UIBuilder.CreateEmptyStackSpace(),
+							//UIBuilder.CreateEmptyStackSpace(),
 							new StackLayout{
 								Orientation = StackOrientation.Horizontal,
 								Children = {
@@ -434,7 +436,7 @@ namespace Capp2
 						HorizontalOptions = LayoutOptions.Center,
 						Padding = new Thickness(60),
 						Children = {
-							UIBuilder.CreateEmptyStackSpace(),
+							//UIBuilder.CreateEmptyStackSpace(),
 							new StackLayout{
 								Orientation = StackOrientation.Horizontal,
 								Children = {

@@ -45,12 +45,7 @@ namespace Capp2
 
 			this.Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "Edit.png", 
 			    new Command(async () => {
-<<<<<<< Updated upstream
 					await AddEditContactNativePage.OpenNativeContactsUI(contact);
-=======
-					Navigation.PushAsync(new AddEditContactNativePage(contact));
-					await App.NavPage.Navigation.PopAsync(false);
->>>>>>> Stashed changes
 				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE)/*, "Checkmark.png"*/);
 
 			UIAnimationHelper.FlyDown (relativeLayout);
@@ -124,7 +119,7 @@ namespace Capp2
 				Debug.WriteLine ("{0} has custom image large", contact.Name);
 			}
 
-			var detailHeightMultiplier = contact.HasDefaultImage_Large ? 2 : 0.4;
+			var detailHeightMultiplier = contact.HasDefaultImage_Large ? 2 : 0.6;//0.4
 			relativeLayout.Children.Add (
 				MainStack,
 				Constraint.Constant (0),
@@ -143,7 +138,7 @@ namespace Capp2
 					return parent.Width * .1;
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return (parent.Height * 0.4);//.45);
+					return (parent.Height * 0.45);//.4);
 				}),
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Width * .10;
@@ -159,7 +154,7 @@ namespace Capp2
 					return parent.Width * .95 - (parent.Width * .15);
 				}),
 				Constraint.RelativeToParent ((parent) => {
-					return (parent.Height * .41);//0.46
+					return (parent.Height * .45);//0.41
 				}),
 				Constraint.RelativeToParent ((parent) => {
 					return parent.Width * .09;

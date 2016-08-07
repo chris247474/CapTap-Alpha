@@ -137,6 +137,7 @@ namespace Capp2.iOS
 		{
 			base.DidEnterBackground (application);
 			Console.WriteLine ("In Background iOS, last loaded contacts at index {0}", Settings.Count);
+			GC.Collect();
 
 			nint taskID = UIApplication.SharedApplication.BeginBackgroundTask( () => {});
 			if (!App.ImageImportingDone) {

@@ -70,7 +70,7 @@ namespace Capp2
 							VerticalOptions = LayoutOptions.CenterAndExpand,
 							Children = {
 								new Label{
-									Text = "Your CAPP Ratio will show up after a few calls",
+									Text = "Your Call Ratio will show up after a few calls",
 									TextColor = Color.Accent,
 									HorizontalTextAlignment = TextAlignment.Center,
 									HorizontalOptions = LayoutOptions.CenterAndExpand,
@@ -96,6 +96,7 @@ namespace Capp2
 
 			AdHelper.AddGreenURLOrangeTitleBannerToStack (stack);
 		}
+
 	}
 }
 

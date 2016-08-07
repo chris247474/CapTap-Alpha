@@ -55,7 +55,7 @@ namespace Capp2
 			ReBuildGroupedSearchableListView(playlist, groupedlist, stack, 
 				ListViewCachingStrategy.RecycleElement);//Retain
 
-			ShowSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img, 0, -30);
+			ShowSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img, -15, -30);
 
 			SubscribeToMessagingCenter ();
 		}

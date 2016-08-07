@@ -138,9 +138,9 @@ namespace Capp2
 					Children =
 						{
 							//scroller
-							UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(), 
+							//UIBuilder.CreateEmptyStackSpace(), UIBuilder.CreateEmptyStackSpace(), 
 							new StackLayout{
-								Padding = new Thickness(0, 10, 0, 0),
+								//Padding = new Thickness(0, 10, 0, 0),
 								Children = {
 									searchBar
 								}
@@ -424,18 +424,18 @@ namespace Capp2
 					await App.Database.DeselectAll (saveList, this);
 					refresh();
 				});
-			EditTBI = new ToolbarItem("Edit", "", async () =>
+			EditTBI = new ToolbarItem("Edit", "", () =>
 				{
 					if(string.Equals(EditTBI.Text, "Edit")){
-						await UpdateUI_DisableAutoCallingBeforeEditing();
+						UpdateUI_DisableAutoCallingBeforeEditing();
 						listView.ItemSelected -= ItemSelectedNotEditing;
 						listView.ItemSelected += ItemSelectedEditing;
-						await ShowSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img);
+						ShowSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img);
 					}else{
-						await UpdateUI_EnableAutoCallingAfterEditing();
+						UpdateUI_EnableAutoCallingAfterEditing();
 						listView.ItemSelected -= ItemSelectedEditing;
 						listView.ItemSelected += ItemSelectedNotEditing;
-						await HideSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img);
+						HideSelectAllFAB(this.Content as RelativeLayout, SelectAllFAB, img);
 					}
 				});
 			if (!string.Equals (this.playlist, Values.ALLPLAYLISTPARAM) && !string.Equals(this.playlist, Values.TODAYSCALLS)) {
