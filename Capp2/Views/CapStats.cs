@@ -33,7 +33,7 @@ namespace Capp2
 
 						UIBuilder.CreateModalXPopper(new Command(() => {
 							Navigation.PopModalAsync();
-						}), "Stats"),
+						}), "Call Stats"),
 
 						StatsHelper.CreatePieChart (piedata, 
 							"CAPP", "Values", "Call Ratio"),

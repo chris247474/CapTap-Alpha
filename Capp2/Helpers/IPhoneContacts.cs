@@ -13,6 +13,7 @@ namespace Capp2
 		Task SendSMS (string number);
 		Task Share (string message);
 
+		void ShowAddContactDialogue(bool ShouldEditContact);
 		Task PresentNativeAddContactView ();
 	}
 }

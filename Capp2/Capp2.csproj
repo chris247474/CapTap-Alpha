@@ -101,6 +101,7 @@
     <Compile Include="Helpers\IFileHelper.cs" />
     <Compile Include="Controls\BindableGIFWebView.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
+    <Compile Include="Helpers\AddEditContactsHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
@@ -246,10 +247,7 @@
       <HintPath>..\packages\Xamarin.Forms.2.3.0.107\lib\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.CarouselView">
-      <HintPath>..\packages\Xamarin.Forms.CarouselView.2.3.0-pre1\lib\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.CarouselView.dll</HintPath>
-    </Reference>
-    <Reference Include="Xamarin.Forms.CarouselView.Platform">
-      <HintPath>..\packages\Xamarin.Forms.CarouselView.2.3.0-pre1\lib\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.CarouselView.Platform.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.CarouselView.2.3.0-pre2\lib\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.CarouselView.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

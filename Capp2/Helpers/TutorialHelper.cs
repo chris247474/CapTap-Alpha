@@ -29,7 +29,8 @@ namespace Capp2
 		}
 
 		public static async Task<RelativeLayout> ShowExtraTips(ContentPage page, Color background, 
-			string text = "A few extra tips...", bool intutorial = true, string gradientcolor = Values.MaterialDesignOrange)
+			string text = "A few extra tips...", bool intutorial = true, 
+		    string gradientcolor = Values.MaterialDesignOrange)
 		{
 			Debug.WriteLine ("In ShowExtraTips");
 			layout = ((RelativeLayout)page.Content);
@@ -41,7 +42,7 @@ namespace Capp2
 					await AlertHelper.Alert("That's pretty much it!",
 						"If you forget, you can replay this tutorial in the Settings page at anytime. We'll return you to the main namelist now :)");
 					UserDialogs.Instance.ShowLoading();
-					App.NavPage.Navigation.PopModalAsync(true);
+					await App.NavPage.Navigation.PopModalAsync(true);
 					NavigationHelper.PopNavToRootThenOpenToCAPPInPlaylist();
 					UserDialogs.Instance.HideLoading();
 					await App.NavPage.PopAsync(true);
@@ -54,25 +55,33 @@ namespace Capp2
 			var TipView = UIBuilder.CreateCarouselView(
 						new List<VideoChooserItem>(){
 				new VideoChooserItem {
+					LabelText = "Double your lead generation!",
+					DetailText = "Just tap Settings",
+					ImagePath = "OverviewScreenshot.png"
+				},
+				new VideoChooserItem {
 					LabelText = "How do I mark appointments?",
-					DetailText = "Just slide out a name to mark a schedule",
-					GIFSource = "HowToMark.gif"
+					DetailText = "Just slide out a name",
+					//GIFSource = "HowToMark.gif"
+					ImagePath = "SlideoutScreenshot.png"
 				},
 				new VideoChooserItem {
 					LabelText = "See your work stats",
 					DetailText = "Your lead generation skill visualized",
-					GIFSource = "HowToUseStats.gif"
+					//GIFSource = "HowToUseStats.gif"
+					ImagePath = "CallStatsScreenshot.png"
 				},
 				new VideoChooserItem {
 					LabelText = "Type your meetup texts once",
 					DetailText = "It'll get filled in for you after every call",
-					GIFSource = "HowToUseTextTemplates.gif"
+					//GIFSource = "HowToUseTextTemplates.gif"
+					ImagePath = "MessageTemplateScreenshot.png"
 				},
-				new VideoChooserItem {
+				/*new VideoChooserItem {
 					LabelText = "Daily Reports & Yes Calls",
 					DetailText = "Report your daily targets",
 					GIFSource = "HowToUseDailyReport.gif"
-				},
+				},*/
 				/*new VideoChooserItem {
 					LabelText = string.Format("Report your daily yes calls from {0}", Values.APPNAME),
 					DetailText = "",
@@ -593,7 +602,7 @@ namespace Capp2
 			}
 		}
 
-		public static async Task ContinueCAPPTutorialIfNotDone(CAPP capp){
+		public static void ContinueCAPPTutorialIfNotDone(CAPP capp){
 			try{
 				if (App.InTutorialMode && TutorialHelper.PrevPageIsPlaylistPage()) {
 					

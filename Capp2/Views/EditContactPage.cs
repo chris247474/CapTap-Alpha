@@ -44,8 +44,8 @@ namespace Capp2
 			CreateLayouts (contact);
 
 			this.Content = UIBuilder.AddFloatingActionButtonToRelativeLayout(relativeLayout, "Edit.png", 
-			    new Command(async () => {
-					await AddEditContactNativePage.OpenNativeContactsUI(contact);
+			    new Command(() => {
+					AddEditContactsHelper.EditContact(contact);
 				}), Color.FromHex(Values.GOOGLEBLUE), Color.FromHex(Values.PURPLE)/*, "Checkmark.png"*/);
 
 			UIAnimationHelper.FlyDown (relativeLayout);

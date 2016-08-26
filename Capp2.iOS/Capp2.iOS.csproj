@@ -257,6 +257,11 @@
     <BundleResource Include="Resources\Plus-blue%403x.png" />
     <BundleResource Include="Resources\message-blue-outline-100.png" />
     <BundleResource Include="Resources\Phone-blue-outline-100.png" />
+    <BundleResource Include="Resources\CallStatsScreenshot.png" />
+    <BundleResource Include="Resources\MessageTemplateScreenshot.png" />
+    <BundleResource Include="Resources\OverviewScreenshot.png" />
+    <BundleResource Include="Resources\SlideoutScreenshot.png" />
+    <BundleResource Include="Resources\SlideoutScreenshotBlack.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -447,13 +452,7 @@
       <HintPath>..\packages\Xamarin.Forms.2.3.0.107\lib\Xamarin.iOS10\Xamarin.Forms.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.CarouselView">
-      <HintPath>..\packages\Xamarin.Forms.CarouselView.2.3.0-pre1\lib\Xamarin.iOS10\Xamarin.Forms.CarouselView.dll</HintPath>
-    </Reference>
-    <Reference Include="Xamarin.Forms.CarouselView.iOS">
-      <HintPath>..\packages\Xamarin.Forms.CarouselView.2.3.0-pre1\lib\Xamarin.iOS10\Xamarin.Forms.CarouselView.iOS.dll</HintPath>
-    </Reference>
-    <Reference Include="Xamarin.Forms.CarouselView.Platform">
-      <HintPath>..\packages\Xamarin.Forms.CarouselView.2.3.0-pre1\lib\Xamarin.iOS10\Xamarin.Forms.CarouselView.Platform.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.CarouselView.2.3.0-pre2\lib\Xamarin.iOS10\Xamarin.Forms.CarouselView.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

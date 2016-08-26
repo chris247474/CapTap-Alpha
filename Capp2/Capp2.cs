@@ -80,16 +80,14 @@ namespace Capp2
 			};
 
 			StartupHelper.SetInstallDateForStatsPageReference (); 
-
 			StartupHelper.SetAsPremium (true);
-
 			await Util.loadDeviceContactsIntoDBSingleTransaction (false);
 
-			MessagingCenter.Subscribe<string>(this, Values.DONECONFIRMINGMEETINGS, async (args) =>
+			/*MessagingCenter.Subscribe<string>(this, Values.DONECONFIRMINGMEETINGS, async (args) =>
 			{
 				Debug.WriteLine("DONECONFIRMINGMEETINGS");
 				await StartupHelper.StoreUserEmail();
-			});
+			});*/
 
 			StartupHelper.CheckForMeetingsTodayTomorrowThenSendSMSToConfirm ();
 		}

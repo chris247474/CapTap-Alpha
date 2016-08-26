@@ -8,6 +8,7 @@ using XLabs.Forms.Controls;
 using Capp2.Helpers;
 using System.Collections.Generic;
 using FFImageLoading.Forms;
+using FFImageLoading.Work;
 
 namespace Capp2
 {
@@ -172,11 +173,8 @@ namespace Capp2
 				ItemsSource = videos, 
 				ItemTemplate = new DataTemplate(() => {
 					return new CarouselTemplateView(OnPop);
-				}),
+				})
 			};
-			/*carousel.ItemSelected += (object sender, SelectedItemChangedEventArgs e) => {
-				Debug.WriteLine("Total memory according to GC is {0}", GC.GetTotalMemory(true));
-			};*/
 			return carousel;
 		}
 
@@ -781,6 +779,34 @@ namespace Capp2
 				};
 			}
 			img.GestureRecognizers.Add (handler);
+			return img;
+		}
+
+		public static Image CreateTappableImage(Aspect aspect,
+			Command handlerCommand = null)
+		{
+			Image img = new Image();
+
+			TapGestureRecognizer handler = new TapGestureRecognizer
+			{
+				Command = new Command(() =>
+				{
+					UIAnimationHelper.ShrinkUnshrinkElement(img);
+					handlerCommand.Execute(null);
+				})
+			};
+
+			img = new Image
+			{
+				HorizontalOptions = LayoutOptions.FillAndExpand,
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Aspect = aspect,
+				/*DownsampleToViewSize = true,
+				LoadingPriority = LoadingPriority.Highest,
+				CacheDuration = TimeSpan.FromDays(30),*/
+			};
+
+			img.GestureRecognizers.Add(handler);
 			return img;
 		}
 

@@ -130,7 +130,7 @@ namespace Capp2
 										CheckIfUserChangedNameMeetingAndTimeStringTags(SMSEntry.Text, true);
 									//}
 
-								}), "Text Templates")
+								}), "Message Templates")
 								//, MainLabel, 
 							}
 						},

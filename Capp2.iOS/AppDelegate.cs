@@ -21,8 +21,8 @@ namespace Capp2.iOS
 {
     [Register("AppDelegate")]
 
-    public class AppDelegate : XFormsApplicationDelegate//global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
-    {
+    public class AppDelegate : XFormsApplicationDelegate//Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
+	{
 		public override UIWindow Window {
 			get;
 			set;

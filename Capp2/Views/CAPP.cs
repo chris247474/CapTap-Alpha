@@ -185,8 +185,7 @@ namespace Capp2
 			try{
 				if (importResult == Values.IMPORTCHOICEMANUAL)
 				{
-					//await Navigation.PushModalAsync(new AddContactPage(this));
-					await Navigation.PushAsync(new AddEditContactNativePage());
+					AddEditContactsHelper.AddContact();
 					await App.NavPage.Navigation.PopAsync(false);
 				}
 				else if (importResult == Values.IMPORTCHOICEGDRIVE)
@@ -385,7 +384,8 @@ namespace Capp2
 								if (contactsArr[c].IsSelected)
 								{
 									//contactsArr[c].Playlist = MoveToResult;
-									contactsArr[c] = contactViewModel.AddNamelist(new string[]{MoveToResult}, false);
+									contactsArr[c] = contactViewModel.AddNamelist(
+										new string[]{MoveToResult}, false);
 									saveList.Add(contactsArr[c]);
 									Debug.WriteLine(contactsArr[c].Name + " is being moved to " + MoveToResult);
 								}
@@ -411,6 +411,8 @@ namespace Capp2
 					var contactsArr = enumerableList.ToArray ();
 					var saveList = new List<ContactData>();
 
+					Debug.WriteLine("{0} selected items", 
+				                    contactsArr.Where((ContactData c) => c.IsSelected).Count());
 					for(int c = 0;c < contactsArr.Length;c++){
 						if(contactsArr[c].IsSelected){
 							Debug.WriteLine("Deleting {0} from {1}", contactsArr[c].Name, contactsArr[c].Playlist);
@@ -549,6 +551,8 @@ namespace Capp2
 		public void SubscribeToMessagingCenterListeners(){
 			MessagingCenter.Subscribe<string>(this, Values.READYFOREXTRATIPS, async (args) =>{ 
 				TutorialHelper.ReadyForExtraTips = true;
+				//App.InTutorialMode = false;
+				//TutorialHelper.ShowExtraTips(this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Orange));
 			});
 			MessagingCenter.Subscribe<string>(this, Values.DONEADDINGCONTACT, async (args) =>{
 				Debug.WriteLine("Receieved DONEADDINGCONTACT");
@@ -707,7 +711,15 @@ namespace Capp2
 				SetupNotAutoCalling ();
 				Debug.WriteLine ("Autocalling done");
 				NavigationHelper.ClearModals (this);
-				MessagingCenter.Send ("", Values.READYFOREXTRATIPS);
+
+				//MessagingCenter.Send ("", Values.READYFOREXTRATIPS);  
+				TutorialHelper.ReadyForExtraTips = true;
+				if (App.InTutorialMode && TutorialHelper.ReadyForExtraTips && TutorialHelper.HowToAddContactsDone)
+				{
+					Debug.WriteLine("finishing tutorial mode. about to show extra tips");
+					App.InTutorialMode = false;
+					TutorialHelper.ShowExtraTips(this, Color.FromHex(Values.CAPPTUTORIALCOLOR_Orange));
+				}
 			}
 			if(AutoCallContinue && (AutoCallCounter < AutoCallList.Count)){
 				var contactToCall = AutoCallList.ElementAt (AutoCallCounter);
